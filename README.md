@@ -2,9 +2,30 @@
 
 > 广东金融学院火山杯智能体创新大赛 · 方向二（科研工具与代码开发类 · 论文校对）参赛作品
 
-面向**经管类本科论文提交前自检**的原生 Skill 包，兼容 ArkClaw / Claude Code / OpenClaw。学生上传 `.docx` 论文，Skill 自动识别论文类型与研究方法、条件触发检测规则、逐项语义判断问题，并生成一份正式的 `.docx` 质检报告。
+面向**经管类本科论文提交前自检**的原生 Skill 包，深度适配 **ArkClaw** 生态，同时兼容 Claude Code / OpenClaw。学生上传 `.docx` 或 `.pdf` 论文，Skill 自动识别论文类型与研究方法、条件触发检测规则、逐项语义判断问题，并生成一份正式的 `.docx` 质检报告（webchat 场景另附 `.html` 预览版）。
 
 它不是查重工具，也不是论文代写工具，而是一份帮助学生在提交前发现结构、数据、变量、模型与规范风险的"体检报告"。
+
+---
+
+## v1.1 · ArkClaw 适配更新（本版本）
+
+| 类别 | 变更 |
+|---|---|
+| 📄 输入 | **默认支持 `.pdf`**，用 `pdfplumber` 解析；PDF 场景自动降级证据强度，表格/公式相关问题默认转灰色；扫描件明确提示不支持 |
+| 🚚 交付 | SKILL.md 明确 ArkClaw 各渠道交付方式（webchat `<file-list>` / 飞书 lark-doc / 企微 wecom-doc / 钉钉 dws-cli / 兜底 `MEDIA:`） |
+| 📁 工作目录 | 统一使用 `~/.openclaw/workspace/.econ-paper-check/<yyyymmdd_HHMMSS>/` 隔离工作区 |
+| 🧪 Preflight | 新增 `scripts/preflight.sh`，自动检查并（尝试）安装 `python-docx` / `pdfplumber` |
+| 📦 安装 | 新增 `install.sh`，一键装到 `~/.agents/skills/` 或 `~/.openclaw/plugin-skills/` |
+| 🌐 HTML 预览 | 新增 `scripts/render_report_html.py`，webchat 渠道可同时投递彩色 HTML 预览 |
+| 🔤 触发词 | SKILL.md frontmatter 补充完整中文触发词列表 |
+| 🅰️ 字体 fallback | `render_report.py` 中文字体设置包容异常，避免 headless 环境崩溃 |
+| 📊 元信息 | `metadata.json` 更新为 `arkclaw.yaml`，声明 ArkClaw 生态标识与依赖 |
+| 🧑‍🤝‍🧑 团队模式 | 新增 `team_mode.md`，可用 `arkclaw-team-project-builder` 拆成 profiler / inspector / reporter 三 agent 协作 |
+| 📚 知识库 | `knowledge_base/README.md` 对接 ArkClaw 生态方案（byted-knowledge-center-aisearch / lark-wiki / 离线 RAG） |
+| ✅ 样例 | 新增真实 `examples/diagnostic_result.example.json` 与 `templates/报告_模板_示例.{docx,html}` |
+
+方法论层（规则库、判断协议、五大诊断域、红黄绿灰分级、6 条硬伤清单、7 项强制交叉核对、总体风险映射公式）**完全保留不变**。
 
 ---
 
@@ -12,12 +33,12 @@
 
 **脚本做 I/O，大模型做判断。** 这是本 Skill 与普通"关键词匹配脚本"的根本区别：
 
-- 二进制 `.docx` 的解析与报告渲染，交给确定性的 Python 脚本；
+- 二进制 `.docx` / `.pdf` 的解析与报告渲染，交给确定性的 Python 脚本；
 - "研究问题是否清晰""中英文摘要是否一致""结论方向是否与回归表矛盾"这类需要理解力的判断，交给大模型，并由规则库、证据门禁和语义判断协议严格约束。
 
 配套三项方法论保证质量：
 
-1. **先画像，后触发**：先识别论文类型与已用方法，再条件触发规则。未用 DID 不查 DID，案例论文不强套回归，避免"硕博化"误判。
+1. **先画像，后触发**：先识别论文类型与已用方法，再条件触发规则。未用 DID 不查 DID，案例论文不硬套回归。
 2. **证据门禁**：无原文证据不输出；弱证据转"需人工确认"；红色必改问题必须有强证据且可定位。
 3. **红黄绿灰分级 + 强制判定标准**：硬伤一律判红不得降级，总体风险按阈值映射，尽量保证不同智能体对同一论文得出一致结论。
 
@@ -26,12 +47,14 @@
 ## 一句话流程
 
 ```
-用户上传 DOCX
-  → parse_docx.py 解析成带定位的 paper_text.json
+用户上传 DOCX / PDF
+  → parse_paper.py 自动派发到 parse_docx / parse_pdf
+     → 生成带定位的 paper_text.json
   → 大模型（读 rules/ + references/ + agent_instructions/）
      生成论文画像 → 条件触发 → 五大诊断域语义判断 → diagnostic_result.json
-  → render_report.py 渲染成 11 章节 DOCX 报告
-  → 对话区展示结构化摘要 + 提供报告下载
+  → render_report.py 渲染 11 章节 DOCX 报告
+  → (可选) render_report_html.py 渲染 HTML 预览
+  → 按当前渠道投递（webchat file-list / 飞书 / 企微 / 钉钉 / MEDIA 兜底）
 ```
 
 ## 五大诊断域
@@ -57,90 +80,122 @@
 
 ```
 econ-paper-check-skill/
-├── SKILL.md                主入口：定位、边界、执行流程、触发词
-├── metadata.json           skill 元信息
-├── requirements.txt        唯一依赖 python-docx
+├── SKILL.md                主入口：定位、边界、执行流程、渠道投递、PDF 降级策略
+├── arkclaw.yaml            ArkClaw skill 元信息（供仓库/SkillHub 展示）
+├── install.sh              一键安装脚本（--plugin / --dest 可选）
+├── requirements.txt        依赖：python-docx + pdfplumber
+├── team_mode.md            ArkClaw 团队模式三 agent 分工说明
 ├── references/             方法论 schema
-│   ├── paper_profile_schema.md   论文画像结构
-│   ├── diagnostic_domains.md     五大诊断域说明
-│   ├── issue_schema.md           结构化结果 + 分级/风险映射规则
-│   └── report_structure.md       11 章节报告结构
+│   ├── paper_profile_schema.md
+│   ├── diagnostic_domains.md
+│   ├── issue_schema.md
+│   └── report_structure.md
 ├── rules/                  规则库（YAML）
-│   ├── rule_registry.yaml        规则注册表与触发顺序
-│   ├── non_model_rules.yaml      非模型规则（选题/文献/数据/规范）
-│   └── model_rules.yaml          模型规则（面板/DID/IV/中介/熵值法等，条件触发）
+│   ├── rule_registry.yaml
+│   ├── non_model_rules.yaml
+│   └── model_rules.yaml
 ├── agent_instructions/     判断协议
-│   ├── evidence_requirement.md   证据门禁 + 红色硬伤强制清单
-│   ├── semantic_check_protocol.md 语义判断 + 强制交叉核对项
-│   └── issue_writing_protocol.md  问题写作与反馈表达规范
+│   ├── evidence_requirement.md
+│   ├── semantic_check_protocol.md
+│   └── issue_writing_protocol.md
 ├── scripts/                纯 I/O 脚本
-│   ├── parse_docx.py             docx → 带定位的 paper_text.json
-│   └── render_report.py          diagnostic_result.json → 11 章节 DOCX
-├── knowledge_base/         第二阶段知识库源文件与导入说明
-├── templates/              报告模板设计规范
-└── examples/               示例论文设计规范
+│   ├── preflight.sh              依赖前置检查
+│   ├── parse_paper.py            统一解析入口（自动派发 docx/pdf）
+│   ├── parse_docx.py             docx → paper_text.json
+│   ├── parse_pdf.py              pdf → paper_text.json（自动降级）
+│   ├── render_report.py          diagnostic_result → DOCX
+│   └── render_report_html.py     diagnostic_result → HTML 预览
+├── knowledge_base/         第二阶段知识库对接（byted-knowledge-center-aisearch 等）
+├── templates/              报告模板设计规范 + 真实样例 docx/html
+└── examples/               示例设计规范 + 真实 diagnostic_result.example.json
 ```
 
 ---
 
-## 安装
+## 快速开始（ArkClaw / OpenClaw）
+
+### 一键安装
 
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/05ffh/econ-paper-check-skill.git
+cd econ-paper-check-skill
+bash install.sh                    # 装到 ~/.agents/skills/
+# 或
+bash install.sh --plugin           # 装到 ~/.openclaw/plugin-skills/
 ```
 
-唯一依赖 `python-docx`，保证可迁移性。
+### 触发使用
 
-## 手动跑通（本地调试）
-
-```bash
-# 1. 解析论文为结构化 JSON
-python scripts/parse_docx.py 论文.docx --out paper_text.json
-
-# 2. 大模型据 paper_text.json + 规则库/协议，产出 diagnostic_result.json（判断层）
-
-# 3. 渲染正式 DOCX 报告
-python scripts/render_report.py diagnostic_result.json --out 报告.docx --source 论文.docx
-```
-
-## 在 ArkClaw / Claude Code 中使用
-
-导入本 Skill 后，用自然语言触发，无需命令行：
+在 ArkClaw / OpenClaw 对话中直接说，无需命令行：
 
 > 请使用经管论文智检 Skill 检测这篇论文，并生成 DOCX 质检报告。
 
 或更具体：
 
-> 请基于经管论文智检 Skill，对这篇本科经管论文做提交前自检，重点检查选题、文献、数据变量、模型方法、结构表达和参考文献规范，最终输出 Word 质检报告。
+> 请基于经管论文智检 Skill，对这篇本科经管论文做提交前自检，重点检查选题、文献、数据变量、模型方法、结构表达和参考文献规范。
 
-同时把 `.docx` 论文一起上传。
+同时把 `.docx` 或 `.pdf` 论文一起上传。
+
+### 手动跑通（本地调试）
+
+```bash
+# 0. 前置依赖检查
+bash scripts/preflight.sh
+
+# 1. 解析论文为结构化 JSON（自动识别 docx/pdf）
+python3 scripts/parse_paper.py 论文.docx --out paper_text.json
+
+# 2. 大模型据 paper_text.json + 规则库/协议，产出 diagnostic_result.json
+
+# 3. 渲染 DOCX 报告
+python3 scripts/render_report.py diagnostic_result.json \
+  --out 报告.docx --source 论文.docx
+
+# 4. (可选) 渲染 HTML 预览版
+python3 scripts/render_report_html.py diagnostic_result.json \
+  --out 报告.html --source 论文.docx
+```
+
+---
+
+## PDF 支持策略
+
+- **默认开启**：符合 ArkClaw "脚本工具兜底 + LLM 语义判断"的哲学，覆盖真实提交场景（学校终稿往往是 PDF）。
+- **证据强度自动降级**：`source_format=pdf` 时 `confidence_downgrade=true`，整体证据下调一档，表格/公式相关问题默认转灰色。
+- **扫描件保护**：若 `empty_pages / total_pages >= 0.7`，识别为扫描件并停止判断，提示用户 OCR 或上传 docx。
+- **不做 OCR**：本 Skill 边界内不集成 OCR，如需 OCR 请用 ArkClaw 生态里的 `ocr-document-processor` skill 预处理。
 
 ---
 
 ## 边界与免责
 
-- **仅支持 `.docx`**，不支持 PDF、扫描件、图片型论文、数据文件。
-- **不做**：查重、论文代写、判断数据真实性、联网核验参考文献真伪。
-- **不替代**导师、答辩委员或学校正式评审。
-- 模型规则条件触发，**不因论文未使用 DID/IV/PSM 等高级模型而判错**。
-- 表述克制：只说"论文中未报告/未呈现/需人工确认"，不说"作者一定没有做"。
-- 无法可靠解析的表格、公式、图片一律标注为"需人工确认"，不直接判"缺失"。
+- **支持 `.docx` 与 `.pdf`**（PDF 场景证据强度自动下调一档；不支持扫描件）
+- **不做**：查重、论文代写、判断数据真实性、联网核验参考文献真伪
+- **不替代**导师、答辩委员或学校正式评审
+- 模型规则条件触发，**不因论文未使用 DID/IV/PSM 等高级模型而判错**
+- 表述克制：只说"论文中未报告/未呈现/需人工确认"，不说"作者一定没有做"
+- 无法可靠解析的表格、公式、图片一律标注为"需人工确认"，不直接判"缺失"
 
 ---
 
 ## 已知限制
 
-- **公式与图片是主要盲区**：`python-docx` 无法解析公式对象与图片型表格，这类内容会被标记为"需人工确认"。真实论文中大量核心方法（如熵值法公式、模型方程）常以公式对象呈现，是当前主要短板。
-- **判断质量依赖底层模型**：语义判断由大模型完成，需确保平台使用足够强的模型（如 Claude 系列）以保证交叉核对类问题不被漏检。
+- **公式与图片仍是主要盲区**：`python-docx` / `pdfplumber` 都无法可靠解析公式对象与图片型表格，这类内容会被标记为"需人工确认"。真实论文中大量核心方法（如熵值法公式、模型方程）常以公式对象呈现，是当前主要短板。
+- **PDF 解析噪声**：PDF 段落切分依赖启发式规则，中英文换行合并可能存在细小偏差。已通过全局证据强度降级 + 硬伤清单双闸门规避大偏差风险。
+- **判断质量依赖底层模型**：语义判断由大模型完成，需确保平台使用足够强的模型（如 Claude 系列 / doubao-1.5 pro）以保证交叉核对类问题不被漏检。
 
 ## 知识库（第二阶段）
 
-`knowledge_base/` 目录预留了知识库接口。计划纳入论文写作规范、GB/T 7714 引用格式、经管实证方法要点、学院模板等规范源文件，导入平台后由 Skill 通过 `@知识库名` 检索比对，使检测证据可追溯到规范条款。详见 `knowledge_base/README.md`。
+`knowledge_base/` 目录预留了知识库接口。计划纳入论文写作规范、GB/T 7714 引用格式、经管实证方法要点、学院模板等规范源文件。详见 `knowledge_base/README.md`。
+
+## 团队模式（可选）
+
+大论文（> 3 万字）或想演示 ArkClaw 项目/团队 workflow 场景时，可用 `arkclaw-team-project-builder` skill 一键把智检流程拆成 profiler / inspector / reporter 三 agent 顺序执行。详见 `team_mode.md`。
 
 ---
 
 ## 团队协作说明
 
-- 本仓库为团队共享的 Skill 源，成员通过 `git pull` 获取最新版本，无需每次重新打包 zip。
-- 修改规则库（`rules/`）或判断协议（`agent_instructions/`）后提交推送，其他成员拉取即可。
-- 建议在多个智能体（ArkClaw / Claude Code / OpenClaw）上交叉测试同一篇论文，用结论差异定位规则需收紧之处。
+- 本仓库为团队共享的 Skill 源，成员通过 `git pull` 获取最新版本，无需每次重新打包 zip
+- 修改规则库（`rules/`）或判断协议（`agent_instructions/`）后提交推送，其他成员拉取即可
+- 建议在多个智能体（ArkClaw / Claude Code / OpenClaw）上交叉测试同一篇论文，用结论差异定位规则需收紧之处

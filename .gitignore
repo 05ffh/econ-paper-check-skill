@@ -1,7 +1,12 @@
 __pycache__/
 *.pyc
-*.zip
-paper_text.json
-diagnostic_result.json
-check_result.json
+*.pyo
+.pytest_cache/
 .DS_Store
+*.egg-info/
+
+# 运行时工作目录（不入库）
+.econ-paper-check/
+
+# 临时构建产物
+*.tmp

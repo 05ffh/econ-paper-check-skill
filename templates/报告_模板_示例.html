@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<title>经管论文智检报告 · sample_paper_with_errors.docx</title>
+<style>
+  :root { --border:#e2e6ee; --text:#1f2530; --muted:#6b7280; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:24px; font-family:-apple-system,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif; color:var(--text); background:#f7f8fa; line-height:1.55; }
+  .wrap { max-width:960px; margin:0 auto; background:#fff; padding:28px 32px; border-radius:12px; box-shadow:0 1px 6px rgba(0,0,0,0.04); }
+  h1 { margin-top:0; font-size:26px; text-align:center; }
+  h1 + .sub { text-align:center; color:var(--muted); margin-bottom:20px; }
+  h2 { font-size:19px; margin-top:32px; padding-bottom:6px; border-bottom:2px solid #eef1f6; }
+  h3 { font-size:15px; margin-top:20px; color:#374151; }
+  table.std { width:100%; border-collapse:collapse; margin:12px 0; font-size:13px; }
+  table.std th, table.std td { border:1px solid var(--border); padding:8px 10px; text-align:left; vertical-align:top; }
+  table.std thead th { background:#f3f5f9; font-weight:600; }
+  table.mini { width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
+  table.mini th { width:110px; text-align:left; padding:6px 8px; background:transparent; color:var(--muted); font-weight:500; vertical-align:top; }
+  table.mini td { padding:6px 8px; }
+  .card { padding:12px 16px 4px; border-radius:8px; margin:10px 0; }
+  .card-head { font-size:15px; margin-bottom:4px; }
+  .tag { color:#fff; font-size:11px; padding:2px 8px; border-radius:10px; margin-left:8px; }
+  .chips { margin:12px 0 4px; display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { padding:4px 12px; border-radius:14px; font-size:13px; }
+  .chip.pass { background:#e2f5e6; color:#27823b; }
+  .chip.red { background:#fce4e4; color:#c0392b; }
+  .chip.yellow { background:#fff5da; color:#c78500; }
+  .chip.green { background:#e2f5e6; color:#27823b; }
+  .chip.gray { background:#eaeef4; color:#5f6a7d; }
+  .chip.na { background:#eef1f6; color:#6b7280; }
+  .empty { color:var(--muted); font-style:italic; }
+  .risk { display:inline-block; padding:6px 14px; border-radius:6px; font-weight:600; font-size:14px; }
+  .risk.高风险 { background:#fce4e4; color:#c0392b; }
+  .risk.中风险 { background:#fff5da; color:#c78500; }
+  .risk.低风险 { background:#e2f5e6; color:#27823b; }
+  .risk.需人工确认 { background:#eaeef4; color:#5f6a7d; }
+  .disclaimer { margin-top:36px; padding:14px 16px; background:#f3f5f9; border-radius:8px; color:var(--muted); font-size:12.5px; }
+</style>
+</head><body><div class="wrap">
+<h1>经管本科论文智检报告</h1>
+<div class="sub">基于经管论文智检 Skill 的提交前自检反馈</div>
+
+<h2>一、检测基本信息</h2>
+<table class="std"><tbody>
+  <tr><th>原论文文件名</th><td>sample_paper_with_errors.docx</td></tr>
+  <tr><th>检测日期</th><td>2026-07-09</td></tr>
+  <tr><th>论文类型</th><td>经管类实证论文</td></tr>
+  <tr><th>数据类型</th><td>面板数据</td></tr>
+  <tr><th>已识别方法</th><td>面板固定效应、熵值法、中介效应</td></tr>
+  <tr><th>样本对象</th><td>中国 30 个省级行政区</td></tr>
+  <tr><th>样本期间</th><td>2011—2022</td></tr>
+  <tr><th>总体风险等级</th><td><span class="risk 高风险">高风险</span></td></tr>
+</tbody></table>
+
+<h2>二、论文画像识别结果</h2>
+<table class="std"><tbody>
+  <tr><th>触发规则组</th><td>non_model_topic_rules、non_model_literature_rules、non_model_data_variable_rules、non_model_structure_norm_rules、model_general_empirical_rules、model_panel_rules、model_mediation_rules、model_entropy_index_rules</td></tr>
+  <tr><th>不适用规则组</th><td>model_did_rules、model_iv_rules、model_logit_probit_rules、model_questionnaire_scale_rules、model_case_analysis_rules</td></tr>
+  <tr><th>需人工确认事项</th><td>回归表#3 部分列疑似为图片嵌入，需人工确认标准误处理</td></tr>
+</tbody></table>
+
+<h2>三、总体评价与修改优先级</h2>
+
+<div class="chips">
+  <span class="chip pass">通过 6</span>
+  <span class="chip red">红色 4</span>
+  <span class="chip yellow">黄色 8</span>
+  <span class="chip green">绿色 3</span>
+  <span class="chip gray">灰色 2</span>
+  <span class="chip na">不适用 5</span>
+</div>
+
+
+<h2>四、通过项概览</h2>
+<table class="std"><thead><tr><th>编号</th><th>诊断域</th><th>通过项</th><th>证据</th></tr></thead><tbody><tr><td>PASS-01</td><td>选题与研究问题质检</td><td>题目已体现研究对象与核心变量</td><td>段落#1：《数字经济对区域共同富裕的影响研究——基于中国省级面板数据》</td></tr><tr><td>PASS-02</td><td>文献综述与理论链条质检</td><td>文献综述已按主题分类</td><td>段落#28—段落#42：分为数字经济文献、共同富裕文献、二者关系文献三类</td></tr><tr><td>PASS-03</td><td>数据、变量与口径质检</td><td>已呈现变量定义表</td><td>表格#1：包含被解释变量、核心解释变量、控制变量</td></tr><tr><td>PASS-04</td><td>方法模型与实证结果质检</td><td>已呈现模型方程与固定效应设定</td><td>段落#78：Y_{it} = α + βX_{it} + γZ_{it} + μ_i + λ_t + ε_{it}</td></tr><tr><td>PASS-05</td><td>结构表达与学术规范质检</td><td>中英文摘要与关键词均已呈现</td><td>段落#3—段落#7</td></tr><tr><td>PASS-06</td><td>方法模型与实证结果质检</td><td>已包含基准回归、稳健性、机制分析三层结构</td><td>表格#3、表格#4、表格#5</td></tr></tbody></table>
+
+<h2>五、红色必改问题</h2>
+<div class="card" style="border-left:6px solid #c0392b; background:#fce4e4;">
+  <div class="card-head">🔴 <strong>1. R-01</strong>｜中英文摘要关键信息不一致 <span class="tag" style="background:#c0392b">红色</span></div>
+  <table class="mini">
+    <tr><th>所属诊断域</th><td>结构表达与学术规范质检</td></tr>
+    <tr><th>所在位置</th><td>中文摘要段落#3；英文摘要段落#5</td></tr>
+    <tr><th>原文证据</th><td>中文写“样本期间 2011—2022 年”；英文写“from 2012 to 2022”</td></tr>
+    <tr><th>证据强度</th><td>强</td></tr>
+    <tr><th>问题说明</th><td>样本期间的中英表述不一致，属于第 9bis 节红色硬伤强制清单第 4 项：中英文摘要关键信息不一致。</td></tr>
+    <tr><th>修改建议</th><td>建议建立中英文摘要对照表，统一样本期间、研究对象、方法与结论表述。</td></tr>
+    <tr><th>需人工确认</th><td>否</td></tr>
+  </table>
+</div>
+
+
+<div class="card" style="border-left:6px solid #c0392b; background:#fce4e4;">
+  <div class="card-head">🔴 <strong>2. R-02</strong>｜正文结论超出表格结果支持 <span class="tag" style="background:#c0392b">红色</span></div>
+  <table class="mini">
+    <tr><th>所属诊断域</th><td>方法模型与实证结果质检</td></tr>
+    <tr><th>所在位置</th><td>结论段落#136；对应表格#3</td></tr>
+    <tr><th>原文证据</th><td>正文写“东部效应最强、中部次之、西部最弱”；表格#3 分组回归系数：东部 0.213***、中部 0.098*、西部 0.312***</td></tr>
+    <tr><th>证据强度</th><td>强</td></tr>
+    <tr><th>问题说明</th><td>文字描述的大小排序（东＞中＞西）与表格实际系数排序（西＞东＞中）不一致，属于第 9bis 节硬伤第 3 项。</td></tr>
+    <tr><th>修改建议</th><td>建议重新核对分组回归系数并调整正文表述；若基于稳健性另有解释，需在文中显式说明依据的是哪一列。</td></tr>
+    <tr><th>需人工确认</th><td>否</td></tr>
+  </table>
+</div>
+
+
+<div class="card" style="border-left:6px solid #c0392b; background:#fce4e4;">
+  <div class="card-head">🔴 <strong>3. R-03</strong>｜熵值法指标体系与权重计算说明不足 <span class="tag" style="background:#c0392b">红色</span></div>
+  <table class="mini">
+    <tr><th>所属诊断域</th><td>数据、变量与口径质检</td></tr>
+    <tr><th>所在位置</th><td>指标体系段落#55—段落#62</td></tr>
+    <tr><th>原文证据</th><td>正文提到“采用熵值法构建共同富裕综合指数”，但未呈现指标正负向属性、标准化公式与权重计算公式</td></tr>
+    <tr><th>证据强度</th><td>强</td></tr>
+    <tr><th>问题说明</th><td>熵值法核心步骤缺失，将导致综合指数无法复核，属于影响数据可复核性的核心问题。</td></tr>
+    <tr><th>修改建议</th><td>建议补充指标体系表（含正负向属性）、min-max 标准化公式、熵值权重公式 wj = (1-ej) / Σ(1-ej) 以及综合得分计算过程。</td></tr>
+    <tr><th>需人工确认</th><td>否</td></tr>
+  </table>
+</div>
+
+
+<div class="card" style="border-left:6px solid #c0392b; background:#fce4e4;">
+  <div class="card-head">🔴 <strong>4. R-04</strong>｜相关关系表述为强因果关系 <span class="tag" style="background:#c0392b">红色</span></div>
+  <table class="mini">
+    <tr><th>所属诊断域</th><td>方法模型与实证结果质检</td></tr>
+    <tr><th>所在位置</th><td>结论段落#138；摘要段落#3</td></tr>
+    <tr><th>原文证据</th><td>结论写“数字经济导致共同富裕水平显著提升”“证明数字经济对共同富裕存在因果作用”</td></tr>
+    <tr><th>证据强度</th><td>强</td></tr>
+    <tr><th>问题说明</th><td>论文使用双向固定效应模型，未采用 DID/IV 等因果识别策略，不宜使用“导致/证明因果”等强因果表述。</td></tr>
+    <tr><th>修改建议</th><td>建议改为“显著促进”“存在显著正向影响”等稳妥表述；如需保留因果结论，需补充明确的识别策略与局限性讨论。</td></tr>
+    <tr><th>需人工确认</th><td>否</td></tr>
+  </table>
+</div>
+
+
+<h2>六、黄色建议补充问题</h2>
+<div class="card" style="border-left:6px solid #c78500; background:#fff5da;">
+  <div class="card-head">🟡 <strong>1. Y-01</strong>｜研究问题不明确 <span class="tag" style="background:#c78500">黄色</span></div>
+  <table class="mini">
+    <tr><th>所属诊断域</th><td>选题与研究问题质检</td></tr>
+    <tr><th>所在位置</th><td>引言段落#12—段落#18</td></tr>
+    <tr><th>原文证据</th><td>引言前 60% 为宏观政策背景铺陈，末段仅笼统提出“探讨数字经济对共同富裕的影响”，未明确核心机制与研究边界</td></tr>
+    <tr><th>证据强度</th><td>中</td></tr>
+    <tr><th>问题说明</th><td>引言末段研究问题过于宽泛，未落到可回答、可验证的层面。</td></tr>
+    <tr><th>修改建议</th><td>建议在引言末段用 2—3 个具体问题界定：影响方向如何？通过何种机制？在东中西部是否存在异质性？</td></tr>
+    <tr><th>需人工确认</th><td>否</td></tr>
+  </table>
+</div>
+
+
+<div class="card" style="border-left:6px solid #c78500; background:#fff5da;">
+  <div class="card-head">🟡 <strong>2. Y-02</strong>｜文献综述罗列化 <span class="tag" style="background:#c78500">黄色</span></div>
+  <table class="mini">
+    <tr><th>所属诊断域</th><td>文献综述与理论链条质检</td></tr>
+    <tr><th>所在位置</th><td>文献综述段落#28—段落#42</td></tr>
+    <tr><th>原文证据</th><td>综述连续使用“XX（2019）认为”“YY（2020）指出”，缺少已有研究不足与本文切入点</td></tr>
+    <tr><th>证据强度</th><td>中</td></tr>
+    <tr><th>问题说明</th><td>文献综述结束后直接进入研究设计，未评述本文相对已有研究的边际贡献。</td></tr>
+    <tr><th>修改建议</th><td>建议在综述末段补充已有研究不足与本文切入点，说明本文在样本、机制或指标构建上的边际补充。</td></tr>
+    <tr><th>需人工确认</th><td>否</td></tr>
+  </table>
+</div>
+
+
+<div class="card" style="border-left:6px solid #c78500; background:#fff5da;">
+  <div class="card-head">🟡 <strong>3. Y-03</strong>｜样本筛选过程不透明 <span class="tag" style="background:#c78500">黄色</span></div>
+  <table class="mini">
+    <tr><th>所属诊断域</th><td>数据、变量与口径质检</td></tr>
+    <tr><th>所在位置</th><td>数据来源段落#48</td></tr>
+    <tr><th>原文证据</th><td>正文直接写“最终得到 330 个省份-年份观测值”，未说明剔除规则与缺失值处理</td></tr>
+    <tr><th>证据强度</th><td>中</td></tr>
+    <tr><th>问题说明</th><td>样本筛选过程不透明，读者无法复核样本口径。</td></tr>
+    <tr><th>修改建议</th><td>建议增加样本筛选流程表：初始样本 → 剔除原因 → 剔除数量 → 最终样本。</td></tr>
+    <tr><th>需人工确认</th><td>否</td></tr>
+  </table>
+</div>
+
+
+<div class="card" style="border-left:6px solid #c78500; background:#fff5da;">
+  <div class="card-head">🟡 <strong>4. Y-04</strong>｜模型方程、变量符号或下标说明不完整 <span class="tag" style="background:#c78500">黄色</span></div>
+  <table class="mini">
+    <tr><th>所属诊断域</th><td>方法模型与实证结果质检</td></tr>
+    <tr><th>所在位置</th><td>模型设定段落#78</td></tr>
+    <tr><th>原文证据</th><td>模型方程已列出，但未说明 i、t 下标含义与误差项聚类假设</td></tr>
+    <tr><th>证据强度</th><td>中</td></tr>
+    <tr><th>问题说明</th><td>变量符号与下标说明不完整，影响模型可解释性。</td></tr>
+    <tr><th>修改建议</th><td>建议在模型方程下方补充：i 表示省份，t 表示年份；μ_i 为省份固定效应，λ_t 为年度固定效应；ε_{it} 为聚类到省份的稳健标准误。</td></tr>
+    <tr><th>需人工确认</th><td>否</td></tr>
+  </table>
+</div>
+
+
+<div class="card" style="border-left:6px solid #c78500; background:#fff5da;">
+  <div class="card-head">🟡 <strong>5. Y-05</strong>｜固定效应与随机效应选择依据不足 <span class="tag" style="background:#c78500">黄色</span></div>
+  <table class="mini">
+    <tr><th>所属诊断域</th><td>方法模型与实证结果质检</td></tr>
+    <tr><th>所在位置</th><td>模型设定段落#79</td></tr>
+    <tr><th>原文证据</th><td>论文使用双向固定效应但未说明 Hausman 检验或理论依据</td></tr>
+    <tr><th>证据强度</th><td>中</td></tr>
+    <tr><th>问题说明</th><td>未说明选择固定效应的理由。</td></tr>
+    <tr><th>修改建议</th><td>建议报告 Hausman 检验结果，或从省份异质性角度说明选择个体固定效应的理论依据。</td></tr>
+    <tr><th>需人工确认</th><td>否</td></tr>
+  </table>
+</div>
+
+
+<div class="card" style="border-left:6px solid #c78500; background:#fff5da;">
+  <div class="card-head">🟡 <strong>6. Y-06</strong>｜中介效应结果解释不完整 <span class="tag" style="background:#c78500">黄色</span></div>
+  <table class="mini">
+    <tr><th>所属诊断域</th><td>方法模型与实证结果质检</td></tr>
+    <tr><th>所在位置</th><td>机制分析段落#108—段落#118</td></tr>
+    <tr><th>原文证据</th><td>论文报告了中介变量回归结果，但未解释 X→M、M→Y、X→Y 的间接效应大小与显著性</td></tr>
+    <tr><th>证据强度</th><td>中</td></tr>
+    <tr><th>问题说明</th><td>中介路径未完整展开。</td></tr>
+    <tr><th>修改建议</th><td>建议围绕三段式效应解释中介机制：X 对 M（第一阶段）、加入 M 后 X 对 Y（第二阶段），并报告 Sobel 检验或 Bootstrap 结果。</td></tr>
+    <tr><th>需人工确认</th><td>否</td></tr>
+  </table>
+</div>
+
+
+<div class="card" style="border-left:6px solid #c78500; background:#fff5da;">
+  <div class="card-head">🟡 <strong>7. Y-07</strong>｜图表注释不完整 <span class="tag" style="background:#c78500">黄色</span></div>
+  <table class="mini">
+    <tr><th>所属诊断域</th><td>结构表达与学术规范质检</td></tr>
+    <tr><th>所在位置</th><td>表格#3、表格#4、表格#5</td></tr>
+    <tr><th>原文证据</th><td>多张回归表未说明括号内为标准误还是 t 值，也未说明显著性星号含义</td></tr>
+    <tr><th>证据强度</th><td>中</td></tr>
+    <tr><th>问题说明</th><td>回归表注释不完整，影响可读性与规范性。</td></tr>
+    <tr><th>修改建议</th><td>建议统一在表注中说明：括号内为聚类到省份的稳健标准误；***、**、* 分别代表 1%、5%、10% 显著性水平。</td></tr>
+    <tr><th>需人工确认</th><td>否</td></tr>
+  </table>
+</div>
+
+
+<div class="card" style="border-left:6px solid #c78500; background:#fff5da;">
+  <div class="card-head">🟡 <strong>8. Y-08</strong>｜正文引用与参考文献不一致 <span class="tag" style="background:#c78500">黄色</span></div>
+  <table class="mini">
+    <tr><th>所属诊断域</th><td>结构表达与学术规范质检</td></tr>
+    <tr><th>所在位置</th><td>正文段落#33、段落#61；参考文献段落#150—段落#182</td></tr>
+    <tr><th>原文证据</th><td>正文引用“Acemoglu (2019)”“陈钊 (2020)”在参考文献中未找到对应条目</td></tr>
+    <tr><th>证据强度</th><td>中</td></tr>
+    <tr><th>问题说明</th><td>存在正文引用未列入参考文献的情况。</td></tr>
+    <tr><th>修改建议</th><td>建议逐条核对正文引用与文末参考文献，确保双向对应；建议使用 Zotero 或 EndNote 统一管理。</td></tr>
+    <tr><th>需人工确认</th><td>否</td></tr>
+  </table>
+</div>
+
+
+<h2>七、绿色优化提升建议</h2>
+<div class="card" style="border-left:6px solid #27823b; background:#e2f5e6;">
+  <div class="card-head">🟢 <strong>1. G-01</strong>｜关键词设置不规范 <span class="tag" style="background:#27823b">绿色</span></div>
+  <table class="mini">
+    <tr><th>所属诊断域</th><td>结构表达与学术规范质检</td></tr>
+    <tr><th>所在位置</th><td>关键词段落#4；英文关键词段落#7</td></tr>
+    <tr><th>原文证据</th><td>中文 5 个关键词、英文 4 个；“数字经济”英文译为“Digital economy”与“digital economy”两种大小写形式</td></tr>
+    <tr><th>证据强度</th><td>弱</td></tr>
+    <tr><th>问题说明</th><td>关键词大小写与顺序未统一。</td></tr>
+    <tr><th>修改建议</th><td>建议统一英文关键词大小写形式，保留 3—5 个核心关键词。</td></tr>
+    <tr><th>需人工确认</th><td>否</td></tr>
+  </table>
+</div>
+
+
+<div class="card" style="border-left:6px solid #27823b; background:#e2f5e6;">
+  <div class="card-head">🟢 <strong>2. G-02</strong>｜政策建议或管理建议套话化 <span class="tag" style="background:#27823b">绿色</span></div>
+  <table class="mini">
+    <tr><th>所属诊断域</th><td>结构表达与学术规范质检</td></tr>
+    <tr><th>所在位置</th><td>政策建议段落#140—段落#145</td></tr>
+    <tr><th>原文证据</th><td>多次出现“加强”“完善”“提高”“进一步推进”等泛化表述</td></tr>
+    <tr><th>证据强度</th><td>中</td></tr>
+    <tr><th>问题说明</th><td>建议内容缺少具体主体与可执行动作。</td></tr>
+    <tr><th>修改建议</th><td>建议按“研究发现 → 对应主体 → 具体行动 → 预期效果”的四段式改写政策建议。</td></tr>
+    <tr><th>需人工确认</th><td>否</td></tr>
+  </table>
+</div>
+
+
+<div class="card" style="border-left:6px solid #27823b; background:#e2f5e6;">
+  <div class="card-head">🟢 <strong>3. G-03</strong>｜语言表达、重复或标题错误 <span class="tag" style="background:#27823b">绿色</span></div>
+  <table class="mini">
+    <tr><th>所属诊断域</th><td>结构表达与学术规范质检</td></tr>
+    <tr><th>所在位置</th><td>全文抽样</td></tr>
+    <tr><th>原文证据</th><td>多处出现“具有一定的重要意义”“在一定程度上”等冗余表达</td></tr>
+    <tr><th>证据强度</th><td>弱</td></tr>
+    <tr><th>问题说明</th><td>语言存在轻微冗余。</td></tr>
+    <tr><th>修改建议</th><td>建议删除冗余表达，保持学术表达简洁。</td></tr>
+    <tr><th>需人工确认</th><td>否</td></tr>
+  </table>
+</div>
+
+
+<h2>八、灰色需人工确认事项</h2>
+
+<div class="card" style="border-left:6px solid #5f6a7d; background:#eaeef4;">
+  <div class="card-head">⚪ <strong>1. M-01</strong>｜回归表基本信息不完整 <span class="tag" style="background:#5f6a7d">灰色</span></div>
+  <table class="mini">
+    <tr><th>所属诊断域</th><td>方法模型与实证结果质检</td></tr>
+    <tr><th>所在位置</th><td>表格#3 第 5—7 列</td></tr>
+    <tr><th>原文证据</th><td>该区域文本抽取为空，疑似图片嵌入</td></tr>
+    <tr><th>证据强度</th><td>弱</td></tr>
+    <tr><th>问题说明</th><td>回归表部分列无法稳定解析，无法核对样本量、R²、固定效应设定。</td></tr>
+    <tr><th>修改建议</th><td>建议人工确认第 5—7 列是否包含样本量、R²、固定效应说明；若缺失，请补充。</td></tr>
+    <tr><th>需人工确认</th><td>是</td></tr>
+  </table>
+</div>
+
+<div class="card" style="border-left:6px solid #5f6a7d; background:#eaeef4;">
+  <div class="card-head">⚪ <strong>2. M-02</strong>｜参考文献格式解析不完整 <span class="tag" style="background:#5f6a7d">灰色</span></div>
+  <table class="mini">
+    <tr><th>所属诊断域</th><td>结构表达与学术规范质检</td></tr>
+    <tr><th>所在位置</th><td>参考文献段落#150—段落#182</td></tr>
+    <tr><th>原文证据</th><td>参考文献含大量特殊字符与斜体，脚本抽取存在丢字符情况</td></tr>
+    <tr><th>证据强度</th><td>弱</td></tr>
+    <tr><th>问题说明</th><td>参考文献格式规范性无法在脚本层稳定核对。</td></tr>
+    <tr><th>修改建议</th><td>建议按学校 GB/T 7714 模板人工核对参考文献格式。</td></tr>
+    <tr><th>需人工确认</th><td>是</td></tr>
+  </table>
+</div>
+
+<h3>需人工确认清单</h3><table class="std"><thead><tr><th>编号</th><th>确认事项</th><th>所在位置</th><th>原因</th><th>如何复核</th></tr></thead><tbody><tr><td>MC-01</td><td>回归表#3 第 5—7 列</td><td>表格#3</td><td>文本抽取为空，疑似图片嵌入</td><td>打开原文档确认该区域是否为图片；如为图片，请另存为可编辑表格</td></tr><tr><td>MC-02</td><td>参考文献格式</td><td>参考文献段落#150—段落#182</td><td>特殊字符导致丢字符，无法稳定核对格式</td><td>对照 GB/T 7714 或学院模板逐条人工核对</td></tr></tbody></table>
+
+<h2>九、优先修改行动清单</h2>
+<table class="std"><thead><tr><th>优先级</th><th>修改行动</th><th>对应问题编号</th><th>预期效果</th></tr></thead><tbody><tr><td>1</td><td>重新核对分组回归系数并统一正文/摘要/结论的排序描述</td><td>R-02</td><td>消除结论方向与回归表的矛盾，保障结论可信度</td></tr><tr><td>2</td><td>补齐熵值法指标体系表、标准化公式、权重公式与综合得分计算过程</td><td>R-03</td><td>让共同富裕综合指数可被读者独立复核</td></tr><tr><td>3</td><td>建立中英文摘要对照表，统一样本期间与关键信息</td><td>R-01</td><td>消除中英文摘要不一致的硬伤</td></tr><tr><td>4</td><td>将强因果表述调整为“显著促进/影响”，或补充明确的识别策略</td><td>R-04</td><td>避免相关关系被写成强因果结论</td></tr><tr><td>5</td><td>补齐引言研究问题、样本筛选流程、模型下标含义、中介三段式解释</td><td>Y-01, Y-03, Y-04, Y-06</td><td>提升整体规范性，降低黄色问题密度</td></tr></tbody></table>
+
+<h2>十、不适用规则说明</h2>
+<table class="std"><thead><tr><th>编号</th><th>规则组</th><th>不适用原因</th></tr></thead><tbody><tr><td>NA-01</td><td>model_did_rules</td><td>当前论文未检测到 DID、双重差分、处理组、对照组或政策时点相关内容，因此不触发 DID 规则。该项不构成论文问题。</td></tr><tr><td>NA-02</td><td>model_iv_rules</td><td>当前论文未检测到 IV、工具变量、2SLS 或两阶段最小二乘相关内容，因此不触发 IV/2SLS 规则。该项不构成论文问题。</td></tr><tr><td>NA-03</td><td>model_logit_probit_rules</td><td>论文被解释变量为连续变量，未使用 Logit/Probit 或二元选择模型，因此不触发该规则组。</td></tr><tr><td>NA-04</td><td>model_questionnaire_scale_rules</td><td>论文使用官方公开省级面板数据，非自编问卷或量表，因此不触发信度效度规则。</td></tr><tr><td>NA-05</td><td>model_case_analysis_rules</td><td>当前论文属于面板数据实证论文，非案例分析论文，因此不触发案例分析专项规则。</td></tr></tbody></table>
+
+<div class="disclaimer">本报告由“经管论文智检 Skill”基于用户上传的 Word/PDF 文档自动生成，仅用于本科论文和课程论文写作规范自检，不替代导师、答辩委员或学校正式评审意见。对于无法可靠解析的表格、公式、图片或主观方法选择，报告中已标注为“需人工确认”。本 Skill 不进行查重，不判断数据真实性，不联网核验参考文献真伪，也不提供论文代写服务。</div>
+</div></body></html>

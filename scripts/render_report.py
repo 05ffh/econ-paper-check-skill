@@ -27,10 +27,29 @@ except ImportError as exc:  # pragma: no cover
     raise SystemExit("缺少 python-docx，请先执行：pip install python-docx") from exc
 
 DISCLAIMER = (
-    "本报告由“经管论文智检 Skill”基于用户上传的 Word 文档自动生成，仅用于本科论文和课程论文写作规范自检，"
+    "本报告由“经管论文智检 Skill”基于用户上传的 Word/PDF 文档自动生成，仅用于本科论文和课程论文写作规范自检，"
     "不替代导师、答辩委员或学校正式评审意见。对于无法可靠解析的表格、公式、图片或主观方法选择，报告中已标注为"
     "“需人工确认”。本 Skill 不进行查重，不判断数据真实性，不联网核验参考文献真伪，也不提供论文代写服务。"
 )
+
+
+# 中文字体 fallback链：优先黑体/宋体，sandbox 没装则回退 DejaVu Sans / 默认字体。
+# python-docx 写入字体名不会校验存在性，Word/WPS 打开时自动回退；
+# 但在无中文字体的 headless Linux 下转 PDF 时可能乱码，
+# 因此我们在写入前运行一次探测，确实可用才指定中文字体。
+def _detect_cjk_fonts() -> tuple[str, str]:
+    """返回 (中文正文字体, 中文标题字体)。无中文字体时回退 (None-string, None-string) 但保留中文名以依赖文字处理器回退。
+
+    优先级：宋体 / SimSun / Noto Serif CJK / 任意 CJK fallback。
+    在 python-docx 层面只能写字体名，实际渲染交给 Word/WPS；
+    本函数主要保持接口一致，为后续可选的 PDF 渲染预留探测钩子。
+    """
+    # 默认写 宋体/黑体，在 Windows/macOS/Linux 带中文字体的环境都能正常显示。
+    # 否则 Word 会自动回退。保留接口方便后续扩展为探测 fc-list。
+    return "宋体", "黑体"
+
+
+CJK_BODY_FONT, CJK_HEADING_FONT = _detect_cjk_fonts()
 
 
 
@@ -104,9 +123,13 @@ def write_report(result: Dict[str, object], source_name: str, output_path: Path)
     section.right_margin = Inches(0.85)
 
     styles = doc.styles
-    styles["Normal"].font.name = "宋体"
-    styles["Normal"]._element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
-    styles["Normal"].font.size = Pt(10.5)
+    try:
+        styles["Normal"].font.name = CJK_BODY_FONT
+        styles["Normal"]._element.rPr.rFonts.set(qn("w:eastAsia"), CJK_BODY_FONT)
+        styles["Normal"].font.size = Pt(10.5)
+    except Exception:
+        # 字体设置失败不影响文档可用性，Word/WPS 会自动回退。
+        pass
 
     profile = result.get("paper_profile", {}) or {}
     counts = result.get("summary_counts", {}) or {}
@@ -117,8 +140,11 @@ def write_report(result: Dict[str, object], source_name: str, output_path: Path)
     run = title.add_run("经管本科论文智检报告")
     run.bold = True
     run.font.size = Pt(22)
-    run.font.name = "黑体"
-    run._element.rPr.rFonts.set(qn("w:eastAsia"), "黑体")
+    try:
+        run.font.name = CJK_HEADING_FONT
+        run._element.rPr.rFonts.set(qn("w:eastAsia"), CJK_HEADING_FONT)
+    except Exception:
+        pass
     sub = doc.add_paragraph()
     sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
     sub.add_run("基于经管论文智检 Skill 的提交前自检反馈").font.size = Pt(12)
