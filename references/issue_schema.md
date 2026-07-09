@@ -1,0 +1,135 @@
+# issue_schema.md
+
+# 经管论文智检 Skill：结构化诊断结果 Schema
+
+## 1. 顶层结构
+
+diagnostic_result 应包含：
+
+- paper_profile_summary
+- overall_risk_level
+- summary_counts
+- pass_items
+- issues
+- not_applicable_items
+- manual_confirmation_items
+- priority_actions
+
+## 2. diagnostic_result 示例
+
+{
+  "diagnostic_result": {
+    "paper_profile_summary": {},
+    "overall_risk_level": "低风险 / 中风险 / 高风险 / 需人工确认",
+    "summary_counts": {
+      "pass_items": 0,
+      "red_issues": 0,
+      "yellow_issues": 0,
+      "green_suggestions": 0,
+      "manual_confirmation_items": 0,
+      "not_applicable_items": 0
+    },
+    "pass_items": [],
+    "issues": [],
+    "not_applicable_items": [],
+    "manual_confirmation_items": [],
+    "priority_actions": []
+  }
+}
+
+## 3. issue 字段
+
+每个 issue 必须包含：
+
+- issue_id
+- rule_id
+- domain
+- status
+- level
+- issue_type
+- location
+- evidence
+- evidence_strength
+- explanation
+- suggestion
+- confidence
+- need_manual_confirmation
+
+## 4. 状态允许值
+
+- 通过
+- 发现问题
+- 建议补充
+- 不适用
+- 需人工确认
+
+## 5. 等级允许值
+
+- 红色：必改问题
+- 黄色：建议补充
+- 绿色：优化提升
+- 灰色：需人工确认
+
+## 6. 证据强度
+
+- 强
+- 中
+- 弱
+
+红色问题必须有强证据。弱证据不得列为红色，应优先转为灰色需人工确认。
+
+## 7. 置信度
+
+- 高
+- 中
+- 低
+
+低置信度判断不得直接列为红色。
+
+## 8. issue_id 命名
+
+推荐前缀：
+
+- TQ：选题与研究问题
+- LT：文献综述与理论链条
+- DV：数据变量
+- MM：方法模型
+- SN：结构规范
+- PASS：通过项
+- NA：不适用项
+- MC：需人工确认项
+
+## 9. 数量控制
+
+红色问题建议 3 到 8 项，黄色问题建议 5 到 12 项，绿色建议建议 3 到 8 项，灰色需人工确认建议 0 到 6 项，语言表达问题最多 20 条。
+
+规范论文应减少问题数量并增加通过项，不得为了显得有用而强行挑错。红色问题数量不设人为下限：规范论文可以为 0 项红色，不得为凑够 3 项而把非硬伤升级为红色；反之，硬伤（见 evidence_requirement.md 第 9bis 节）无论多少都必须如实列为红色，不得为控制数量而漏报或降级。
+
+## 9bis. 通过项与不适用项粒度（统一详略）
+
+为消除“同一论文在不同智能体上通过项/不适用项详略差异过大”的问题，规定最小粒度：
+
+**通过项 pass_items：**
+
+- 每个诊断域（选题与研究问题、文献综述与理论链条、数据变量与口径、方法模型与实证结果、结构表达与学术规范）在该域确实达标时，**至少输出 1 项通过项**；实证类论文通过项总数应不少于 5 项。
+- 每个通过项必须带 `evidence`（引用具体段落/表格定位），不得只写“结构完整”这类无定位的空泛表述。
+- 通过项按诊断域归类，`id` 使用 PASS-01、PASS-02… 连续编号。
+
+**不适用项 not_applicable_items：**
+
+- 凡在 trigger_plan 中判定为 not_applicable 的模型规则组，**必须逐条列为独立的不适用项**，不得合并成一句“其余未使用方法均不适用”。
+- 常见需逐条列出的规则组：DID、IV/2SLS、Logit/Probit、调节效应、问卷信度效度、案例分析、OLS 专项（面板论文）。
+- 每个不适用项 `reason` 必须写明“当前论文未检测到 X，因此不触发 Y 规则，该项不构成论文问题”的句式，`id` 使用 NA-01、NA-02… 连续编号。
+
+## 10. 总体风险等级
+
+总体风险等级使用低风险、中风险、高风险、需人工确认。为保证不同智能体对同一论文得出一致的总体结论，按以下**强制映射规则**确定（取满足条件的最高档）：
+
+- **高风险**：红色问题 ≥ 3 项，或存在任一涉及核心数据可复核性/结论可信度的红色硬伤（如描述性统计矛盾、结论方向与回归表矛盾）。
+- **中风险**：红色问题 1 到 2 项，或红色为 0 但黄色问题 ≥ 6 项。
+- **低风险**：红色问题 0 项，且黄色问题 ≤ 5 项，结构基本完整。
+- **需人工确认**：论文无法解析、疑似片段，或核心表格/公式为图片导致关键判断无法完成时，总体等级标记为需人工确认，并说明原因。
+
+灰色需人工确认项不计入红色数量，也不单独抬高总体风险等级；但若灰色事项涉及核心结论无法核对，应在总体评价中提示该不确定性。
+
+映射优先级：先按红色数量定档，再看黄色数量与硬伤性质向上调整，不得因主观印象偏离上述阈值。

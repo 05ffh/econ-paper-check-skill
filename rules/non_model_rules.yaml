@@ -1,0 +1,329 @@
+version: "1.1"
+skill_name: "经管论文智检"
+description: "非模型类问题规则库，覆盖选题、文献、数据变量、结构表达、摘要、图表和参考文献等问题。"
+
+global_principles:
+  - "所有问题必须基于论文原文证据。"
+  - "不得为了显得有用而强行挑错。"
+  - "课程论文、案例论文不应被硬套实证论文标准。"
+  - "证据不足时输出需人工确认。"
+  - "同类问题应合并。"
+
+rule_output_fields:
+  - "rule_id"
+  - "group_id"
+  - "domain"
+  - "issue_type"
+  - "default_level"
+  - "applies_to"
+  - "inspect_locations"
+  - "trigger_signals"
+  - "evidence_requirement"
+  - "suggestion_template"
+
+rules:
+  - rule_id: "TQ-QUESTION-001"
+    group_id: "non_model_topic_rules"
+    domain: "选题与研究问题质检"
+    issue_type: "研究问题不明确"
+    default_level: "红色：必改问题"
+    applies_to: ["经管类实证论文", "经管类课程论文", "案例分析论文", "问卷调查论文", "调查数据库论文"]
+    inspect_locations: ["题目", "摘要", "引言", "研究内容"]
+    trigger_signals: ["大量背景介绍但没有明确提出本文要回答什么问题", "研究内容宽泛", "后文章节无法对应研究问题"]
+    evidence_requirement: "必须引用题目、摘要或引言中的相关表述。"
+    suggestion_template: "建议在引言末段用 2 到 3 个问题明确本文研究对象、核心关系和研究目标，并与后文章节对应。"
+
+  - rule_id: "TQ-SCOPE-001"
+    group_id: "non_model_topic_rules"
+    domain: "选题与研究问题质检"
+    issue_type: "选题过大或过空"
+    default_level: "黄色：建议补充"
+    applies_to: ["经管类实证论文", "经管类课程论文", "案例分析论文", "问卷调查论文", "调查数据库论文"]
+    inspect_locations: ["题目", "摘要", "引言"]
+    trigger_signals: ["题目缺少研究对象", "缺少地区、行业、时间或数据限定", "宏观概念过多但无法落到样本或方法"]
+    evidence_requirement: "必须引用题目或摘要。"
+    suggestion_template: "建议限定研究对象、样本范围、时间范围、行业或地区，使选题成为可回答、可验证的问题。"
+
+  - rule_id: "TQ-FIT-001"
+    group_id: "non_model_topic_rules"
+    domain: "选题与研究问题质检"
+    issue_type: "经管专业属性不足"
+    default_level: "红色：必改问题"
+    applies_to: ["经管类课程论文", "案例分析论文", "理论综述型论文"]
+    inspect_locations: ["题目", "关键词", "研究方法"]
+    trigger_signals: ["只做技术介绍", "只做现象描述", "缺少绩效、成本、风险、治理、市场或效率等经管变量"]
+    evidence_requirement: "必须引用题目、关键词或研究方法部分。"
+    suggestion_template: "建议明确经管问题意识，补充可分析的经济或管理变量。"
+
+  - rule_id: "TQ-CONTRIB-001"
+    group_id: "non_model_topic_rules"
+    domain: "选题与研究问题质检"
+    issue_type: "创新点或边际贡献空泛"
+    default_level: "黄色：建议补充"
+    applies_to: ["经管类实证论文", "经管类课程论文", "问卷调查论文", "调查数据库论文"]
+    inspect_locations: ["创新点", "文献述评", "引言"]
+    trigger_signals: ["只写选题较新", "只写方法较新", "没有说明相对已有研究的差异"]
+    evidence_requirement: "必须引用创新点或文献述评部分。"
+    suggestion_template: "建议从样本、变量、机制、情境或方法角度说明相对已有研究的边际补充。"
+
+  - rule_id: "LT-REVIEW-001"
+    group_id: "non_model_literature_rules"
+    domain: "文献综述与理论链条质检"
+    issue_type: "文献综述罗列化"
+    default_level: "黄色：建议补充"
+    applies_to: ["经管类实证论文", "经管类课程论文", "问卷调查论文", "调查数据库论文", "理论综述型论文"]
+    inspect_locations: ["文献综述"]
+    trigger_signals: ["连续使用某某认为、某某指出、某某研究发现", "缺少分类", "缺少比较评述", "缺少研究缺口"]
+    evidence_requirement: "必须引用文献综述中的代表性段落。"
+    suggestion_template: "建议将文献综述改为主题分类综述，并在每类文献后补充简要评述和本文切入点。"
+
+  - rule_id: "LT-GAP-001"
+    group_id: "non_model_literature_rules"
+    domain: "文献综述与理论链条质检"
+    issue_type: "缺少研究缺口与本文切入点"
+    default_level: "黄色：建议补充"
+    applies_to: ["经管类实证论文", "经管类课程论文", "问卷调查论文", "调查数据库论文", "理论综述型论文"]
+    inspect_locations: ["文献综述", "引言"]
+    trigger_signals: ["已有研究不足未说明", "综述结束后直接进入研究设计", "本文切入点不清"]
+    evidence_requirement: "必须引用文献综述结尾或引言相关表述。"
+    suggestion_template: "建议增加已有研究不足与本文切入点，说明本文为何有必要展开。"
+
+  - rule_id: "LT-THEORY-001"
+    group_id: "non_model_literature_rules"
+    domain: "文献综述与理论链条质检"
+    issue_type: "理论链条与变量或结论脱节"
+    default_level: "黄色：建议补充"
+    applies_to: ["经管类实证论文", "问卷调查论文", "调查数据库论文", "案例分析论文"]
+    inspect_locations: ["理论基础", "研究假设", "变量定义", "结论"]
+    trigger_signals: ["理论只在前文出现", "变量选择没有理论依据", "结论使用理论概念但前文未解释"]
+    evidence_requirement: "必须引用理论、变量或结论中至少两处相关证据。"
+    suggestion_template: "建议将理论基础嵌入变量选择、研究假设、结果解释和结论建议。"
+
+  - rule_id: "LT-HYP-001"
+    group_id: "non_model_literature_rules"
+    domain: "文献综述与理论链条质检"
+    issue_type: "研究假设缺少文献或理论支撑"
+    default_level: "黄色：建议补充"
+    applies_to: ["经管类实证论文", "问卷调查论文", "调查数据库论文"]
+    inspect_locations: ["理论分析", "研究假设"]
+    trigger_signals: ["直接提出假设", "缺少文献依据", "缺少机制推导"]
+    evidence_requirement: "必须引用研究假设附近文本。"
+    suggestion_template: "建议在假设前补充文献依据和逻辑推导，说明变量之间为何存在该关系。"
+
+  - rule_id: "DV-SOURCE-001"
+    group_id: "non_model_data_variable_rules"
+    domain: "数据、变量与口径质检"
+    issue_type: "数据来源不可追溯"
+    default_level: "红色：必改问题"
+    applies_to: ["经管类实证论文", "问卷调查论文", "调查数据库论文"]
+    inspect_locations: ["数据来源", "样本说明"]
+    trigger_signals: ["只写来源于数据库或统计年鉴", "缺少年份、指标、样本范围或筛选口径"]
+    evidence_requirement: "必须引用数据来源或样本说明段落。"
+    suggestion_template: "建议补充具体数据来源、时间范围、样本对象、指标口径、筛选规则和缺失值处理方式。"
+
+  - rule_id: "DV-SAMPLE-001"
+    group_id: "non_model_data_variable_rules"
+    domain: "数据、变量与口径质检"
+    issue_type: "样本筛选过程不透明"
+    default_level: "黄色：建议补充"
+    applies_to: ["经管类实证论文", "问卷调查论文", "调查数据库论文"]
+    inspect_locations: ["样本选择", "数据来源"]
+    trigger_signals: ["最终样本量直接出现", "未说明剔除规则", "缺失值处理不清"]
+    evidence_requirement: "必须引用样本说明或数据来源部分。"
+    suggestion_template: "建议增加样本筛选流程表，列出初始样本、剔除原因、剔除数量和最终样本。"
+
+  - rule_id: "DV-VAR-001"
+    group_id: "non_model_data_variable_rules"
+    domain: "数据、变量与口径质检"
+    issue_type: "核心变量定义不完整"
+    default_level: "红色：必改问题"
+    applies_to: ["经管类实证论文", "问卷调查论文", "调查数据库论文"]
+    inspect_locations: ["变量定义", "变量定义表", "模型设定"]
+    trigger_signals: ["核心变量只有名称和符号", "缺少计算公式、单位、来源或含义"]
+    evidence_requirement: "必须引用变量定义表或变量说明段落。"
+    suggestion_template: "建议完善变量定义表，补充变量名称、符号、含义、计算公式、数据来源、单位和参考依据。"
+
+  - rule_id: "DV-CONSIST-001"
+    group_id: "non_model_data_variable_rules"
+    domain: "数据、变量与口径质检"
+    issue_type: "数据或变量口径前后不一致"
+    default_level: "红色：必改问题"
+    applies_to: ["经管类实证论文", "问卷调查论文", "调查数据库论文"]
+    inspect_locations: ["摘要", "数据来源", "变量定义", "结果表", "结论"]
+    trigger_signals: ["样本期间前后不一致", "地区范围前后不一致", "变量口径前后不一致"]
+    evidence_requirement: "必须同时引用两处不一致证据。"
+    suggestion_template: "建议核对全文样本期间、地区范围、变量口径和观测值数量，并统一表述。"
+
+  - rule_id: "DV-INDEX-001"
+    group_id: "non_model_data_variable_rules"
+    domain: "数据、变量与口径质检"
+    issue_type: "综合指标体系说明不完整"
+    default_level: "红色：必改问题"
+    applies_to: ["经管类实证论文", "调查数据库论文"]
+    inspect_locations: ["指标体系", "熵值法", "综合指数构建"]
+    trigger_signals: ["使用综合指数但未说明指标方向", "未说明标准化", "未说明权重计算", "未说明综合得分"]
+    evidence_requirement: "必须确认论文使用综合指标、熵值法或综合评价。"
+    suggestion_template: "建议补充指标体系表、正负向属性、标准化公式、权重计算方法和综合得分计算方式。"
+
+  - rule_id: "DV-CASE-001"
+    group_id: "non_model_data_variable_rules"
+    domain: "数据、变量与口径质检"
+    issue_type: "案例材料来源不完整"
+    default_level: "黄色：建议补充"
+    applies_to: ["案例分析论文"]
+    inspect_locations: ["案例背景", "案例材料", "案例分析"]
+    trigger_signals: ["案例事实缺少来源", "企业材料或新闻材料来源不清", "时间线缺少依据"]
+    evidence_requirement: "必须引用案例材料或案例背景段落。"
+    suggestion_template: "建议补充案例材料来源、时间范围、资料类型和引用依据。"
+
+  - rule_id: "SN-ABSTRACT-001"
+    group_id: "non_model_structure_norm_rules"
+    domain: "结构表达与学术规范质检"
+    issue_type: "中文摘要核心要素不完整"
+    default_level: "黄色：建议补充"
+    applies_to: ["经管类实证论文", "经管类课程论文", "案例分析论文", "问卷调查论文", "调查数据库论文"]
+    inspect_locations: ["中文摘要"]
+    trigger_signals: ["摘要缺少研究对象", "缺少数据或方法", "缺少主要结论", "缺少建议"]
+    evidence_requirement: "必须引用中文摘要内容。"
+    suggestion_template: "建议按研究目的、数据方法、主要发现、结论建议的顺序完善中文摘要。"
+
+  - rule_id: "SN-ABSTRACT-EN-001"
+    group_id: "non_model_structure_norm_rules"
+    domain: "结构表达与学术规范质检"
+    issue_type: "中英文摘要关键信息不一致"
+    default_level: "红色：必改问题"
+    applies_to: ["经管类实证论文", "经管类课程论文", "案例分析论文", "问卷调查论文", "调查数据库论文"]
+    inspect_locations: ["中文摘要", "英文摘要"]
+    trigger_signals: ["研究对象不一致", "样本期间不一致", "地区范围不一致", "方法不一致", "结论方向不一致"]
+    evidence_requirement: "必须同时引用中文摘要和英文摘要证据。"
+    suggestion_template: "建议建立中英文摘要对照表，统一研究对象、样本期间、方法、结论和关键词。"
+
+  - rule_id: "SN-KEYWORDS-001"
+    group_id: "non_model_structure_norm_rules"
+    domain: "结构表达与学术规范质检"
+    issue_type: "关键词设置不规范"
+    default_level: "绿色：优化提升"
+    applies_to: ["经管类实证论文", "经管类课程论文", "案例分析论文", "问卷调查论文", "调查数据库论文"]
+    inspect_locations: ["关键词", "英文关键词"]
+    trigger_signals: ["关键词过多或过少", "关键词与主题不对应", "英文关键词术语不统一"]
+    evidence_requirement: "必须引用关键词部分。"
+    suggestion_template: "建议保留 3 到 5 个关键词，并统一中英文术语。"
+
+  - rule_id: "SN-TABLE-001"
+    group_id: "non_model_structure_norm_rules"
+    domain: "结构表达与学术规范质检"
+    issue_type: "图表注释不完整"
+    default_level: "黄色：建议补充"
+    applies_to: ["经管类实证论文", "问卷调查论文", "调查数据库论文", "案例分析论文"]
+    inspect_locations: ["图表标题", "表格注释", "回归表"]
+    trigger_signals: ["缺少数据来源", "缺少变量单位", "缺少括号含义", "缺少显著性星号说明"]
+    evidence_requirement: "必须定位到具体图表。"
+    suggestion_template: "建议统一补充图表标题、变量单位、数据来源、括号含义和显著性星号说明。"
+
+  - rule_id: "SN-CONCLUSION-001"
+    group_id: "non_model_structure_norm_rules"
+    domain: "结构表达与学术规范质检"
+    issue_type: "结论与前文分析对应不足"
+    default_level: "黄色：建议补充"
+    applies_to: ["经管类实证论文", "经管类课程论文", "案例分析论文", "问卷调查论文", "调查数据库论文"]
+    inspect_locations: ["结论", "摘要", "结果分析"]
+    trigger_signals: ["结论重复摘要", "结论没有回应研究问题", "结论出现前文未分析的新判断"]
+    evidence_requirement: "必须引用结论和前文研究问题或结果。"
+    suggestion_template: "建议逐条回应引言中的研究问题，并让每条结论对应前文证据。"
+
+  - rule_id: "SN-ADVICE-001"
+    group_id: "non_model_structure_norm_rules"
+    domain: "结构表达与学术规范质检"
+    issue_type: "政策建议或管理建议套话化"
+    default_level: "绿色：优化提升"
+    applies_to: ["经管类实证论文", "经管类课程论文", "案例分析论文", "问卷调查论文", "调查数据库论文"]
+    inspect_locations: ["政策建议", "管理建议", "结论建议"]
+    trigger_signals: ["大量使用加强、完善、提高", "缺少对象", "缺少对应研究发现", "缺少具体行动"]
+    evidence_requirement: "必须引用建议部分原文。"
+    suggestion_template: "建议按研究发现、对应主体、具体行动、预期效果重写建议。"
+
+  - rule_id: "SN-REF-001"
+    group_id: "non_model_structure_norm_rules"
+    domain: "结构表达与学术规范质检"
+    issue_type: "正文引用与参考文献不一致"
+    default_level: "红色：必改问题"
+    applies_to: ["经管类实证论文", "经管类课程论文", "案例分析论文", "问卷调查论文", "调查数据库论文", "理论综述型论文"]
+    inspect_locations: ["正文引用", "参考文献"]
+    trigger_signals: ["正文引用未出现在参考文献", "参考文献未在正文引用", "引用格式混乱"]
+    evidence_requirement: "必须引用正文引用和参考文献条目中的证据；若解析不足，应转需人工确认。"
+    suggestion_template: "建议逐条核对正文引用与文末参考文献，确保双向对应并符合学校格式要求。"
+
+  - rule_id: "SN-LANG-001"
+    group_id: "non_model_structure_norm_rules"
+    domain: "结构表达与学术规范质检"
+    issue_type: "语言表达、重复或标题错误"
+    default_level: "绿色：优化提升"
+    applies_to: ["经管类实证论文", "经管类课程论文", "案例分析论文", "问卷调查论文", "调查数据库论文"]
+    inspect_locations: ["全文"]
+    trigger_signals: ["重复表达", "标题编号错误", "语病", "术语前后不统一"]
+    evidence_requirement: "必须引用具体原句，最多输出 20 条。"
+    suggestion_template: "建议删除重复表达，统一术语和标题编号，并保持学术表达简洁。"
+
+normalization_policy:
+  allowed_paper_types:
+    - "经管类实证论文"
+    - "经管类课程论文"
+    - "案例分析论文"
+    - "问卷调查论文"
+    - "调查数据库论文"
+    - "理论综述型论文"
+    - "非经管类论文"
+    - "不确定"
+
+non_model_rule_evaluation_order:
+  - "确认论文画像"
+  - "执行选题与研究问题规则"
+  - "执行文献综述与理论链条规则"
+  - "执行数据、变量与口径规则"
+  - "执行结构表达与学术规范规则"
+  - "合并同类问题"
+  - "生成通过项、不适用项和需人工确认项"
+
+not_applicable_policy:
+  - scenario: "案例分析论文未设置变量定义表"
+    output_status: "不适用"
+    reason: "案例论文不强制触发变量定义表完整性规则。"
+  - scenario: "理论综述型论文无数据来源"
+    output_status: "不适用"
+    reason: "未检测到数据、样本或案例材料，不触发数据来源与变量口径规则。"
+  - scenario: "上传文档疑似片段"
+    output_status: "需人工确认"
+    reason: "无法稳定判断完整性问题。"
+
+level_adjustment_policy:
+  upgrade_to_red:
+    - "问题影响论文核心逻辑、数据可复核性或结论可信度。"
+    - "前后明显不一致且有强证据。"
+  downgrade_to_yellow:
+    - "已有相关内容但说明不充分。"
+  downgrade_to_green:
+    - "主要属于表达、排版、可读性优化。"
+  move_to_manual_confirmation:
+    - "证据强度为弱。"
+    - "内容可能位于图片、脚注或附录。"
+
+pass_item_generation_policy:
+  sources:
+    - "论文已明确研究对象和研究问题。"
+    - "论文已设置文献综述或相关研究章节。"
+    - "论文说明了数据来源或案例材料来源。"
+    - "论文设置了变量定义表或指标说明。"
+    - "论文包含中英文摘要、关键词和参考文献。"
+  wording:
+    - "已呈现"
+    - "已识别"
+    - "基本具备"
+    - "未发现明显问题"
+
+non_model_issue_quality_gate:
+  - "是否适用于当前论文类型。"
+  - "是否有明确原文证据。"
+  - "是否有具体位置。"
+  - "是否避免把未检测到写成学生没有做。"
+  - "是否避免把课程论文或案例论文硬套实证标准。"
+  - "是否给出可执行修改建议。"

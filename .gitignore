@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.zip
+paper_text.json
+diagnostic_result.json
+check_result.json
+.DS_Store

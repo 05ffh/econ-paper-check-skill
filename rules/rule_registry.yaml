@@ -1,0 +1,122 @@
+version: "1.1"
+skill_name: "经管论文智检"
+description: "规则注册表，负责管理规则组、触发顺序、不适用逻辑和冲突处理。"
+
+global_principles:
+  - "必须先生成 paper_profile，再触发规则。"
+  - "必须先生成 trigger_plan，再执行规则。"
+  - "非模型规则根据论文类型和章节内容触发。"
+  - "模型规则必须条件触发。"
+  - "未检测到某模型时，不得判定论文缺少该模型。"
+  - "证据不足时输出需人工确认。"
+  - "不得把本科论文按硕博盲审标准审查。"
+  - "不得因为未使用 DID、IV、PSM 等高级模型而判定论文有问题。"
+
+supported_paper_types:
+  - "经管类实证论文"
+  - "经管类课程论文"
+  - "案例分析论文"
+  - "问卷调查论文"
+  - "调查数据库论文"
+  - "理论综述型论文"
+
+unsupported_tasks:
+  - "PDF 完整检测"
+  - "查重"
+  - "论文代写"
+  - "硕士论文盲审"
+  - "博士论文盲审"
+  - "数据真实性判断"
+  - "联网核验参考文献真伪"
+
+rule_groups:
+  non_model_topic_rules:
+    domain: "选题与研究问题质检"
+    source: "rules/non_model_rules.yaml"
+  non_model_literature_rules:
+    domain: "文献综述与理论链条质检"
+    source: "rules/non_model_rules.yaml"
+  non_model_data_variable_rules:
+    domain: "数据、变量与口径质检"
+    source: "rules/non_model_rules.yaml"
+  non_model_structure_norm_rules:
+    domain: "结构表达与学术规范质检"
+    source: "rules/non_model_rules.yaml"
+  model_general_empirical_rules:
+    domain: "方法模型与实证结果质检"
+    source: "rules/model_rules.yaml"
+  model_ols_rules:
+    domain: "方法模型与实证结果质检"
+    source: "rules/model_rules.yaml"
+  model_panel_rules:
+    domain: "方法模型与实证结果质检"
+    source: "rules/model_rules.yaml"
+  model_logit_probit_rules:
+    domain: "方法模型与实证结果质检"
+    source: "rules/model_rules.yaml"
+  model_mediation_rules:
+    domain: "方法模型与实证结果质检"
+    source: "rules/model_rules.yaml"
+  model_moderation_rules:
+    domain: "方法模型与实证结果质检"
+    source: "rules/model_rules.yaml"
+  model_did_rules:
+    domain: "方法模型与实证结果质检"
+    source: "rules/model_rules.yaml"
+  model_iv_rules:
+    domain: "方法模型与实证结果质检"
+    source: "rules/model_rules.yaml"
+  model_questionnaire_scale_rules:
+    domain: "数据、变量与口径质检 / 方法模型与实证结果质检"
+    source: "rules/model_rules.yaml"
+  model_entropy_index_rules:
+    domain: "数据、变量与口径质检 / 方法模型与实证结果质检"
+    source: "rules/model_rules.yaml"
+  model_case_analysis_rules:
+    domain: "数据、变量与口径质检 / 结构表达与学术规范质检"
+    source: "rules/model_rules.yaml"
+
+trigger_evaluation_order:
+  - "确认输入文件为 .docx"
+  - "生成 paper_profile"
+  - "生成 trigger_plan"
+  - "触发适用的非模型规则"
+  - "按 detected_methods 条件触发模型规则"
+  - "生成通过项、不适用项和需人工确认项"
+  - "形成 diagnostic_result"
+  - "生成 DOCX 报告"
+
+rule_group_output_policy:
+  triggered:
+    status: "已触发"
+    requirement: "输出通过项、问题项、建议补充项或需人工确认项。"
+  not_triggered_not_applicable:
+    status: "不适用"
+    requirement: "说明当前论文未使用该方法或不属于该场景。"
+  insufficient_evidence:
+    status: "需人工确认"
+    requirement: "证据不足、表格公式不可解析或论文类型不确定时使用。"
+
+conflict_resolution_policy:
+  - conflict: "案例论文包含少量数据表"
+    resolution: "以案例分析论文优先，不强制触发回归模型规则。"
+  - conflict: "CHFS/CFPS/CGSS/CHARLS 调查数据库论文"
+    resolution: "识别为调查数据库论文，不自动触发自编问卷信度效度规则。"
+  - conflict: "论文提到政策影响但没有处理组、对照组和政策时点"
+    resolution: "不触发 DID 规则，可列为需人工确认或理论链条问题。"
+  - conflict: "论文提到内生性但未使用工具变量或两阶段最小二乘"
+    resolution: "不触发 IV 规则，仅检查一般内生性讨论是否充分。"
+  - conflict: "论文提到机制分析但未设置中介变量和中介模型"
+    resolution: "不触发中介效应规则，可检查理论链条或机制解释。"
+  - conflict: "论文使用熵值法构建核心变量"
+    resolution: "可同时触发数据变量规则和熵值法规则，但同类问题应合并。"
+
+validation_checklist:
+  - "是否先生成 paper_profile。"
+  - "是否先生成 trigger_plan。"
+  - "是否避免全量触发模型规则。"
+  - "是否输出不适用项。"
+  - "是否输出需人工确认项。"
+  - "是否所有问题都有证据。"
+  - "是否避免强制高级模型。"
+  - "是否避免硕博化判断。"
