@@ -1,0 +1,16 @@
+paper_id: EXAMPLE-0006
+source_sha256: 1d9626a166cfb219a2264f9d6a69660ec45c02499375cc2805c3374f1e126920
+topic_hint: 企业数字化转型测度（LLM方法）
+paper_type: empirical
+method_tags: [llm, text_analysis]
+batch: batch_02
+chunk_count: 169
+clean_units: 192
+replacement_count: 14
+deident_status: approved
+admission_source: online_top_journal
+admission_confirmed_by_user: true
+kb_layer: example_reference
+can_be_error_evidence: false  # 补齐清单原则 1
+ingested_at: 2026-07-11T14:08:45.402301+00:00
+embedding_model: BAAI/bge-small-zh-v1.5

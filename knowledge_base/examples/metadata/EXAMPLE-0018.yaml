@@ -1,0 +1,16 @@
+paper_id: EXAMPLE-0018
+source_sha256: 3af608a6f467303f40691184455a933f6070664282dbdd2a837654552a2f123f
+topic_hint: 政府引导基金与关键核心技术创新
+paper_type: empirical
+method_tags: [did, panel]
+batch: batch_04
+chunk_count: 80
+clean_units: 78
+replacement_count: 9
+deident_status: approved
+admission_source: online_top_journal
+admission_confirmed_by_user: true
+kb_layer: example_reference
+can_be_error_evidence: false  # 补齐清单原则 1
+ingested_at: 2026-07-11T14:19:20.827729+00:00
+embedding_model: BAAI/bge-small-zh-v1.5

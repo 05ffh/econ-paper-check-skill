@@ -106,3 +106,19 @@
 ## 14. 输出前证据自检
 
 生成最终报告前逐条检查：每个问题是否有 evidence，每个问题是否有 location，evidence 是否来自用户上传论文，evidence 是否足以支撑 issue_type，红色问题是否达到强证据门槛，弱证据是否已转为需人工确认，是否存在编造变量模型或数据，是否存在把未检测到写成学生没有做，是否存在不适用规则被写成问题，是否存在高级模型强制要求。
+
+## 15. KB-B 范例层引用红线（v1.4+）
+
+KB-B 是本 Skill 内置的顶刊范例论文向量库，仅供改进参照，**不得作为学生论文的错误判定依据**。写入报告前必须确认：
+
+- KB-B 命中片段不能出现在 issue 的 evidence 字段中（evidence 只允许来自用户上传论文）；
+- KB-B 命中片段不能作为「因为范例这么写所以学生那么写不对」的推论根据；
+- KB-B 命中片段只能出现在 `改进参照` 字段（参见 issue_writing_protocol.md 第 4bis 节）；
+- KB-B 命中片段不得写入 red 级别问题的 evidence；即使写入 yellow/green，也不得皮以 example 弱化真实原文证据。
+
+层次区分：
+- **student_evidence**（学生证据）：只能来自学生上传的论文 units；
+- **normative_basis**（规范依据）：只能来自 KB-A 规范层、学校模板、国标、权威教材、Skill 已审核规则库；
+- **example_reference**（范例参照）：来自 KB-B（顶刊已脱敏论文向量库），仅作改进方向参照。
+
+三层不得互相代替。内部优先级：student_evidence → normative_basis → example_reference。

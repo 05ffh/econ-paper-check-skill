@@ -1,0 +1,16 @@
+paper_id: EXAMPLE-0007
+source_sha256: 9260b0adff89218589f1f2ae5856fb0f91d9b11a32d40dc90cf487d2561799da
+topic_hint: 数字技术创新与企业高质量发展
+paper_type: empirical
+method_tags: [text_analysis, tfp]
+batch: batch_02
+chunk_count: 89
+clean_units: 91
+replacement_count: 7
+deident_status: approved
+admission_source: online_top_journal
+admission_confirmed_by_user: true
+kb_layer: example_reference
+can_be_error_evidence: false  # 补齐清单原则 1
+ingested_at: 2026-07-11T14:08:52.397819+00:00
+embedding_model: BAAI/bge-small-zh-v1.5

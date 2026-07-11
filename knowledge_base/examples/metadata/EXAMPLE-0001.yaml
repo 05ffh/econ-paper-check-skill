@@ -1,0 +1,16 @@
+paper_id: EXAMPLE-0001
+source_sha256: a74dff7854c9ad0fbe975380d41c039eaf6520638e69b85fa9996a9075ff50f7
+topic_hint: 新质生产力理论
+paper_type: theoretical
+method_tags: []
+batch: batch_01
+chunk_count: 67
+clean_units: 63
+replacement_count: 7
+deident_status: approved
+admission_source: online_top_journal
+admission_confirmed_by_user: true
+kb_layer: example_reference
+can_be_error_evidence: false  # 补齐清单原则 1
+ingested_at: 2026-07-11T14:07:59.949518+00:00
+embedding_model: BAAI/bge-small-zh-v1.5

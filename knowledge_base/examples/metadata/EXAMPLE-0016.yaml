@@ -1,0 +1,16 @@
+paper_id: EXAMPLE-0016
+source_sha256: 20b97c176d8c19edff677b8f895aafd00cfeefaab8178a49e9a35a85c3a9acdd
+topic_hint: 客户企业数字化与供应商ESG
+paper_type: empirical
+method_tags: [panel]
+batch: batch_04
+chunk_count: 122
+clean_units: 121
+replacement_count: 22
+deident_status: approved
+admission_source: online_top_journal
+admission_confirmed_by_user: true
+kb_layer: example_reference
+can_be_error_evidence: false  # 补齐清单原则 1
+ingested_at: 2026-07-11T14:19:07.033811+00:00
+embedding_model: BAAI/bge-small-zh-v1.5

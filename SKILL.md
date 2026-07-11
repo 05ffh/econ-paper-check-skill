@@ -163,6 +163,23 @@ python3 scripts/render_report.py <workdir>/diagnostic_result.json \
 - 所有表格数字对比、公式完整性、图表注释、参考文献格式类判断，**PDF 场景默认转灰色**，除非表格文本清晰可读且两处数字均能对上。
 - 若 `parse_stats.empty_pages / total_pages >= 0.7`，视为扫描件，停止判断并回复"当前 PDF 疑似扫描件/图片型，本 Skill 不做 OCR，请上传 .docx 或先做 OCR"。
 
-## 9. 知识库（第二阶段）
+## 9. 知识库（v1.4+ 已接入 KB-B，KB-A 待完善）
 
-第二阶段将接入 ArkClaw 知识库（推荐用 `byted-knowledge-center-aisearch` 或 `lark-wiki` 承载）做参考文献格式与方法规范核对，详见 `knowledge_base/README.md`。第一版规则内置于 `rules/`。
+本 Skill 内置两层知识库：
+
+**KB-A 规范层（待起草）**：`knowledge_base/norms/`
+- 用途：判红黄绿的 **权威依据**（学校模板/国标/权威教材/已审核规则库）
+- 状态：v1.4 未接入，kb_query 返回空以 fallback 到 KB-B
+
+**KB-B 范例层（已就绪）**：`knowledge_base/vector_db/active/` (Chroma `examples_v1`)
+- 内容：20 篇顶刊论文（完全脱敏）/ 2198 chunks / bge-small-zh-v1.5
+- **用途：仅供改进参照（Reference Card），绝不作为错误判定依据**
+- 接口：`from scripts.kb_query import search`
+- 详见：`agent_instructions/issue_writing_protocol.md` 第 4bis 节、`evidence_requirement.md` 第 15 节
+
+**三层证据/依据/参照分离**：
+- `student_evidence`（学生论文） → issue.evidence
+- `normative_basis`（KB-A） → issue 判红黄绿依据
+- `example_reference`（KB-B） → issue.改进参照卡片（可选）
+
+三层不得互相代替。先本地 `scripts/kb_query.py --interactive` 验证 KB-B 可用后再接入报告。

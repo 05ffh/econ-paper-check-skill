@@ -1,0 +1,91 @@
+# KB-A · 规范源登记表 v1
+#
+# 每个规范源必须在此登记，未登记的来源不得进入 knowledge_base/norms/
+# 补齐清单 P0-3：严格分层 / 原则 1：范例不作错误依据
+
+version: "1.0"
+last_updated: "2026-07-11"
+audit_status: "v1_bootstrap"
+
+# ========== 已登记的规范来源 ==========
+sources:
+
+  # ---- 来源 1：Skill 已审核规则库（内置） ----
+  - source_id: "skill_audited_rule_v1_1"
+    source_type: "skill_audited_rule"
+    source_name: "经管论文智检 Skill 已审核规则库"
+    source_version: "1.1"
+    source_locator: "rules/rule_registry.yaml + rules/non_model_rules.yaml + rules/model_rules.yaml"
+    applicable_scope:
+      degree_levels: ["undergraduate"]
+      paper_types: ["经管类实证论文", "经管类课程论文", "案例分析论文", "问卷调查论文", "调查数据库论文", "理论综述型论文"]
+    authority_level: "red_hard"   # 已审核，可判红
+    copyright_mode: "public"      # 本 skill 内置，作者授权
+    review_status: "approved"
+    reviewer: "arkclaw-team"
+    review_date: "2026-07-11"
+    note: >
+      本 skill 初版内置规则库，含 6 项红色硬伤 + 7 项强制交叉核对 +
+      非模型/模型规则集。v1.4 起正式登记为 KB-A 首批规范源。
+
+# ========== 待录入的规范来源（v1.5+）==========
+pending_sources:
+
+  - source_id: "gb_t_7714_2015"
+    source_type: "national_standard"
+    source_name: "GB/T 7714—2015 信息与文献 参考文献著录规则"
+    source_version: "2015"
+    source_locator: "国标全文，重点章节：§4 著录格式、§5 各类文献著录、附录 A"
+    applicable_scope:
+      degree_levels: ["undergraduate", "master", "doctor"]
+      paper_types: ["all"]
+    authority_level: "red_hard"
+    copyright_mode: "internal_summary"  # 国标不能全文照抄，只摘要要点
+    review_status: "pending"
+    priority: "high"
+    est_target_domain: "citation"
+
+  - source_id: "school_template_placeholder"
+    source_type: "school_template"
+    source_name: "[用户提供的学校学位论文撰写规范]"
+    source_version: "n/a"
+    source_locator: "n/a"
+    applicable_scope:
+      degree_levels: ["undergraduate"]
+    authority_level: "red_hard"
+    copyright_mode: "internal_summary"
+    review_status: "pending"
+    priority: "high"
+    est_target_domain: "writing + summary + figures_tables"
+    note: "需要用户上传学校模板文件后录入；不同学校模板不同，v1.6 起支持多学校档位"
+
+  - source_id: "wooldridge_econometrics"
+    source_type: "authoritative_textbook"
+    source_name: "伍德里奇《计量经济学导论》（Introductory Econometrics）"
+    source_version: "第 7 版 / 中文版"
+    source_locator: "第 3-9 章 OLS/GLS/异方差/自相关 · 第 13-14 章 面板 · 第 15 章 IV"
+    applicable_scope:
+      degree_levels: ["undergraduate", "master"]
+      paper_types: ["经管类实证论文"]
+    authority_level: "yellow_soft"     # 教材做建议不做硬伤
+    copyright_mode: "internal_summary"
+    review_status: "pending"
+    priority: "medium"
+    est_target_domain: "methods"
+
+# ========== 明确禁用的来源（红名单）==========
+forbidden_sources:
+  - reason: "无明确出处的笼统表述"
+    examples:
+      - "教育部规范"
+      - "学术界普遍认为"
+      - "参考多篇优秀论文归纳"
+      - "AI 归纳的学术规范"
+  - reason: "非学术审核的网络来源"
+    examples:
+      - "百度百科条目"
+      - "知乎回答"
+      - "无审校的博客文章"
+  - reason: "范例层数据（KB-B）伪装成规范"
+    examples:
+      - "顶刊某篇论文这样写所以对"  # 单一论文做法不是规范

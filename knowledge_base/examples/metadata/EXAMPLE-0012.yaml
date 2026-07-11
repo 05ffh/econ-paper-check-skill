@@ -1,0 +1,16 @@
+paper_id: EXAMPLE-0012
+source_sha256: 25466119b65ef3daed699ab4fa6b0e38e935f4907245ff8ed6ad472ca83d86dd
+topic_hint: 生产力现代化转型与新质生产力
+paper_type: theoretical
+method_tags: []
+batch: batch_03
+chunk_count: 50
+clean_units: 50
+replacement_count: 9
+deident_status: approved
+admission_source: online_top_journal
+admission_confirmed_by_user: true
+kb_layer: example_reference
+can_be_error_evidence: false  # 补齐清单原则 1
+ingested_at: 2026-07-11T14:09:50.081107+00:00
+embedding_model: BAAI/bge-small-zh-v1.5

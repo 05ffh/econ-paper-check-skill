@@ -10,3 +10,11 @@ __pycache__/
 
 # 临时构建产物
 *.tmp
+
+# M1 知识库私有治理（补齐清单 P0-4 + 授权治理要求）
+.private/
+knowledge_base/vector_db/active/
+knowledge_base/vector_db/snapshots/
+knowledge_base/logs/
+knowledge_base/examples/parsed/
+knowledge_base/.private/

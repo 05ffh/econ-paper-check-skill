@@ -1,0 +1,16 @@
+paper_id: EXAMPLE-0005
+source_sha256: 82c36f02ae9179821cd6bcc576dd2a35e3fc18e99598967ae629d43814767728
+topic_hint: 产业链供应链韧性
+paper_type: theoretical
+method_tags: []
+batch: batch_01
+chunk_count: 60
+clean_units: 63
+replacement_count: 11
+deident_status: approved
+admission_source: online_top_journal
+admission_confirmed_by_user: true
+kb_layer: example_reference
+can_be_error_evidence: false  # 补齐清单原则 1
+ingested_at: 2026-07-11T14:08:25.592225+00:00
+embedding_model: BAAI/bge-small-zh-v1.5

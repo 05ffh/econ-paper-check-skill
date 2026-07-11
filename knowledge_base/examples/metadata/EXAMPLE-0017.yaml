@@ -1,0 +1,16 @@
+paper_id: EXAMPLE-0017
+source_sha256: e5727cee7bc4982312b7414e0ce180f6440c644fe85e7a86ad284f4dc7f6a8f4
+topic_hint: 共同机构持股与企业ESG
+paper_type: empirical
+method_tags: [panel]
+batch: batch_04
+chunk_count: 98
+clean_units: 104
+replacement_count: 17
+deident_status: approved
+admission_source: online_top_journal
+admission_confirmed_by_user: true
+kb_layer: example_reference
+can_be_error_evidence: false  # 补齐清单原则 1
+ingested_at: 2026-07-11T14:19:14.959654+00:00
+embedding_model: BAAI/bge-small-zh-v1.5

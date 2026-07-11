@@ -1,0 +1,16 @@
+paper_id: EXAMPLE-0013
+source_sha256: 3d9e755d49108d1d0a85833ad0613371075c5ebb5d51793a1bf1fa16be3af49b
+topic_hint: 县域创业与农民增收共同富裕
+paper_type: empirical
+method_tags: [panel, did]
+batch: batch_03
+chunk_count: 166
+clean_units: 176
+replacement_count: 14
+deident_status: approved
+admission_source: online_top_journal
+admission_confirmed_by_user: true
+kb_layer: example_reference
+can_be_error_evidence: false  # 补齐清单原则 1
+ingested_at: 2026-07-11T14:09:57.659181+00:00
+embedding_model: BAAI/bge-small-zh-v1.5

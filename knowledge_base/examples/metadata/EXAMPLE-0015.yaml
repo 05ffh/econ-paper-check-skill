@@ -1,0 +1,16 @@
+paper_id: EXAMPLE-0015
+source_sha256: 63f4f092c566668c5bb5e5595321d9eecef5e66f4ae00e3ae31a4c4ec33f2676
+topic_hint: ESG绿色溢出与供应链绿色创新
+paper_type: empirical
+method_tags: [panel]
+batch: batch_03
+chunk_count: 138
+clean_units: 146
+replacement_count: 9
+deident_status: approved
+admission_source: online_top_journal
+admission_confirmed_by_user: true
+kb_layer: example_reference
+can_be_error_evidence: false  # 补齐清单原则 1
+ingested_at: 2026-07-11T14:10:12.692360+00:00
+embedding_model: BAAI/bge-small-zh-v1.5
