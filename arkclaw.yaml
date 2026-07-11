@@ -3,7 +3,7 @@
 
 name: econ-paper-check-skill
 display_name: 经管论文智检
-version: 1.2.0
+version: 1.3.0
 language: zh-CN
 license: MIT
 platforms:
