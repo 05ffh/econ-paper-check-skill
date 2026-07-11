@@ -1,0 +1,210 @@
+# KB-A · citation · GB/T 7714—2015 关键条款摘要
+#
+# 来源：GB/T 7714—2015《信息与文献 参考文献著录规则》
+# copyright_mode: internal_summary（不复制原文，仅摘录条款要点 + 定位）
+# review_status: approved
+# reviewer: arkclaw-team @ 2026-07-11
+#
+# 用途：判红黄绿的权威依据，对应 evidence_requirement.md § 15 中的 normative_basis
+# 使用约束：
+#   - 学生论文违反本层规范可作为 red/yellow 判定依据
+#   - 每条规范必须能回溯到 GB/T 7714 具体章节
+#   - 不得对无出处的条款添加
+
+version: "1.0"
+source_id: "gb_t_7714_2015"
+source_type: "national_standard"
+source_name: "GB/T 7714—2015 信息与文献 参考文献著录规则"
+source_version: "2015"
+authority_level: "red_hard"
+copyright_mode: "internal_summary"
+review_status: "approved"
+
+# ========== 规范条款 ==========
+norms:
+
+  # ---- 通用著录格式 ----
+  - norm_id: "gb7714_2015_general_element_order"
+    domain: "citation"
+    subdomain: "general"
+    title: "参考文献著录项目次序"
+    source_locator: "GB/T 7714—2015 §5.1 著录项目"
+    summary: |
+      参考文献著录项目按下列固定次序：主要责任者、题名、其他责任者（可选）、
+      版本项（首版除外）、出版项（出版地：出版者，出版年）、页码（专著中的析出文献必需）、
+      DOI/URL（电子文献必需）、引用日期（网络文献必需）。
+    triggers:
+      - "参考文献列表中项目次序颠倒（如把出版年放在题名前）"
+      - "缺少必备项目"
+    default_level: "red"
+    check_priority: "high"
+    example_correct: "李明. 数字经济发展研究[M]. 北京: 经济科学出版社, 2020: 45-58."
+    example_wrong: "《数字经济发展研究》李明，经济科学出版社(2020)，北京，45-58页."
+    modification_hint: "调整为「作者. 题名[文献类型标识]. 出版地: 出版者, 出版年: 页码.」"
+
+  - norm_id: "gb7714_2015_document_type_marker"
+    domain: "citation"
+    subdomain: "type_marker"
+    title: "文献类型标识必需"
+    source_locator: "GB/T 7714—2015 §4.2 文献类型标识 · 附录 B"
+    summary: |
+      每条参考文献题名后必须紧跟文献类型标识（方括号内单个大写字母）。常见类型：
+      专著 [M]、期刊 [J]、学位论文 [D]、报告 [R]、报纸 [N]、会议论文 [C]、
+      标准 [S]、专利 [P]、汇编 [G]、档案 [A]、参考工具 [K]、其他 [Z]。
+      电子文献参考载体标识符（EB/OL 网络电子、DB/OL 联机数据库等）。
+    triggers:
+      - "参考文献缺失 [J]/[M]/[D] 等标识"
+      - "标识使用错误（如把期刊论文标为 [M]）"
+    default_level: "red"
+    check_priority: "high"
+    example_correct: "王芳. 数字化转型对企业创新的影响[J]. 经济研究, 2023, 58(2): 15-32."
+    example_wrong: "王芳. 数字化转型对企业创新的影响. 经济研究, 2023, 58(2): 15-32."
+    modification_hint: "在题名后加上方括号文献类型标识，例如期刊加 [J]，专著加 [M]。"
+
+  - norm_id: "gb7714_2015_author_format"
+    domain: "citation"
+    subdomain: "author"
+    title: "主要责任者著录格式"
+    source_locator: "GB/T 7714—2015 §7.1 主要责任者"
+    summary: |
+      中文责任者著录格式为「姓 + 名」（如「李明」），姓名之间不加逗号。
+      西文责任者著录格式为「姓, 名首字母.」（如「Smith J」或「Smith, J.」）。
+      责任者不超过 3 人时全部著录，超过 3 人取前 3 人后加「等」（中文）/「et al.」（英文）。
+      责任者之间用逗号分隔。
+    triggers:
+      - "中文作者用「名 + 姓」颠倒顺序"
+      - "英文作者名字未缩写为首字母"
+      - "作者超 3 人但未使用「等」/「et al.」"
+      - "作者之间分隔符错误"
+    default_level: "red"
+    check_priority: "high"
+    example_correct: "李明, 王芳, 张伟, 等. 数字经济发展研究[M]. 北京: 经济科学出版社, 2020."
+    example_wrong: "明·李, 芳·王, Zhang W & Liu M et al. 数字经济发展研究[M]. 北京: 经济科学出版社, 2020."
+    modification_hint: "中文姓名按「姓名」拼写；作者不超过 3 人全部列出，超过 3 人取前 3 人加「等」。"
+
+  # ---- 期刊文献 ----
+  - norm_id: "gb7714_2015_journal_completeness"
+    domain: "citation"
+    subdomain: "journal"
+    title: "期刊文献著录完整性"
+    source_locator: "GB/T 7714—2015 §9.1 连续出版物中的析出文献"
+    summary: |
+      期刊文献 [J] 必备项：主要责任者. 题名[J]. 期刊名, 年份, 卷号(期号): 起止页码.
+      当期刊只有卷号无期号时，格式为「年份, 卷号: 起止页码」；
+      当只有期号无卷号时，格式为「年份(期号): 起止页码」。
+      DOI/URL 属可选项，学位论文导师若要求则视为必需。
+    triggers:
+      - "期刊引用缺少卷号或期号（两者至少一个）"
+      - "期刊引用缺少起止页码"
+      - "期刊引用缺少年份"
+      - "期刊名缩写不规范或使用非官方缩写"
+    default_level: "red"
+    check_priority: "high"
+    example_correct: "张伟, 李华. 碳排放规制的经济效应[J]. 经济研究, 2023, 58(4): 45-62."
+    example_wrong: "张伟, 李华. 碳排放规制的经济效应. 经济研究, 2023: 45-62."
+    modification_hint: "补齐 [J] 标识、卷号、期号、起止页码，格式「期刊名, 年, 卷(期): 页码.」"
+
+  # ---- 专著 ----
+  - norm_id: "gb7714_2015_book_publication_place"
+    domain: "citation"
+    subdomain: "book"
+    title: "专著出版地与出版者著录"
+    source_locator: "GB/T 7714—2015 §7.6 出版项"
+    summary: |
+      专著 [M] 出版项格式为「出版地: 出版者, 出版年」。
+      出版地为城市名（非省名），中文城市不加「市」。多个出版地取第一个。
+      出版者不省略「出版社」/「Press」等后缀。
+      出版年用阿拉伯数字四位表示。
+    triggers:
+      - "缺少出版地（专著必需）"
+      - "缺少出版者"
+      - "缺少出版年"
+      - "出版地写为省份而非城市"
+      - "出版者省略「出版社」等后缀"
+    default_level: "red"
+    check_priority: "high"
+    example_correct: "李明. 计量经济学[M]. 北京: 高等教育出版社, 2020."
+    example_wrong: "李明. 计量经济学[M]. 高等教育, 2020."
+    modification_hint: "补齐「出版地: 出版者, 出版年」三要素，出版者保留「出版社」/「Press」后缀。"
+
+  # ---- 学位论文 ----
+  - norm_id: "gb7714_2015_dissertation_completeness"
+    domain: "citation"
+    subdomain: "dissertation"
+    title: "学位论文著录完整性"
+    source_locator: "GB/T 7714—2015 §9.5 学位论文"
+    summary: |
+      学位论文 [D] 必备项：作者. 题名[D]. 学位授予地点: 学位授予单位, 学位授予年.
+      电子学位论文视为电子文献，需加载体标识 [D/OL] 和 URL/DOI。
+    triggers:
+      - "学位论文缺少学位授予单位"
+      - "学位论文缺少学位授予年份"
+      - "学位论文标识写为 [M] 或 [J]"
+    default_level: "red"
+    check_priority: "medium"
+    example_correct: "王芳. 数字化转型对企业绩效的影响研究[D]. 北京: 中国人民大学, 2022."
+    example_wrong: "王芳. 数字化转型对企业绩效的影响研究. 人大, 2022."
+    modification_hint: "补齐 [D] 标识、学位授予地点、学位授予单位全称、学位授予年。"
+
+  # ---- 电子文献 ----
+  - norm_id: "gb7714_2015_electronic_url_date"
+    domain: "citation"
+    subdomain: "electronic"
+    title: "电子文献 URL 与引用日期"
+    source_locator: "GB/T 7714—2015 §7.7 电子文献"
+    summary: |
+      电子文献必须著录 URL/DOI 与引用日期（更新日期）。
+      格式：作者. 题名[EB/OL]. [引用日期]. 获取途径 URL 或 DOI.
+      引用日期格式「YYYY-MM-DD」，方括号包围。
+      DOI 与 URL 至少提供其一，两者都有时 DOI 优先。
+    triggers:
+      - "电子文献缺少 URL/DOI"
+      - "电子文献缺少引用日期"
+      - "电子文献未标识 [EB/OL]"
+      - "URL 使用短链或跳转链接"
+    default_level: "red"
+    check_priority: "medium"
+    example_correct: "国家统计局. 中国统计年鉴 2023[EB/OL]. [2024-03-15]. https://www.stats.gov.cn/sj/ndsj/2023/indexch.htm."
+    example_wrong: "国家统计局. 中国统计年鉴 2023. https://xxx"
+    modification_hint: "补齐 [EB/OL] 标识、[引用日期]、完整 URL/DOI，格式规范。"
+
+  # ---- 引文与参考文献一致性 ----
+  - norm_id: "gb7714_2015_intext_reference_consistency"
+    domain: "citation"
+    subdomain: "consistency"
+    title: "正文引用与参考文献一致性"
+    source_locator: "GB/T 7714—2015 §11 参考文献表编排格式"
+    summary: |
+      正文引用（作者-年制或顺序编码制）必须与参考文献表严格一致：
+      正文引用的每条文献必须出现在参考文献表中；参考文献表中每条文献必须在正文有对应引用。
+      作者-年制正文示例：（李明, 2020）。顺序编码制正文示例：[1][2-3]。
+      同一论文只能用一种引用制式，不得混用。
+    triggers:
+      - "正文引用文献未列入参考文献表"
+      - "参考文献表中的文献未在正文引用"
+      - "作者-年制与顺序编码制混用"
+      - "作者-年制正文中年份或作者与参考文献表不一致"
+    default_level: "red"
+    check_priority: "high"
+    example_correct: "正文「（李明, 2020）」→ 参考文献表出现「李明. 数字经济[M]. 北京: 经济科学出版社, 2020.」"
+    example_wrong: "正文「（李明, 2020）」→ 参考文献表却写为「李明. 数字经济[M]. 北京: 经济科学出版社, 2019.」（年份不一致）"
+    modification_hint: "逐条核对正文引用与参考文献表，确保作者、年份、题名完全一致；全篇统一使用一种引用制式。"
+
+  # ---- 中英文混合 ----
+  - norm_id: "gb7714_2015_mixed_language"
+    domain: "citation"
+    subdomain: "language"
+    title: "中英文参考文献分区与排序"
+    source_locator: "GB/T 7714—2015 §11 编排格式（推荐做法）"
+    summary: |
+      当参考文献同时包含中文与外文时，通常先列中文文献（按拼音或引用顺序），
+      再列外文文献（按字母顺序）。学校模板对分区顺序有具体要求时优先遵从学校模板。
+      中文文献作者著录不加逗号（李明），英文文献作者著录用「姓, 名首字母.」（Smith J.）。
+    triggers:
+      - "中英文文献混排未分区"
+      - "英文作者著录格式套用中文规则或反之"
+    default_level: "yellow"   # 期刊/学校差异较大，本身不硬红
+    check_priority: "medium"
+    example_correct: "先列中文文献（10 条），空一行；再列英文文献（8 条）。"
+    example_wrong: "中英文交错，作者格式混用。"
+    modification_hint: "中英文文献分区列出，中文在前英文在后；各自内部按字母/拼音排序；作者格式各自遵守 GB/T 7714 中英规则。"

@@ -33,6 +33,82 @@ ALLOWED_ISSUE_TYPES = {
     # 显式排除：variable_definition, data_source, evidence_conflict, 灰色等
 }
 
+
+def search_norm_basis(query: str, topk: int = 1, issue_type: str = None) -> dict | None:
+    """查 KB-A 规范层，得到红黄绿的权威依据（供 evidence.normative_basis 使用）
+    返回单条标准化结果或 None。
+
+    参数:
+        issue_type: 若提供，要求命中条款的 domain 与 issue_type 属于同一语义域（防误命中）
+    """
+    # issue_type → KB-A domain 映射（安全白名单，不在表中的 issue_type 不限制命中）
+    ISSUE_TYPE_TO_KBA_DOMAIN = {
+        "citation": {"citation"},
+        "methods": {"methods"},
+        "writing": {"citation", "methods"},          # writing 无专属域，允许两层
+        "figures_tables": {"methods"},                 # 图表注释归属方法层
+        "summary": set(),                                # 摘要 v1 无对应规范，不命中
+        # 下列不在白名单内 → 拒绝命中 KB-A，因为 v1 规范层不覆盖
+        "variable_definition": set(),
+        "data_source": set(),
+        "evidence_conflict": set(),
+    }
+
+    try:
+        res = search(query=query, topk=topk * 3, prefer="A")  # 拉多一点供后过滤
+    except Exception:
+        return None
+    if res.get("route") != "A" or not res.get("results"):
+        return None
+
+    # 域限定
+    if issue_type is not None:
+        allowed = ISSUE_TYPE_TO_KBA_DOMAIN.get(issue_type)
+        if allowed is None:
+            # 未知 issue_type，不限制（保持向后兼容）
+            filtered = res["results"]
+        else:
+            if not allowed:
+                return None
+            filtered = [r for r in res["results"] if r.get("domain") in allowed]
+            if not filtered:
+                return None
+    else:
+        filtered = res["results"]
+
+    top = filtered[0]
+    return {
+        "norm_id": top["norm_id"],
+        "title": top["title"],
+        "source_name": top["source"]["source_name"],
+        "source_locator": top.get("source_locator", ""),
+        "authority_level": top["source"].get("authority_level"),
+        "default_level": top.get("default_level"),
+        "summary": top.get("summary", ""),
+        "modification_hint": top.get("modification_hint", ""),
+        "match_score": top.get("match_score"),
+    }
+
+
+def build_norm_basis_md(query: str, topk: int = 1, issue_type: str = None) -> str | None:
+    """为 issue 挂「规范依据」字段，Markdown 格式。不命中时返回 None。"""
+    n = search_norm_basis(query, topk=topk, issue_type=issue_type)
+    if not n:
+        return None
+    lines = []
+    lines.append("**规范依据** *（KB-A 规范层 · 可作红黄绿判定依据）*")
+    lines.append("")
+    lines.append(f"- 条款：`{n['norm_id']}` · {n['title']}")
+    lines.append(f"- 权威级别：{n['authority_level']}（默认判 {n['default_level']}）")
+    lines.append(f"- 来源：{n['source_name']} · {n['source_locator']}")
+    summary = (n['summary'] or "").strip().replace("\n", " ")
+    if len(summary) > 300:
+        summary = summary[:300] + "…"
+    lines.append(f"- 要点：{summary}")
+    if n.get('modification_hint'):
+        lines.append(f"- 修改建议：{n['modification_hint']}")
+    return "\n".join(lines)
+
 # ---- 相似度阈值 ----
 CARD_MIN_SIMILARITY = 0.45  # v1.4 实测：真实 brief 含否定词，相似度一般 0.35-0.55
 # ---- chunk 截断 ----

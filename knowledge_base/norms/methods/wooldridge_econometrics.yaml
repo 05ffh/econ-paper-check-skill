@@ -1,0 +1,196 @@
+# KB-A · methods · 伍德里奇《计量经济学导论》要点摘录
+#
+# 来源：Jeffrey M. Wooldridge《Introductory Econometrics: A Modern Approach》第 7 版
+# 中文版：《计量经济学导论》第 7 版
+# copyright_mode: internal_summary（不复制原文，仅摘录方法学要点 + 章节定位）
+# review_status: approved
+# reviewer: arkclaw-team @ 2026-07-11
+#
+# 用途：判黄色（软性建议）的权威依据，对应 evidence_requirement.md § 15 中的 normative_basis
+# 使用约束：
+#   - authority_level=yellow_soft，教材要点作黄色建议不作红色硬伤
+#   - 每条规范必须能回溯到伍德里奇教材具体章节
+#   - 与本 skill 已审核规则库 rules/ 冲突时以 rules/ 优先（Skill 边界 > 教材）
+
+version: "1.0"
+source_id: "wooldridge_econometrics"
+source_type: "authoritative_textbook"
+source_name: "伍德里奇《计量经济学导论》"
+source_version: "第 7 版"
+authority_level: "yellow_soft"
+copyright_mode: "internal_summary"
+review_status: "approved"
+
+# ========== 方法学要点 ==========
+norms:
+
+  # ---- OLS 基础假设 ----
+  - norm_id: "wooldridge_ols_assumptions"
+    domain: "methods"
+    subdomain: "ols"
+    title: "OLS 经典假设与违反后果的说明要求"
+    source_locator: "《计量经济学导论》第 7 版 第 3-5 章 · MLR.1-MLR.6"
+    summary: |
+      使用普通最小二乘法（OLS）时，应说明是否讨论了以下经典假设及其可能违反：
+      MLR.1 线性于参数、MLR.2 随机抽样、MLR.3 无完全共线性、MLR.4 零条件均值 E(u|X)=0、
+      MLR.5 同方差、MLR.6 正态性。
+      当零条件均值假设可能违反时，需讨论内生性来源（遗漏变量、测量误差、双向因果）。
+      同方差违反时应使用稳健标准误。
+    triggers:
+      - "论文使用 OLS 但未讨论内生性问题"
+      - "存在明显遗漏变量疑问但未做处理"
+      - "未使用稳健标准误但样本存在异方差可能"
+    default_level: "yellow"
+    check_priority: "medium"
+    modification_hint: "在方法章节增加一小节讨论 OLS 假设的适用性；若存在内生性风险，说明处理策略（工具变量、固定效应、匹配法等）；若存在异方差，改用稳健标准误。"
+
+  - norm_id: "wooldridge_robust_se"
+    domain: "methods"
+    subdomain: "ols"
+    title: "稳健标准误使用规范"
+    source_locator: "《计量经济学导论》第 7 版 §8.2 异方差稳健推断"
+    summary: |
+      当存在异方差怀疑时，应使用异方差稳健标准误（White 1980，或聚类稳健标准误 Petersen 2009）。
+      面板数据固定效应模型建议聚类到个体层面。
+      时间序列或分组数据存在自相关时，应使用 HAC（Newey-West）或聚类到组层面。
+      回归表须在表注中注明标准误的类型。
+    triggers:
+      - "面板回归表未注明聚类层面"
+      - "使用普通标准误但样本存在明显异方差/自相关证据"
+    default_level: "yellow"
+    check_priority: "medium"
+    modification_hint: "回归表注补充「括号内为聚类到 XX 层面的稳健标准误」；面板固定效应建议聚类到个体层面。"
+
+  # ---- 面板数据 ----
+  - norm_id: "wooldridge_panel_fe_re_choice"
+    domain: "methods"
+    subdomain: "panel"
+    title: "面板数据固定/随机效应选择"
+    source_locator: "《计量经济学导论》第 7 版 §14.1-14.3 · Hausman 检验"
+    summary: |
+      面板数据模型应说明选择固定效应（FE）或随机效应（RE）的依据。
+      Hausman 检验用于比较 FE 与 RE：拒绝原假设时选 FE；不拒绝时 RE 更有效。
+      当个体固定不可观测特征可能与解释变量相关时（经济数据常见），FE 是更保守的选择。
+      使用 RE 时应说明理由。同时使用 FE 应说明是否加入时间固定效应或双向固定效应。
+    triggers:
+      - "使用面板数据但未说明 FE/RE 选择理由"
+      - "使用 RE 但未做 Hausman 检验"
+      - "未说明是否加入时间固定效应"
+    default_level: "yellow"
+    check_priority: "medium"
+    modification_hint: "补做 Hausman 检验并汇报统计量/p 值；在方法章节说明 FE/RE 选择依据；明确是否加入时间固定效应形成双向固定效应。"
+
+  # ---- DID ----
+  - norm_id: "wooldridge_did_parallel_trends"
+    domain: "methods"
+    subdomain: "did"
+    title: "DID 平行趋势假设检验"
+    source_locator: "《计量经济学导论》第 7 版 §13.2 · DID 章节"
+    summary: |
+      双重差分（DID）方法的核心识别假设是平行趋势（Parallel Trends）：
+      若无政策冲击，处理组与对照组的结果变量应保持相同变化趋势。
+      平行趋势应通过事前多期虚拟变量图（event study）或事前趋势系数检验加以验证。
+      当平行趋势可能违反时，应结合安慰剂检验（Placebo Test）、PSM-DID 或合成控制法作稳健性。
+    triggers:
+      - "使用 DID 但未做平行趋势检验"
+      - "平行趋势检验结果显著但未讨论"
+      - "未做安慰剂检验或伪回归检验"
+    default_level: "yellow"
+    check_priority: "high"
+    modification_hint: "增加平行趋势图（事前多期虚拟变量的系数与置信区间）；结果显著时讨论潜在原因；补做安慰剂检验（随机化处理组或时间）。"
+
+  - norm_id: "wooldridge_did_two_way_fe"
+    domain: "methods"
+    subdomain: "did"
+    title: "DID 双向固定效应设定"
+    source_locator: "《计量经济学导论》第 7 版 §13.2 与 §14.5 · DID 与固定效应"
+    summary: |
+      现代 DID 通常写为双向固定效应（Two-way FE）模型：Y_it = α + β·Treat_i × Post_t + μ_i + λ_t + ε_it。
+      需要控制个体固定效应 μ_i 与时间固定效应 λ_t。若为渐进 DID（不同个体在不同时间受处理），
+      标准 TWFE 估计量可能有偏（Goodman-Bacon 2021、Callaway & Sant'Anna 2021），应采用异质性稳健估计。
+    triggers:
+      - "DID 模型仅控制个体固定效应或仅时间固定效应"
+      - "渐进 DID 未讨论 TWFE 偏差"
+    default_level: "yellow"
+    check_priority: "medium"
+    modification_hint: "补充双向固定效应设定；若为渐进 DID 情形，讨论 TWFE 潜在偏差，可考虑事件研究法（event study）或异质性稳健估计量。"
+
+  # ---- 工具变量 IV ----
+  - norm_id: "wooldridge_iv_relevance_exclusion"
+    domain: "methods"
+    subdomain: "iv"
+    title: "IV 相关性与排他性两大条件"
+    source_locator: "《计量经济学导论》第 7 版 §15.1-15.3 · 工具变量"
+    summary: |
+      工具变量法（IV/2SLS）必须满足两个核心条件：
+      (a) 相关性 Cov(Z, X)≠0：需通过第一阶段 F 统计量检验（经验规则 F>10，弱工具变量文献建议 F>19.7 或 F>50）。
+      (b) 排他性 Cov(Z, u)=0：工具变量对因变量的影响仅通过内生解释变量传导，需理论论证。
+      过度识别时（工具变量数 > 内生变量数）应做 Hansen J 检验。
+    triggers:
+      - "使用 IV 但未汇报第一阶段 F 统计量"
+      - "第一阶段 F<10 但未讨论弱工具变量问题"
+      - "过度识别但未做 Hansen J 检验"
+      - "未论证排他性假设"
+    default_level: "yellow"
+    check_priority: "high"
+    modification_hint: "汇报第一阶段 F 统计量并对照阈值判断工具强度；文字论证排他性（工具通过哪些机制影响因变量、为何不通过其他机制）；过度识别时补 Hansen J 检验。"
+
+  # ---- 稳健性检验 ----
+  - norm_id: "wooldridge_robustness_categories"
+    domain: "methods"
+    subdomain: "robustness"
+    title: "稳健性检验的常见方向"
+    source_locator: "《计量经济学导论》第 7 版 综合章节 · 结合当代实证规范"
+    summary: |
+      规范的实证论文应做多方向稳健性检验，通常包括：
+      (1) 替换核心变量测量方式；
+      (2) 更换样本区间或子样本；
+      (3) 更换模型设定（加入不同控制变量、更换固定效应组合、加入交互项）；
+      (4) 使用替代估计方法（如从 OLS 换到分位数回归、面板 GMM）；
+      (5) 排除异常样本或极端值（缩尾/截尾）；
+      (6) 安慰剂检验（随机化处理组或时间）。
+      稳健性检验应显示核心结论的稳定性，不同方向覆盖越广越好。
+    triggers:
+      - "只做一种稳健性检验（如仅替换核心变量）"
+      - "稳健性检验方向单一，未覆盖变量/样本/方法三类"
+    default_level: "yellow"
+    check_priority: "medium"
+    modification_hint: "补充稳健性检验方向，建议至少覆盖变量替换、样本区间、方法更换三大类；对每种稳健性说明目的与主要结果。"
+
+  # ---- 异质性分析 ----
+  - norm_id: "wooldridge_heterogeneity_analysis"
+    domain: "methods"
+    subdomain: "heterogeneity"
+    title: "异质性分析的呈现规范"
+    source_locator: "《计量经济学导论》第 7 版 §7 与 §14 · 交互项与分组回归"
+    summary: |
+      异质性分析用于探索处理效应/因果效应在不同群体或情境下的差异。
+      呈现方式：(a) 分组回归（按行业/地区/规模等特征分组重跑基准模型）；
+      (b) 交互项回归（加入 X × Group 交互项，看系数显著性）。
+      异质性结论必须有理论支撑（不能纯 fishing），并说明分组标准的合理性。
+    triggers:
+      - "异质性分析仅做分组回归但未做交互项检验"
+      - "分组标准无理论支撑"
+      - "异质性结论超出实证证据范围"
+    default_level: "yellow"
+    check_priority: "medium"
+    modification_hint: "为分组标准补充理论依据；条件允许时补充交互项回归佐证；异质性结论用「可能」「结果显示」等匹配证据强度的语言。"
+
+  # ---- 中介效应 ----
+  - norm_id: "wooldridge_mediation_analysis"
+    domain: "methods"
+    subdomain: "mediation"
+    title: "中介效应检验的规范做法"
+    source_locator: "结合温忠麟等（2004）中介效应检验方法 + Baron & Kenny 1986"
+    summary: |
+      中介效应检验（Y = f(X, M), M = g(X)）在国内经管论文中常用三步法（Baron & Kenny）：
+      (1) X 显著影响 Y；(2) X 显著影响 M；(3) 控制 M 后 X 对 Y 的影响减弱或消失。
+      更规范的做法是使用 Sobel 检验或 Bootstrap 检验中介效应显著性。
+      注意：三步法本身在因果识别上有争议（中介变量可能内生），当中介变量存在内生性时结论应保守表述。
+    triggers:
+      - "使用中介效应但仅呈现三步法系数，未做显著性检验"
+      - "未讨论中介变量可能存在的内生性"
+      - "中介效应结论使用强因果语言"
+    default_level: "yellow"
+    check_priority: "medium"
+    modification_hint: "补充 Sobel 或 Bootstrap 中介效应检验；讨论中介变量内生性对结论的影响；结论使用「可能通过 M 传导」等保守表述。"

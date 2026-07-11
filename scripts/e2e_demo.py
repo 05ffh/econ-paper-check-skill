@@ -13,17 +13,25 @@ from pathlib import Path
 ROOT = Path("/root/.openclaw/workspace/econ-paper-check-skill")
 sys.path.insert(0, str(ROOT))
 
-from scripts.build_reference_card import build_cards_for_issues
+from scripts.build_reference_card import build_cards_for_issues, build_norm_basis_md
 
 
 # 模拟 3 个 issue（对应真实场景的 R-YY-Green 三色）
 demo_issues = [
     {
         "issue_id": "R-01",
-        "issue_type": "writing",
+        "issue_type": "citation",
         "level": "red",
-        "location": "第二章 文献综述",
-        "brief": "文献综述缺少述评环节，只列观点不作评价、也未指出研究缺口",
+        "location": "参考文献第 12 条",
+        "brief": "期刊文献缺少卷号、期号与起止页码",
+    },
+    {
+        "issue_id": "R-02",
+        "issue_type": "methods",
+        "level": "red",
+        "location": "第四章 DID 模型",
+        "brief": "使用 DID 但未做平行趋势检验",
+        "method_hint": "DID",
     },
     {
         "issue_id": "Y-04",
@@ -41,24 +49,23 @@ demo_issues = [
         "brief": "回归表注释可以更完整地说明显著性星号、聚类标准误处理",
     },
     {
-        "issue_id": "R-02",  # 变量定义类，应跳过
+        "issue_id": "R-05",  # 变量定义类，应跳过 KB-B（但 KB-A 不受约束）
         "issue_type": "variable_definition",
         "level": "red",
         "location": "第三章 变量定义",
-        "brief": "核心变量缺公式",
+        "brief": "核心解释变量缺公式",
     },
 ]
 
 out = build_cards_for_issues(demo_issues)
 
 # ---- 生成一段完整的报告片段 ----
-report_frag = ["# 端到端演示 · 参照卡片挂载效果", ""]
+report_frag = ["# 端到端演示 v2 · KB-A 规范依据 + KB-B 参照卡 双层挂载", ""]
 report_frag.append(f"## 统计")
 report_frag.append(f"- 总 issue: {out['stats']['total_issues']}")
-report_frag.append(f"- 生成参照卡: {out['stats']['cards_generated']}")
-report_frag.append(f"- 因类型跳过: {out['stats']['cards_skipped_by_type']}")
-report_frag.append(f"- 因相似度跳过: {out['stats']['cards_skipped_by_similarity']}")
-report_frag.append(f"- 因数量上限跳过: {out['stats']['cards_skipped_by_limit']}")
+report_frag.append(f"- 生成 KB-B 参照卡: {out['stats']['cards_generated']}")
+report_frag.append(f"- KB-B 因类型跳过: {out['stats']['cards_skipped_by_type']}")
+report_frag.append(f"- KB-B 因相似度跳过: {out['stats']['cards_skipped_by_similarity']}")
 report_frag.append("")
 report_frag.append("---")
 report_frag.append("")
@@ -70,19 +77,29 @@ for issue in demo_issues:
     report_frag.append(f"- 问题类型：{issue['issue_type']}")
     report_frag.append(f"- 所在位置：{issue['location']}")
     report_frag.append(f"- 问题说明：{issue['brief']}")
+
+    # ---- KB-A 规范依据（适用于所有 issue_type） ----
+    norm_md = build_norm_basis_md(issue['brief'], issue_type=issue['issue_type'])
+    if norm_md:
+        report_frag.append("")
+        report_frag.append(norm_md)
+
+    report_frag.append("")
     report_frag.append("- 修改建议：*（此处为 AI 生成的具体修改建议，占位）*")
     report_frag.append("")
+
+    # ---- KB-B 改进参照（仅对白名单内 issue_type） ----
     card = out["cards"].get(iid)
     if card:
         report_frag.append(card)
     else:
-        report_frag.append("> *（无参照卡片）*")
+        report_frag.append("> *（无 KB-B 参照卡片）*")
     report_frag.append("")
     report_frag.append("---")
     report_frag.append("")
 
 report_md = "\n".join(report_frag)
-out_path = ROOT / "knowledge_base/logs/e2e_demo_20260711.md"
+out_path = ROOT / "knowledge_base/logs/e2e_demo_v2_20260711.md"
 out_path.parent.mkdir(parents=True, exist_ok=True)
 out_path.write_text(report_md, encoding="utf-8")
 print(report_md)

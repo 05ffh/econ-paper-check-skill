@@ -73,17 +73,117 @@ class KBQuery:
                 raise RuntimeError(f"KB-B collection 未创建，请先跑 kb_ingest: {e}")
         return self._coll
 
-    # ---------- A 路由 · 规范层（占位）----------
+    # ---------- A 路由 · 规范层 ----------
     def query_norms(self, query: str, topk: int = 5) -> list[dict]:
         """
         A 路由：规范层 KB-A 检索（红黄绿判定依据）
 
-        当前 KB-A 尚未起草，返回 stub；未来实现后此方法即接入。
+        v1.5 实现：读取 knowledge_base/norms/{domain}/*.yaml 下的结构化条款，
+        对 title + summary + triggers + modification_hint 做关键词匹配。
+        未来可换成轻量向量检索，但目前条款量小（10-100 量级）关键词已够用。
         """
         if not NORMS_ROOT.exists():
             return []
-        # TODO: 起草 KB-A 规范层后实现（norms/writing/, citation/, methods/ 等）
-        return []
+        try:
+            import yaml
+        except ImportError:
+            return []
+
+        # 字符 n-gram + 关键词匹配（中文无分词器环境下的轻量方案）
+        # 1) query 以 2 字粒度拆（中文），遇到英文或数字保留完整词
+        import re
+        # 先取所有中英数字段
+        segs = re.findall(r"[\u4e00-\u9fa5]+|[A-Za-z0-9]+", query)
+        q_tokens = set()
+        for s in segs:
+            if re.match(r"[A-Za-z0-9]+", s):
+                if len(s) >= 2:
+                    q_tokens.add(s.lower())
+            else:
+                # 中文：取所有 2-gram
+                if len(s) >= 2:
+                    for i in range(len(s) - 1):
+                        q_tokens.add(s[i:i+2])
+                # 单个中文字不算 token（偉滤噪声）
+        if not q_tokens:
+            return []
+
+        candidates = []
+        for yaml_f in sorted(NORMS_ROOT.rglob("*.yaml")):
+            # skip registry
+            if "registry" in yaml_f.parts:
+                continue
+            try:
+                doc = yaml.safe_load(open(yaml_f, encoding="utf-8"))
+            except Exception:
+                continue
+            if not doc or "norms" not in doc:
+                continue
+            src_meta = {k: doc.get(k) for k in ("source_id", "source_name", "source_version", "authority_level", "copyright_mode")}
+            for n in doc["norms"]:
+                # 合并可搜索文本
+                blob = " ".join(str(n.get(k, "")) for k in ("title", "summary", "subdomain", "modification_hint"))
+                triggers = n.get("triggers") or []
+                if isinstance(triggers, list):
+                    blob += " " + " ".join(str(t) for t in triggers)
+                blob = blob.lower()
+
+                score = 0
+                matched_tokens = []
+                for tok in q_tokens:
+                    if tok.lower() in blob:
+                        score += 1
+                        matched_tokens.append(tok)
+                if score > 0:
+                    candidates.append((score, matched_tokens, n, src_meta, yaml_f))
+
+        if not candidates:
+            return []
+
+        # 按得分降序，且若最高得分很低、只命中 1 个常见字后缀，拒绝返回（降器噪声）
+        candidates.sort(key=lambda x: -x[0])
+        # 至少需要 2 个 token 命中
+        max_score = candidates[0][0]
+        if max_score < 2:
+            return []
+
+        # 额外过滤：如果词块命中的全部是高频虚词（“变量”、“方法”、“模型”、“检验”等），
+        # 且 max_score 仅为 2，视为弱匹配，拒绝
+        stopword_bigrams = {"变量", "方法", "模型", "检验", "分析", "研究", "结果", "影响", "数据"}
+        filtered = []
+        for score, matched, n, src, yaml_f in candidates:
+            informative = [t for t in matched if t not in stopword_bigrams]
+            # 若没有信息量词块且得分 <= 3，弃用
+            if not informative and score <= 3:
+                continue
+            filtered.append((score, n, src, yaml_f))
+        if not filtered:
+            return []
+        results = []
+        for rank, (score, n, src, yaml_f) in enumerate(filtered[:topk], 1):
+            results.append({
+                "rank": rank,
+                "norm_id": n.get("norm_id"),
+                "domain": n.get("domain"),
+                "subdomain": n.get("subdomain"),
+                "title": n.get("title"),
+                "default_level": n.get("default_level"),
+                "check_priority": n.get("check_priority"),
+                "source_locator": n.get("source_locator"),
+                "summary": n.get("summary", "").strip(),
+                "triggers": n.get("triggers", []),
+                "modification_hint": n.get("modification_hint", ""),
+                "example_correct": n.get("example_correct", ""),
+                "example_wrong": n.get("example_wrong", ""),
+                "match_score": score,
+                "source": src,
+                "meta": {
+                    "kb_layer": "normative_basis",
+                    "can_be_error_evidence": True,
+                    "authority_level": src.get("authority_level"),
+                },
+            })
+        return results
 
     # ---------- B 路由 · 范例层 ----------
     def _fetch_neighbors(self, paper_id: str, start_chunk_no: int, n: int = 2) -> list[dict]:
@@ -313,6 +413,21 @@ def format_result_human(res: dict, verbose=False) -> str:
         lines.append("  ⚠️  无结果")
         return "\n".join(lines)
 
+    # A 路由：规范条款输出
+    if res["route"] == "A":
+        for r in res["results"]:
+            lines.append(f"\n  #{r['rank']}  {r['norm_id']}  [{r['default_level']}] · score={r['match_score']}")
+            lines.append(f"      title: {r['title']}")
+            lines.append(f"      source: {r['source']['source_name']} · {r.get('source_locator','-')}")
+            summary = r['summary']
+            if not verbose and len(summary) > 220:
+                summary = summary[:220] + "..."
+            lines.append(f"      summary: {summary}")
+            if r.get("modification_hint"):
+                lines.append(f"      hint: {r['modification_hint']}")
+        return "\n".join(lines)
+
+    # B 路由：范例片段
     for r in res["results"]:
         lines.append(f"\n  #{r['rank']}  {r['chunk_id']}  (sim={r['similarity']})")
         lines.append(f"      paper_id: {r['paper_id']} · "
