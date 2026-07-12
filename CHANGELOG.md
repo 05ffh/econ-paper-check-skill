@@ -11,7 +11,53 @@
 
 ---
 
-## [Unreleased] - Phase 1 骨架进行中
+## [Unreleased] - Phase 2 骨架进行中
+
+### Added (Phase 2 骨架, v1.6.0-rc.2)
+- **Provider 抽象层**：
+  - `scripts/vision/providers/base.py` (163 行) · BaseVisionProvider + TaskKind + ProviderError + VisionRequest/Response
+  - `scripts/vision/providers/paddle_provider.py` (骨架) · PP-StructureV3 探测就绪，`recognize()` 抛 NOT_INSTALLED
+  - `scripts/vision/providers/ark_provider.py` (骨架) · 火山方舟多模态 探测就绪，`recognize()` 抛 NOT_CONFIGURED
+  - `scripts/vision/providers/mock_provider.py` (166 行) · **单测/骨架用可运行 Provider**，支持全部 TaskKind
+- **视觉输出统一 Schema**：
+  - `scripts/vision/schemas/vision_output.schema.json` (JSON Schema draft-07)
+  - 事实层 = `cells[]`（关键单元格含 row/col/span/text/normalized_value/stars/semantic_role/bbox/variable_column_flag）
+  - `derived_views` 只作衍生视图（headers/rows/coefficients_matrix）
+  - 公式 = LaTeX + bbox + symbols + image_hash + render_valid + variable_matches（**M3.1 不强制 MathML**）
+  - 参考文献 = CSL-JSON 内层 + raw_text/page/bbox/parse_quality 外层
+  - 全 Schema 含 schema_version + provenance
+- **视觉链路模块**：
+  - `scripts/vision/normalizer.py` (240 行) · Provider raw → 统一 Schema
+  - `scripts/vision/quality_scorer.py` (330 行) · **系统结构校验产生 extraction_quality_score，禁模型自报 confidence**
+  - `scripts/vision/knowledge_bridge.py` (240 行) · KB-A/KB-B 门禁 + student_evidence 结构化打包（`review_notice` 字段承载警告，禁硬编码到 parsed_text）
+- **配置外置**：
+  - `config/vision/document_triage.yaml` · 分诊阈值配置
+  - `config/vision/kb_bridge.yaml` · KB 门禁阈值 + M3.1 硬约束（`pure_vision_evidence_can_be_red: false`）
+- **安装脚本**：
+  - `scripts/install_paddle.sh` · CPU/GPU 双模式 + `--check` 探测模式；Phase 2 保护模式，默认不自动 pip install
+- **doctor 增强**：
+  - local_vision / cloud_vision 分组接入 Provider 真实 describe()
+- **端到端 pytest 冒烟**：
+  - `tests/vision/test_pipeline_smoke.py` (10 用例，全通过)
+
+### Verified (Phase 2 骨架)
+- Python 3.12.3（宿主）与 Python 3.11.15（干净 venv）双环境 **10/10 pytest 通过**：
+  - MockProvider → normalize → quality_scorer → knowledge_bridge 全链路
+  - PaddleProvider / ArkProvider 未启用时正确抛 NOT_INSTALLED / NOT_CONFIGURED
+  - student_evidence 结构合规（含 source_type / parsed_text / bbox / provenance / quality_profile / review_notice）
+  - 低质量 profile 正确被 KB 门禁拒绝（`kb_a_evidence_eligible=False` / `kb_b_eligible=False`）
+- `install_paddle.sh --check` 探测正常，未执行安装（骨架保护模式）
+
+### Bounded Scope (Phase 2 骨架)
+- ❌ 未装 paddleocr / paddlepaddle / opencv-python-headless
+- ❌ 未装 volcengine-python-sdk
+- ❌ Provider `recognize()` 未真跑（仅骨架抛 ProviderError）
+- ❌ 未改判断内核（rules/ + agent_instructions 主体 + references/）
+- ❌ 未改 build_reference_card / kb_query / kb_admin
+
+---
+
+## [1.6.0-rc.1] - 2026-07-12 (Phase 1 骨架完成)
 
 ### Added
 - Phase 1 骨架完成（v1.6.0-rc.1）：

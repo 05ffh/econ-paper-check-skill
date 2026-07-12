@@ -41,3 +41,9 @@ tests/vision/fixtures/adversarial/*.jpg
 
 # Debug 视觉临时文件
 .debug_vision/
+
+# Local Python virtualenvs (M3 v1.6+)
+.venv/
+.venv-*/
+venv/
+env/

@@ -1,0 +1,26 @@
+# kb_bridge.yaml · M3 v1.6.0
+# 视觉证据 → KB-A/KB-B 门禁阈值
+# Phase 4 完成后 knowledge_bridge 读取本文件覆盖默认值
+
+kb_bridge:
+  # KB-A 依据资格：hard_gates_passed + extraction_quality_score ≥ threshold
+  kb_a_evidence_min_score: 0.75
+
+  # KB-B 参照资格：hard_gates_passed + extraction_quality_score ≥ threshold
+  kb_b_min_score: 0.85
+
+  # KB-A 查询资格：所有 vision 结果都能查询（用于通用规范查找）
+  kb_a_query_always_eligible: true
+
+  # 红色 issue 依据的额外门槛（追加补齐清单硬约束）
+  red_issue_gates:
+    require_hard_gates_passed: true
+    require_critical_field_score: 1.0
+    require_extraction_score: 0.90
+    require_two_independent_sources: true       # 至少两处独立可读证据
+    require_at_least_one_native_text_source: true  # 至少一处 DOCX / PDF 原生文本
+
+  # M3.1 硬约束
+  m31_hard_constraints:
+    pure_vision_evidence_can_be_red: false      # 两处证据全 Vision 时禁自动判红
+    formula_recognition_dod_required: false     # 公式识别 M3.1 不作强制 DoD

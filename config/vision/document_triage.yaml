@@ -1,0 +1,27 @@
+# document_triage.yaml · M3 v1.6.0
+# PDF 分诊阈值配置（外置 document_triage.py 常量）
+# Phase 4 完成后 document_triage 读取本文件覆盖默认值
+
+triage:
+  # 每页扫描判定的组合条件
+  text_char_min_per_page: 200         # 每页最小字符数（原生文本层）
+  text_area_ratio_min: 0.20           # 文本区域占比最低
+  image_area_ratio_max_for_text: 0.50 # 图片占比超此值倾向扫描
+
+  # 三分类阈值（scanned 页占比）
+  text_pdf_max_ratio: 0.20            # < 20% scanned → text_pdf
+  scanned_pdf_min_ratio: 0.80         # ≥ 80% scanned → scanned_pdf
+
+  # 双栏判断
+  double_column_min_blocks: 6         # 页面至少这么多文本块才判双栏
+  column_gap_min_ratio: 0.03          # 列间距占页宽最低比例
+  vertical_overlap_min_ratio: 0.30    # 双栏文本块垂直重叠最低
+
+  # 旋转与倾斜
+  rotation_degrees_alert: 5.0         # 旋转 > 5 度告警
+  skew_degrees_alert: 3.0             # 倾斜 > 3 度告警
+
+  # 阈值校准来源
+  calibration_status: uncalibrated    # Phase 5 benchmark 后 → calibrated
+  calibration_dataset: null           # 例如 "gdufe-2024-econ-papers-30"
+  calibration_date: null

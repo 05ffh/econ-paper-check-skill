@@ -1,0 +1,235 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "M3 Vision Output Schema · v1.6.0",
+  "description": "视觉识别的统一输出结构。事实层为 cells[]，derived_views 只是衍生视图。",
+  "type": "object",
+  "required": ["schema_version", "artifact_type", "provenance"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "vision.v1"
+    },
+    "artifact_type": {
+      "type": "string",
+      "enum": ["ocr_page", "table", "formula", "reference_block", "layout"]
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["provider_name", "model_id", "generated_at", "raw_response_hash"],
+      "properties": {
+        "provider_name": { "type": "string" },
+        "model_id": { "type": "string" },
+        "generated_at": { "type": "string", "format": "date-time" },
+        "raw_response_hash": { "type": "string" },
+        "raw_response_ref": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string", "description": "Debug 模式临时文件路径，≤24h 清理" }
+          ]
+        },
+        "input_artifact_ref": { "type": "string" },
+        "input_bbox": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "array", "minItems": 4, "maxItems": 4, "items": { "type": "number" } }
+          ]
+        },
+        "page_number": { "type": ["integer", "null"] },
+        "latency_ms": { "type": "integer" },
+        "api_cost_estimate_cny": { "type": "number" },
+        "runtime_mode": {
+          "type": "string",
+          "enum": ["core", "local_vision", "cloud_enhanced"]
+        }
+      }
+    },
+
+    "cells": {
+      "type": "array",
+      "description": "表格事实层。所有表格衍生视图（headers/rows/coefficients_matrix）由 cells[] 推导。",
+      "items": {
+        "type": "object",
+        "required": ["row", "col", "text"],
+        "properties": {
+          "row": { "type": "integer", "minimum": 0 },
+          "col": { "type": "integer", "minimum": 0 },
+          "row_span": { "type": "integer", "minimum": 1, "default": 1 },
+          "col_span": { "type": "integer", "minimum": 1, "default": 1 },
+          "text": { "type": "string", "description": "原始文本" },
+          "normalized_value": {
+            "oneOf": [
+              { "type": "null" },
+              { "type": "number" },
+              { "type": "string" }
+            ],
+            "description": "标准化数值（如去掉星号后的浮点数）"
+          },
+          "stars": {
+            "type": ["integer", "null"],
+            "description": "显著性星号数（0/1/2/3），无则 null"
+          },
+          "semantic_role": {
+            "type": "string",
+            "enum": [
+              "header_row", "header_col", "variable_name", "coefficient",
+              "std_error", "t_stat", "p_value", "obs_count", "r_squared",
+              "sample_size", "note", "other"
+            ]
+          },
+          "bbox": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": { "type": "number" }
+          },
+          "variable_column_flag": {
+            "type": "boolean",
+            "description": "是否属于变量列（用于回归表识别）"
+          }
+        }
+      }
+    },
+
+    "derived_views": {
+      "type": "object",
+      "description": "**只读衍生视图**，仅供报告渲染便利，不应作为事实来源。",
+      "properties": {
+        "headers": { "type": "array", "items": { "type": "string" } },
+        "rows": {
+          "type": "array",
+          "items": { "type": "array", "items": { "type": "string" } }
+        },
+        "coefficients_matrix": {
+          "type": "array",
+          "items": { "type": "array" }
+        }
+      }
+    },
+
+    "ocr_blocks": {
+      "type": "array",
+      "description": "artifact_type=ocr_page 时使用",
+      "items": {
+        "type": "object",
+        "required": ["text"],
+        "properties": {
+          "text": { "type": "string" },
+          "bbox": { "type": "array", "minItems": 4, "maxItems": 4 },
+          "language": { "type": "string" },
+          "reading_order_index": { "type": "integer" }
+        }
+      }
+    },
+
+    "formula": {
+      "type": "object",
+      "description": "artifact_type=formula 时使用",
+      "required": ["latex", "bbox"],
+      "properties": {
+        "latex": { "type": "string" },
+        "mathml": { "type": ["string", "null"], "description": "M3.1 不强制" },
+        "bbox": { "type": "array", "minItems": 4, "maxItems": 4 },
+        "symbols": { "type": "array", "items": { "type": "string" } },
+        "image_hash": { "type": "string", "description": "原图裁剪 SHA-256" },
+        "render_valid": {
+          "type": "boolean",
+          "description": "LaTeX 语法可渲染（Phase 4 校验）"
+        },
+        "variable_matches": {
+          "type": "array",
+          "description": "论文正文中同名变量的引用位置",
+          "items": {
+            "type": "object",
+            "properties": {
+              "variable": { "type": "string" },
+              "occurrences": { "type": "array" }
+            }
+          }
+        }
+      }
+    },
+
+    "references": {
+      "type": "array",
+      "description": "artifact_type=reference_block 时使用。**内层为 CSL-JSON**，**外层保留 raw_text/page/bbox/parse_quality**。",
+      "items": {
+        "type": "object",
+        "required": ["raw_text"],
+        "properties": {
+          "raw_text": { "type": "string" },
+          "page": { "type": "integer" },
+          "bbox": { "type": "array", "minItems": 4, "maxItems": 4 },
+          "parse_quality": {
+            "type": "string",
+            "enum": ["high", "medium", "low", "failed"]
+          },
+          "csl": {
+            "type": "object",
+            "description": "CSL-JSON 结构；不合法则设为 null"
+          }
+        }
+      }
+    },
+
+    "layout_regions": {
+      "type": "array",
+      "description": "artifact_type=layout 时使用",
+      "items": {
+        "type": "object",
+        "required": ["kind", "bbox"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["text", "title", "table", "figure", "formula", "reference", "footer", "header", "unknown"]
+          },
+          "bbox": { "type": "array", "minItems": 4, "maxItems": 4 },
+          "reading_order_index": { "type": "integer" },
+          "column_index": { "type": "integer" }
+        }
+      }
+    },
+
+    "quality_profile": {
+      "type": "object",
+      "description": "由 quality_scorer 系统结构校验生成，**禁止模型自报 confidence 填充**。",
+      "required": ["extraction_quality_score", "hard_gates_passed"],
+      "properties": {
+        "extraction_quality_score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "critical_field_score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "hard_gates_passed": { "type": "boolean" },
+        "structural_issues": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "recognition_coverage": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      }
+    },
+
+    "kb_eligibility": {
+      "type": "object",
+      "description": "由 knowledge_bridge 根据 quality_profile 派生",
+      "properties": {
+        "kb_a_query_eligible": { "type": "boolean" },
+        "kb_a_evidence_eligible": { "type": "boolean" },
+        "kb_b_eligible": { "type": "boolean" }
+      }
+    },
+
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

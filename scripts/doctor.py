@@ -284,20 +284,28 @@ def _check_secret_scan() -> dict:
 # Phase 2+ 才实现的检查（占位）
 
 def _check_local_vision() -> dict:
-    """Local Vision 检查（Phase 2 完整实现）。"""
-    return {
-        "status": "not_implemented",
-        "note": "Phase 2 启用",
-    }
+    """Local Vision Provider 探测（Phase 2 骨架）。"""
+    try:
+        sys.path.insert(0, str(SCRIPT_DIR / "vision" / "providers"))
+        from paddle_provider import PaddleLocalProvider
+        return PaddleLocalProvider().describe()
+    except Exception as e:
+        return {"status": "error", "note": str(e)}
 
 
 def _check_cloud_vision(online: bool) -> dict:
-    """Cloud Vision 检查（Phase 3 完整实现）。"""
+    """Cloud Vision Provider 探测（Phase 2 骨架）。"""
     checks = {
         "ark_api_key": {"status": "pass" if os.getenv("ARK_API_KEY") else "missing"},
         "ark_base_url": {"status": "pass" if os.getenv("ARK_BASE_URL") else "missing"},
         "ark_vision_model_id": {"status": "pass" if os.getenv("ARK_VISION_MODEL_ID") else "missing"},
     }
+    try:
+        sys.path.insert(0, str(SCRIPT_DIR / "vision" / "providers"))
+        from ark_provider import ArkCloudProvider
+        checks["provider_describe"] = ArkCloudProvider().describe()
+    except Exception as e:
+        checks["provider_describe"] = {"status": "error", "note": str(e)}
     if online:
         checks["online_ping"] = {
             "status": "not_implemented",
