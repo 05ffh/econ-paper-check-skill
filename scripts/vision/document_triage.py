@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """document_triage.py · M3 v1.6.0 · Phase 1
 
-PDF 页级类型分诊器。**Core 模式即执行**，**不做 OCR 内容识别**。
+PDF 页级类型分诊器。**仅走文本层/图层面积统计**，**不做 OCR 内容识别**。
 
 设计原则（v0.2 §3 + BUILD_GATE_ADDENDUM）：
 - 每页输出 page triage 对象 + 全文 document summary 双输出
@@ -12,8 +12,8 @@ PDF 页级类型分诊器。**Core 模式即执行**，**不做 OCR 内容识别
 - 双栏判断：文本块横向聚类 + 列间距 + 垂直重叠综合
 
 用途：
-- Core 模式：告诉用户"哪些页面 Core 处理不了"
-- Local/Cloud 模式：驱动 vision_planner 决定视觉处理策略
+- 无视觉辅助时：告诉用户“哪些页面无法可靠处理”
+- 有视觉辅助时：驱动 vision_pipeline 预筛选目标页，决定视觉处理策略
 - 报告：显示 PDF 覆盖率、成功识别内容、未覆盖内容
 
 CLI：
@@ -82,7 +82,7 @@ class DocumentSummary:
     document_type: str            # text_pdf | mixed_pdf | scanned_pdf
     double_column_pages: int
     rotation_issues: List[int] = field(default_factory=list)
-    recommended_mode: str = "core"
+    recommended_mode: str = "vision_optional"  # v0.3.1: 无模式概念，仅标记是否需视觉辅助
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -256,15 +256,15 @@ def _analyze_page(page) -> PageTriage:
     # 页分类
     page_type = _classify_page(char_count, text_area_ratio, image_area_ratio)
 
-    # 可覆盖模式
+    # 可覆盖策略（v0.3.1：不再以模式名为单位）
     if page_type in ("text",):
-        coverable = ["core", "local_vision", "cloud_enhanced"]
+        coverable = ["text_only", "vision_optional"]
     elif page_type == "mixed":
-        coverable = ["local_vision", "cloud_enhanced"]
+        coverable = ["vision_recommended"]
     elif page_type == "scanned":
-        coverable = ["local_vision", "cloud_enhanced"]
+        coverable = ["vision_required"]
     else:
-        coverable = ["core"]
+        coverable = ["text_only"]
 
     return PageTriage(
         page_index=page.page_number,
@@ -301,13 +301,13 @@ def _summarize(pages: List[PageTriage]) -> DocumentSummary:
     double_col = sum(1 for p in pages if p.column_layout == "double")
     rotation_issues = [p.page_index for p in pages if abs(p.rotation_degrees) > 5]
 
-    # 推荐模式（骨架版；Phase 2+ 会结合 mode_resolver）
+    # 推荐处理策略（v0.3.1：无模式，仅标记是否需视觉）
     if doc_type == "text_pdf":
-        recommended = "core"
+        recommended = "text_only"          # 无需视觉
     elif doc_type == "mixed_pdf":
-        recommended = "local_vision"
+        recommended = "vision_recommended"  # 建议开启视觉辅助
     else:
-        recommended = "local_vision"
+        recommended = "vision_required"     # 扫描件，视觉必需（未开 = 全降灰）
 
     return DocumentSummary(
         total_pages=total,
@@ -387,7 +387,7 @@ def _format_human(report: TriageReport) -> str:
         f"  · 双栏页 : {s.double_column_pages}",
         f"  · 旋转异常页 : {s.rotation_issues}",
         f"文档类型：{s.document_type}",
-        f"推荐模式：{s.recommended_mode}",
+        f"推荐处理策略：{s.recommended_mode}",
     ]
 
     if s.total_pages <= 20:

@@ -41,6 +41,7 @@ sys.path.insert(0, str(ROOT))
 from base import TaskKind, VisionRequest  # noqa: E402
 from ark_provider import ArkCloudProvider  # noqa: E402
 from dispatcher import VisionDispatcher  # noqa: E402
+from upload_policy import decide_upload, scan_recommendation, polite_scan_notice  # noqa: E402
 from normalizer import normalize  # noqa: E402
 from quality_scorer import score  # noqa: E402
 from knowledge_bridge import (  # noqa: E402
@@ -81,11 +82,42 @@ def run_vision_on_page(
     page_num: int,
     task_kind: TaskKind = TaskKind.TABLE_STRUCTURE,
     timeout_seconds: float = 60.0,
+    is_full_page: bool = True,
+    allow_full_page_upload: bool = True,
 ) -> dict:
     """
     对单页图像做一次视觉识别，返回打包好的 vision_student_evidence 结构。
     识别失败/降级 → 返回带 downgrade_reason 的降灰结构。
+
+    v0.3.1 P0-3 & P0-7：
+    - 先走 upload_policy.decide_upload（尺寸/字节数阈值）
+    - 整页上传需 allow_full_page_upload=True（否则降灰）
     """
+    # v0.3.1 上传策略前置检查
+    if is_full_page and not allow_full_page_upload:
+        return {
+            "source_type": "vision_failed",
+            "page_number": page_num,
+            "artifact_ref": str(image_path),
+            "parsed_text": "",
+            "downgrade_reason": "full_page_upload_not_authorized: 需用户显式【确认上传】",
+            "review_notice": "整页图像未获授权上传，请人工核对原图",
+            "requires_visual_review": True,
+        }
+
+    decision = decide_upload(str(image_path), is_full_page=is_full_page)
+    if not decision.allow:
+        return {
+            "source_type": "vision_failed",
+            "page_number": page_num,
+            "artifact_ref": str(image_path),
+            "parsed_text": "",
+            "downgrade_reason": f"upload_policy_rejected: {decision.reason}",
+            "scale_hint": decision.scale_hint,
+            "review_notice": "图像超上传阈值，未进行视觉识别，请人工核对原图",
+            "requires_visual_review": True,
+        }
+
     req = VisionRequest(
         artifact_ref=str(image_path),
         task_kind=task_kind,
@@ -137,20 +169,41 @@ def process_pdf(
     target_pages: list[int],
     workdir: Path,
     task_kind: TaskKind = TaskKind.TABLE_STRUCTURE,
+    document_type: str = "text_pdf",
+    allow_full_page_upload: bool = True,
 ) -> dict:
     """
     对 PDF 指定页做视觉识别，输出结果字典。
+
+    Args:
+        document_type: 来自 document_triage.py（text_pdf / mixed_pdf / scanned_pdf）
+        allow_full_page_upload: 整页上传授权（默认 True，主链路已经预筛选目标页）
 
     Returns:
         {
           "provider": "ark_cloud",
           "model_id": "...",
+          "document_type": "text_pdf",
+          "scan_recommendation": "upload_regions_only",
           "target_pages": [...],
           "evidences": [ {...page 20 vision result}, ... ],
           "artifacts_dir": ".../artifacts/",
           "totals": {"quota_used": N, "quota_limit": M, ...},
         }
     """
+    # v0.3.1 P0-3：纯扫描 PDF 全篇降灰
+    recommendation = scan_recommendation(document_type)
+    if recommendation == "downgrade_to_gray":
+        return {
+            "provider": "ark_cloud",
+            "available": False,
+            "reasons": [polite_scan_notice()],
+            "document_type": document_type,
+            "scan_recommendation": recommendation,
+            "target_pages": target_pages,
+            "evidences": [],
+        }
+
     provider = ArkCloudProvider()
     ok, reasons = provider.available()
     if not ok:
@@ -192,9 +245,11 @@ def process_pdf(
         except Exception:
             pass  # 缩略图失败不影响识别
 
-        # 视觉识别
+        # 视觉识别（挂 upload_policy）
         evidence = run_vision_on_page(
-            dispatcher, full_png, page, task_kind=task_kind
+            dispatcher, full_png, page, task_kind=task_kind,
+            is_full_page=True,
+            allow_full_page_upload=allow_full_page_upload,
         )
         evidence["thumbnail_ref"] = str(thumb_png) if thumb_png.exists() else None
         evidence["full_image_ref"] = str(full_png)
@@ -209,6 +264,9 @@ def process_pdf(
         "provider": "ark_cloud",
         "available": True,
         "model_id": provider.model_id,
+        "document_type": document_type,
+        "scan_recommendation": recommendation,
+        "allow_full_page_upload": allow_full_page_upload,
         "target_pages": target_pages,
         "evidences": evidences,
         "artifacts_dir": str(artifacts_dir),
@@ -229,6 +287,11 @@ def main(argv: Optional[list[str]] = None) -> int:
     parser.add_argument("--task", default="TABLE_STRUCTURE",
                         choices=["TABLE_STRUCTURE", "OCR_REGION"],
                         help="视觉任务类型")
+    parser.add_argument("--document-type", default="text_pdf",
+                        choices=["text_pdf", "mixed_pdf", "scanned_pdf"],
+                        help="文档类型（来自 document_triage.py；text_pdf/mixed_pdf/scanned_pdf）")
+    parser.add_argument("--no-full-page-upload", action="store_true",
+                        help="禁止整页上传（默认允许）")
     parser.add_argument("--out", help="输出 JSON 路径（默认 workdir/vision_result.json）")
     args = parser.parse_args(argv)
 
@@ -238,7 +301,12 @@ def main(argv: Optional[list[str]] = None) -> int:
     target_pages = [int(p.strip()) for p in args.pages.split(",") if p.strip()]
     task_kind = TaskKind[args.task]
 
-    result = process_pdf(args.pdf, target_pages, workdir, task_kind=task_kind)
+    result = process_pdf(
+        args.pdf, target_pages, workdir,
+        task_kind=task_kind,
+        document_type=args.document_type,
+        allow_full_page_upload=not args.no_full_page_upload,
+    )
 
     out_path = Path(args.out) if args.out else workdir / "vision_result.json"
     out_path.write_text(

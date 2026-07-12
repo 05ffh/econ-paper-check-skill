@@ -64,7 +64,6 @@
 证据为弱、是否需要该内容存在争议、论文类型不适用该规则、只是表达优化、只是高级模型建议、只是格式模板差异时，不得列为红色。
 
 ## 9bis. 红色硬伤强制清单（不得降级）
-
 本节用于消除“同一问题在不同智能体上被判成红色或绿色”的不一致。以下情形只要在可解析内容中出现且证据确凿，**一律判为红色，不得降级为黄色或绿色，也不得以“细微偏差”“笔误”“语言表达”为由弱化**。这些属于数据可复核性与结论可信度的硬伤，是本科经管论文的核心质量红线。
 
 强制红色清单：
@@ -82,6 +81,57 @@
 - 上述任一情形一经确认，`level` 必须为“红色”，`evidence_strength` 必须为“强”，且 evidence 字段必须**同时列出相互矛盾的两处证据**（例如“正文段落#73:0.266”与“表格#3:0.269”）。
 - 只有当相关内容位于无法解析的图片/公式对象、无法确认两处数值时，才可转为灰色需人工确认；一旦两处数值均可读且确实矛盾，不得转灰、不得降级。
 - 判断“矛盾”以可解析文本为准，不得臆测；但发现可读的数字冲突时，必须判红，不得回避。
+
+## 9ter. 视觉证据强度规则（v1.6+ · M3 视觉模块）
+
+当 `student_evidence.source_type` 为 `"vision"` 或 `"vision_failed"` 时，适用本节。本节不改变 § 9 / § 9bis 对“两处独立可读、两处矛盾”的定义，仅确定视觉证据进入两处时的强度与判级允许。
+
+### 9ter.1 视觉证据的三个关键字段
+
+- `quality_profile.extraction_quality_score` ∈ [0, 1]：提取质量分（结构完整度 + 识别覆盖度）
+- `quality_profile.critical_field_score` ∈ [0, 1]：关键字段完整度（表格的变量列/系数列/显著性、公式的变量符号等）
+- `quality_profile.hard_gates_passed` ∈ {true, false}：硬门禁校验是否通过（存在 cells / 存在关键行 / 无敏感词命中等）
+
+三个字段均由 `scripts/vision/quality_scorer.py` 系统结构校验打分，**不采信** Provider 自报的 confidence。
+
+### 9ter.2 判级门槛
+
+| 证据组合 | 视觉证据条件 | 允许判级 |
+|---|---|---|
+| 两处独立可读，**至少一处 DOCX / PDF 原生文本** | vision 端需 `hard_gates_passed=true` + `extraction_score ≥ 0.75` | 红 · 黄 · 绿 · 灰 |
+| 一处 DOCX / PDF 文本 + 一处 vision | vision 端需 `hard_gates_passed=true` + `extraction_score ≥ 0.75` | **黄** · 绿 · 灰（不得判红） |
+| 两处均为 vision | 任意 | 绿 · **灰**（不得判红与黄） |
+| 单处 vision 作提醒 | 任意 | **灰** · need_manual_confirmation=true |
+| `source_type="vision_failed"` 或 `hard_gates_passed=false` | / | **灰** + 进 `manual_confirmation_items` |
+
+**M3.1 硬约束**：`pure_vision_evidence_can_be_red = false`。即即使视觉识别质量极高，只要证据全部来自视觉，**不自动判红**。红色判决必须有至少一处 DOCX 原生文本或 PDF 文本层证据支撑。
+
+### 9ter.3 视觉证据的 evidence 字段写法
+
+- 视觉提取的 `parsed_text` **可以**直接展示在 `issue.evidence` 字段（作为学生论文内容的一部分）
+- 视觉证据需带前缀：`[视觉解析·请核对原图]`
+- **不得**在 evidence 正文硬编码告警语（如“本内容视觉识别可能错”）；告警只能通过 `review_notice` 字段承载，由渲染器展示
+- 视觉证据对应的 issue 必须同时写入 `vision_evidence` 字段（含 `page_number` / `thumbnail_ref` / `quality_profile` / `kb_eligibility` / `table_preview`），供报告渲染展示缩略图与预览表
+
+### 9ter.4 KB 门禁（与 evidence 门槛一致）
+
+走 `scripts/vision/knowledge_bridge.py::compute_kb_eligibility()`：
+
+- `kb_a_query_eligible`：所有视觉结果均可用于 KB-A **查询**
+- `kb_a_evidence_eligible`：`hard_gates_passed = true` + `extraction_score ≥ 0.75` 方可作为 issue 依据
+- `kb_b_eligible`：`hard_gates_passed = true` + `extraction_score ≥ 0.85` 方可挂参照卡
+
+不合格的视觉结果仍可挂灰色 issue 作人工核对提醒，但**不得**作为红黄绿判定依据。
+
+### 9ter.5 视觉证据与三层证据分离
+
+| 三层 | 视觉可否 |
+|---|---|
+| `student_evidence` | ✅ 可（`source_type="vision"`） |
+| `normative_basis`（KB-A） | ❌ 视觉永远不作规范依据内容 |
+| `example_reference`（KB-B） | ❌ 视觉永远不作参照卡内容 |
+
+详见 `agent_instructions/vision_protocol.md`。
 
 ## 10. 需人工确认触发条件
 

@@ -213,3 +213,54 @@ Phase 1 严格边界：
 - KB-A/KB-B 0 改动
 - Provider 契约：只识别不评分不裁剪不缓存不自报 confidence
 - 视觉不作红色唯一依据
+
+## [1.6.1] - 2026-07-12 · M3 收尾 (Round A/B/C/D)
+
+### Round A · 声明层重写
+- `SKILL.md § 9`：改写 KB 状态说明（KB-A 18 条已上线 · 三层证据表格化）
+- `SKILL.md § 10`：新增视觉辅助识别章节（三态判断 · 硬约束 7 条 · 端到端管线示意）
+- `agent_instructions/vision_protocol.md`：从 119 行骨架扩到 339 行完整版
+  - § 2 单一运行流程（无模式概念）
+  - § 3 PDF 输入礼仪 10 条（含纯扫描 PDF 特殊处理）
+  - § 4 视觉证据的结构化对象（source_type=vision/vision_failed）
+  - § 5 KB-A/KB-B 门禁三个字段与判定表
+  - § 6 判级门槛（含 pure_vision_evidence_can_be_red=false）
+  - § 7 隐私授权两级
+  - § 8-11 主链路接入 / 快照回退 / 测试 / 参考
+- `agent_instructions/evidence_requirement.md § 9ter`：新增 5 小节视觉证据强度规则
+
+### Round B · 工程闭环
+- `scripts/vision_pipeline.py`：挂接 `upload_policy`
+  - 纯扫描 PDF 全篇降灰（`scan_recommendation`）
+  - 图像尺寸/字节数硬阈值校验（`decide_upload`）
+  - `--no-full-page-upload` CLI 参数 · `--document-type` 传导
+  - 未授权/被拒 → 降灰 `vision_failed`，不消耗 quota
+- `tests/vision/test_ark_mock_openai.py`：新增 15 项 Ark Provider Mock 测试
+  - 幂等 hash / 系统提示锚定 / M3.1 任务收窄
+  - 错误映射 4 类（RateLimit/Auth/Timeout/Connection）
+  - JSON 解析兜底 3 场景（```json 包裹 / 垃圾内容 / 空 content）
+  - 无 confidence/level/red-yellow 禁字段
+- `constraints-tested.txt`：61 行版本锁清单（openai==1.109.1 / pydantic-core==2.46.4 / pypdfium2==5.7.1 等）
+
+### Round C · 归档 & 收尾
+- `plans/M3_多模型视觉计划书_v0.3_轻量化.md` → `plans/archive/`（被 v0.3.1 覆盖）
+- `plans/M3_v0.3_prebuild_audit.md` → `plans/archive/`
+- `scripts/vision/document_triage.py`：删除"推荐模式：core"等 v0.2 遗留字样
+  - `recommended_mode` 从 core/local_vision/cloud_enhanced → text_only/vision_optional/vision_recommended/vision_required
+  - 页级 coverable_by_mode 同步改写
+
+### Round D · v1.5.0 DOCX 基线 diff 验证
+- git worktree 检出 `v1.5.0-pre-m3` 副本
+- DOCX (176 KB / 161 units) 分别用 v1.5.0 和 v1.6.0 跑 parse_paper
+- **paper_text.json sha256 完全一致**：`5bd30276...ad7e`
+- v1.6.0 用 build_end_to_end_report + render_report/html 跑通同一 DOCX 无异常
+- 结论：DOCX 全流程 M3 未回归
+
+### 测试
+- pytest 29/29 全过（14 老 + 15 新 Ark Mock）
+
+### 约束守住
+- 判断内核 0 改动
+- KB-A/KB-B 0 改动
+- Provider 契约完全守住
+- DOCX 全流程零回归（sha256 一致）
