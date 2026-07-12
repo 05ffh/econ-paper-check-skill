@@ -181,3 +181,35 @@ Phase 1 严格边界：
 - `7286998` feat(v1.5): M1 收尾 · kb_admin CRUD/快照/回滚 + KB-A 首批规范录入 + A 路由实现
 
 ---
+
+## [1.6.0] - 2026-07-12 · M3 Phase B/C/D 端到端闭环
+
+### 视觉链路真实落地
+- **首次真实 Ark 视觉调用成功**：模型 `doubao-seed-2-0-mini-260428`，OpenAI Compatible 接口
+- 张弘济初稿 p20 主回归表：pdfplumber 抓乱字符 → Ark 视觉识别 10×3 · 30/30 cells 完美
+  - Caption 完整：「表 3 主回归结果：LR对NIM的影响」
+  - 变量 LR/NPL/CAR/SIZE/CIR/Constant · 系数+显著性星号+t 统计量准确
+  - 单次调用 15.3s · 5316 tokens · ≈ 0.008 元
+- 提示注入防护实测生效：confidence/level/red-yellow-gray 禁字段全部未出现
+
+### 新增（Phase B）
+- `scripts/vision_pipeline.py`：视觉主链路（PDF 页 → 渲染 → 识别 → normalize → score → knowledge_bridge → student_evidence）
+- `scripts/build_end_to_end_report.py`：Phase C 报告构建（判断内核简化版 + 视觉证据挂载）
+
+### 增强（Phase C）
+- `scripts/render_report.py`：DOCX 支持视觉证据卡（模型/质量/KB-A 门禁 + 表格预览 + 缩略图插图）
+- `scripts/render_report_html.py`：HTML 支持视觉证据块（内联 base64 缩略图 + 表格 + 元信息条 + notice）
+- `scripts/vision/normalizer.py`：`_normalize_table` 补 `caption/n_rows/n_cols` 字段
+
+### 端到端验证（Phase D）
+- 分支 A（未配 Ark） vs 分支 B（配 Ark）两分支跑通
+- **判断内核 diff = 0**：去除视觉证据后两分支完全一致
+- **判级一致**：两分支 overall_risk 均"低-中"、issues 主键 `Y-01` 一致
+- 分支 B 多出 `G-V20` 视觉灰色 issue（仅供人工核对，不改判级）
+- pytest 14/14 全过
+
+### 约束守住
+- 判断内核 0 改动（rules/ + agent_instructions/ + references/）
+- KB-A/KB-B 0 改动
+- Provider 契约：只识别不评分不裁剪不缓存不自报 confidence
+- 视觉不作红色唯一依据

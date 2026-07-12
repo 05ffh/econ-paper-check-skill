@@ -113,6 +113,47 @@ def _issue_card(doc: Document, idx: int, f: dict) -> None:
     ]
     add_table(doc, rows)
 
+    # 视觉证据块（M3 v0.3.1）
+    ve = f.get("vision_evidence") or {}
+    if ve:
+        add_para(doc, "🔍 视觉辅助证据（仅供人工核对参考）", bold_label=None)
+
+        qp = ve.get("quality_profile") or {}
+        kbe = ve.get("kb_eligibility") or {}
+        meta_rows = [
+            ["项", "值"],
+            ["视觉模型", str(ve.get("model_id", "ark_cloud"))],
+            ["提取质量分", f"{qp.get('extraction_quality_score', 0):.2f}"],
+            ["硬门禁通过", "✅" if qp.get("hard_gates_passed") else "❌"],
+            ["KB-A 可用作依据", "✅" if kbe.get("kb_a_evidence_eligible") else "❌"],
+            ["审阅提醒", str(ve.get("review_notice", ""))],
+        ]
+        add_table(doc, meta_rows)
+
+        # 插入表格预览
+        tp = ve.get("table_preview") or {}
+        if tp.get("cells"):
+            n_rows = tp.get("n_rows") or (max((c.get("row", 0) for c in tp["cells"]), default=0) + 1)
+            n_cols = tp.get("n_cols") or (max((c.get("col", 0) for c in tp["cells"]), default=0) + 1)
+            grid = [["" for _ in range(n_cols)] for _ in range(n_rows)]
+            for c in tp["cells"]:
+                r, col = c.get("row", 0), c.get("col", 0)
+                if 0 <= r < n_rows and 0 <= col < n_cols:
+                    grid[r][col] = c.get("text", "")
+            caption = tp.get("caption", "")
+            if caption:
+                add_para(doc, f"【视觉识别表】{caption}")
+            add_table(doc, [[str(c) for c in row] for row in grid], header=True)
+
+        # 插入缩略图
+        thumb = ve.get("thumbnail_ref")
+        if thumb and Path(thumb).exists():
+            try:
+                doc.add_paragraph("【原图缩略（供核对）】").runs[0].bold = True
+                doc.add_picture(str(thumb), width=Inches(5.5))
+            except Exception as _e:
+                add_para(doc, f"（缩略图插入失败：{_e}）")
+
 
 def write_report(result: Dict[str, object], source_name: str, output_path: Path) -> None:
     doc = Document()

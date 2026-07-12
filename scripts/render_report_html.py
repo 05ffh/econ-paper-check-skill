@@ -44,6 +44,69 @@ def kv_row(k: str, v: str) -> str:
 def render_issue_card(idx: int, f: dict) -> str:
     level = f.get("level", "灰色")
     color, bg, emoji = LEVEL_COLOR.get(level, LEVEL_COLOR["灰色"])
+
+    # 视觉证据块（M3 v0.3.1）
+    ve = f.get("vision_evidence") or {}
+    vision_html = ""
+    if ve:
+        thumb = ve.get("thumbnail_ref")
+        thumb_html = ""
+        if thumb:
+            import base64 as _b64, os as _os
+            try:
+                if _os.path.exists(thumb):
+                    with open(thumb, "rb") as _fp:
+                        b64 = _b64.b64encode(_fp.read()).decode("ascii")
+                    thumb_html = f'<div class="vision-thumb"><img src="data:image/png;base64,{b64}" alt="page thumbnail" style="max-width:100%; border:1px solid #d0d7de; border-radius:6px;"/></div>'
+            except Exception:
+                pass
+
+        tp = ve.get("table_preview") or {}
+        table_html = ""
+        if tp.get("cells"):
+            # 构造 preview table
+            n_rows = tp.get("n_rows") or (max((c.get("row", 0) for c in tp["cells"]), default=0) + 1)
+            n_cols = tp.get("n_cols") or (max((c.get("col", 0) for c in tp["cells"]), default=0) + 1)
+            grid = [["" for _ in range(n_cols)] for _ in range(n_rows)]
+            for c in tp["cells"]:
+                r, col = c.get("row", 0), c.get("col", 0)
+                if 0 <= r < n_rows and 0 <= col < n_cols:
+                    grid[r][col] = c.get("text", "")
+            rows_html = ""
+            for i_row, row in enumerate(grid):
+                tag = "th" if i_row == 0 else "td"
+                cells_html = "".join(f"<{tag}>{e(cell)}</{tag}>" for cell in row)
+                rows_html += f"<tr>{cells_html}</tr>"
+            caption = tp.get("caption", "")
+            cap_html = f"<caption style='font-weight:600; text-align:left; padding:4px 0;'>{e(caption)}</caption>" if caption else ""
+            table_html = f'<div class="vision-table"><table class="std vision">{cap_html}{rows_html}</table></div>'
+
+        qp = ve.get("quality_profile") or {}
+        kbe = ve.get("kb_eligibility") or {}
+        meta_html = f"""
+        <div class="vision-meta">
+          <span class="vmeta">👁 视觉辅助识别</span>
+          <span class="vmeta">model: {e(ve.get('model_id', 'ark_cloud'))}</span>
+          <span class="vmeta">提取质量: {qp.get('extraction_quality_score', 0):.2f}</span>
+          <span class="vmeta">硬门禁: {'✅' if qp.get('hard_gates_passed') else '❌'}</span>
+          <span class="vmeta">KB-A 可用作依据: {'✅' if kbe.get('kb_a_evidence_eligible') else '❌'}</span>
+        </div>
+        """
+
+        notice_html = ""
+        if ve.get("review_notice"):
+            notice_html = f'<div class="vision-notice">⚠️ {e(ve["review_notice"])}</div>'
+
+        vision_html = f"""
+        <div class="vision-block">
+          <div class="vision-title">🔍 视觉辅助证据（仅供人工核对参考）</div>
+          {meta_html}
+          {thumb_html}
+          {table_html}
+          {notice_html}
+        </div>
+        """
+
     return f"""
 <div class="card" style="border-left:6px solid {color}; background:{bg};">
   <div class="card-head">{emoji} <strong>{idx}. {e(f.get('issue_id', ''))}</strong>｜{e(f.get('issue_type', ''))} <span class="tag" style="background:{color}">{e(level)}</span></div>
@@ -56,6 +119,7 @@ def render_issue_card(idx: int, f: dict) -> str:
     {kv_row('修改建议', f.get('suggestion', ''))}
     {kv_row('需人工确认', '是' if f.get('need_manual_confirmation') else '否')}
   </table>
+  {vision_html}
 </div>
 """
 
@@ -168,6 +232,16 @@ def write_html(result: Dict[str, object], source_name: str, output_path: Path) -
   .risk.低风险 {{ background:#e2f5e6; color:#27823b; }}
   .risk.需人工确认 {{ background:#eaeef4; color:#5f6a7d; }}
   .disclaimer {{ margin-top:36px; padding:14px 16px; background:#f3f5f9; border-radius:8px; color:var(--muted); font-size:12.5px; }}
+  .vision-block {{ margin-top:14px; padding:12px 14px; background:#f4f8fd; border-radius:6px; border:1px dashed #b6c9e3; }}
+  .vision-title {{ font-weight:600; font-size:13.5px; color:#1e4485; margin-bottom:8px; }}
+  .vision-meta {{ font-size:12px; color:#3a4a63; margin-bottom:10px; display:flex; flex-wrap:wrap; gap:8px; }}
+  .vmeta {{ padding:2px 8px; background:#dae6f5; border-radius:10px; }}
+  .vision-thumb {{ margin:8px 0; text-align:center; }}
+  .vision-thumb img {{ max-height:400px; }}
+  .vision-table {{ margin:8px 0; overflow-x:auto; }}
+  table.std.vision {{ font-size:12px; }}
+  table.std.vision th, table.std.vision td {{ padding:4px 6px; }}
+  .vision-notice {{ margin-top:6px; padding:6px 10px; background:#fff7d9; border-left:3px solid #d4a800; color:#7a5900; font-size:12px; }}
 </style>
 </head><body><div class="wrap">
 <h1>经管本科论文智检报告</h1>

@@ -114,6 +114,9 @@ def _normalize_table(resp: VisionResponse, provenance: dict) -> dict:
         "provenance": provenance,
         "cells": cells,
         "derived_views": derived,
+        "caption": str(raw.get("caption", "")) if isinstance(raw, dict) else "",
+        "n_rows": int(raw.get("n_rows", 0)) if isinstance(raw, dict) and raw.get("n_rows") else (max(c["row"] for c in cells) + 1 if cells else 0),
+        "n_cols": int(raw.get("n_cols", 0)) if isinstance(raw, dict) and raw.get("n_cols") else (max(c["col"] for c in cells) + 1 if cells else 0),
         "quality_profile": None,       # 待 quality_scorer 填
         "kb_eligibility": None,        # 待 knowledge_bridge 填
         "warnings": resp.warnings or [],
