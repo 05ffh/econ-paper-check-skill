@@ -312,7 +312,7 @@ def _run_smoke_test() -> dict:
 def render_human(result: dict) -> str:
     lines = []
     lines.append("=" * 60)
-    lines.append("经管论文智检 Skill · 环境自检 (v1.6.0-rc.3)")
+    lines.append("经管论文智检 Skill · 环境自检 (v1.6.1)")
     lines.append("=" * 60)
     lines.append("")
 
@@ -379,7 +379,7 @@ def main():
     args = ap.parse_args()
 
     result = {
-        "version": "v1.6.0-rc.3",
+        "version": "v1.6.1",
         "core": check_core(),
         "kb": check_kb(),
         "report": check_report(),
