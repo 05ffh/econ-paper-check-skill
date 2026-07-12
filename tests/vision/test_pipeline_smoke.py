@@ -1,6 +1,10 @@
-"""tests/vision/test_pipeline_smoke.py · Phase 2 端到端骨架冒烟测试
+"""tests/vision/test_pipeline_smoke.py · v1.6.0-rc.3 · v0.3.1 轻量化
 
-不依赖 paddleocr / volcengine SDK。仅走 MockProvider → normalizer → quality_scorer → knowledge_bridge。
+不依赖 paddleocr / openai 真实 SDK。仅走 MockProvider → normalizer → quality_scorer → knowledge_bridge。
+
+已删除（v0.3.1）：
+- paddle_provider 相关 3 个测试
+- ALLOW_CLOUD_UPLOAD 相关断言
 
 运行：
     python -m pytest tests/vision/test_pipeline_smoke.py -v
@@ -9,6 +13,7 @@
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -17,9 +22,8 @@ sys.path.insert(0, str(REPO / "scripts"))
 sys.path.insert(0, str(REPO / "scripts" / "vision"))
 sys.path.insert(0, str(REPO / "scripts" / "vision" / "providers"))
 
-from base import VisionRequest, TaskKind, ProviderError
+from base import VisionRequest, TaskKind, ProviderError, ProviderErrorKind
 from mock_provider import MockProvider
-from paddle_provider import PaddleLocalProvider
 from ark_provider import ArkCloudProvider
 from normalizer import normalize
 from quality_scorer import score
@@ -38,7 +42,7 @@ def _run_pipeline(task_kind: TaskKind) -> dict:
         page_number=1,
     )
     resp = p.recognize(req)
-    unified = normalize(resp, runtime_mode="core")
+    unified = normalize(resp, runtime_mode="basic")
     score(unified)
     compute_kb_eligibility(unified)
     return unified
@@ -56,15 +60,11 @@ def test_pipeline_table():
     assert u["schema_version"] == "vision.v1"
     assert u["artifact_type"] == "table"
     assert len(u["cells"]) > 0
-    # cells 事实层
     c0 = u["cells"][0]
     assert "row" in c0 and "col" in c0 and "text" in c0
-    # derived_views 是衍生
     assert "headers" in u["derived_views"]
     assert "rows" in u["derived_views"]
-    # quality_profile 已填
     assert u["quality_profile"]["extraction_quality_score"] > 0.5
-    # kb_eligibility
     assert u["kb_eligibility"]["kb_a_query_eligible"] is True
 
 
@@ -79,7 +79,6 @@ def test_pipeline_formula():
     u = _run_pipeline(TaskKind.FORMULA)
     assert u["artifact_type"] == "formula"
     assert u["formula"]["latex"]
-    # 大括号平衡检查
     latex = u["formula"]["latex"]
     assert latex.count("{") == latex.count("}")
 
@@ -94,7 +93,6 @@ def test_pipeline_reference_block():
 def test_student_evidence_shape():
     u = _run_pipeline(TaskKind.TABLE_STRUCTURE)
     ev = build_vision_student_evidence(u)
-    # 决策 8 要求的字段
     for k in [
         "source_type", "parsed_text", "page_number", "bbox",
         "artifact_ref", "provenance", "quality_profile",
@@ -102,54 +100,65 @@ def test_student_evidence_shape():
     ]:
         assert k in ev, f"missing field {k}"
     assert ev["source_type"] == "vision"
-    # 硬编码警告语禁令：不在 parsed_text 中
     assert "视觉解析" not in ev["parsed_text"]
-    # review_notice 承载警告
     assert "视觉解析" in ev["review_notice"]
 
 
 # ============================================================================
-# 骨架 Provider 不可用性验证
+# Ark Provider · v0.3.1 收窄任务 + 未配置降级
 # ============================================================================
 
-def test_paddle_provider_unavailable_phase1():
-    """Phase 2 未启用 PaddleOCR，available() 必须返回 False + 原因清单。"""
-    p = PaddleLocalProvider()
-    ok, reasons = p.available()
-    assert ok is False
-    assert any("LOCAL_VISION_ENABLED" in r or "paddleocr" in r for r in reasons)
-
-
 def test_ark_provider_unavailable_no_config():
-    """无 Ark 配置时，available() 必须返回 False + 明确原因。"""
-    import os
-    # 临时清空 ARK_API_KEY 检验
-    old = os.environ.get("ARK_API_KEY")
-    if "ARK_API_KEY" in os.environ:
-        del os.environ["ARK_API_KEY"]
+    """无 Ark 配置时 available() 返回 False + 原因清单（不再包含 ALLOW_CLOUD_UPLOAD）。"""
+    saved = {}
+    for k in ("VISION_ENABLED", "ARK_API_KEY", "ARK_VISION_MODEL_ID"):
+        saved[k] = os.environ.pop(k, None)
     try:
         p = ArkCloudProvider()
         ok, reasons = p.available()
         assert ok is False
-        assert any("ARK_" in r or "ALLOW_CLOUD_UPLOAD" in r for r in reasons)
+        assert any("VISION_ENABLED" in r for r in reasons)
+        # v0.3.1: ALLOW_CLOUD_UPLOAD 已删除
+        assert not any("ALLOW_CLOUD_UPLOAD" in r for r in reasons)
     finally:
-        if old is not None:
-            os.environ["ARK_API_KEY"] = old
+        for k, v in saved.items():
+            if v is not None:
+                os.environ[k] = v
 
 
-def test_paddle_recognize_raises_not_installed():
-    from base import ProviderErrorKind
-    p = PaddleLocalProvider()
+def test_ark_provider_m31_only_supports_two_tasks():
+    """v0.3.1 P0-4: Ark Provider M3.1 仅支持 OCR_REGION + TABLE_STRUCTURE。"""
+    p = ArkCloudProvider()
+    assert p.supports(TaskKind.OCR_REGION) is True
+    assert p.supports(TaskKind.TABLE_STRUCTURE) is True
+    # 其余 4 种全部不支持（延期 M3.2+）
+    assert p.supports(TaskKind.OCR_FULL_PAGE) is False
+    assert p.supports(TaskKind.LAYOUT) is False
+    assert p.supports(TaskKind.FORMULA) is False
+    assert p.supports(TaskKind.REFERENCE_BLOCK) is False
+
+
+def test_ark_provider_recognize_not_configured():
+    """未配置时 recognize() 抛 NOT_CONFIGURED。"""
+    saved = {}
+    for k in ("VISION_ENABLED", "ARK_API_KEY", "ARK_VISION_MODEL_ID"):
+        saved[k] = os.environ.pop(k, None)
     try:
-        p.recognize(VisionRequest(
-            artifact_ref="/tmp/x.png",
-            task_kind=TaskKind.OCR_FULL_PAGE,
-        ))
+        p = ArkCloudProvider()
         raised = False
-    except ProviderError as e:
-        raised = True
-        assert e.kind == ProviderErrorKind.NOT_INSTALLED
-    assert raised
+        try:
+            p.recognize(VisionRequest(
+                artifact_ref="/tmp/x.png",
+                task_kind=TaskKind.OCR_REGION,
+            ))
+        except ProviderError as e:
+            raised = True
+            assert e.kind == ProviderErrorKind.NOT_CONFIGURED
+        assert raised
+    finally:
+        for k, v in saved.items():
+            if v is not None:
+                os.environ[k] = v
 
 
 # ============================================================================
@@ -177,7 +186,7 @@ def test_kb_eligibility_low_quality_rejection():
 
 
 # ============================================================================
-# CLI 兼容（无 pytest 也能跑）
+# CLI 兼容
 # ============================================================================
 
 if __name__ == "__main__":
@@ -188,9 +197,9 @@ if __name__ == "__main__":
         test_pipeline_formula,
         test_pipeline_reference_block,
         test_student_evidence_shape,
-        test_paddle_provider_unavailable_phase1,
         test_ark_provider_unavailable_no_config,
-        test_paddle_recognize_raises_not_installed,
+        test_ark_provider_m31_only_supports_two_tasks,
+        test_ark_provider_recognize_not_configured,
         test_kb_eligibility_low_quality_rejection,
     ]
     failed = 0

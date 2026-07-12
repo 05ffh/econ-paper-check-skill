@@ -1,0 +1,16 @@
+# requirements-vision.txt · M3 v1.6.0 · v0.3.1 轻量化
+# 可选 · 云视觉辅助识别（火山方舟 OpenAI 兼容接口）
+#
+# 装完本文件后启用：
+#   - 图片区域 OCR（OCR_REGION）
+#   - 图片表格结构化（TABLE_STRUCTURE → cells[]）
+#
+# 关键决策（v0.3.1 P0-5）：
+#   - 只用 openai 官方 SDK · 走 Ark OpenAI Compatible 接口
+#   - 不绑豆包 · ARK_VISION_MODEL_ID 由部署者配
+#   - 未装本文件 → 图片内容降灰 · 不影响基础质检
+#
+# 说明：pypdfium2 / Pillow / jsonschema 已在 requirements-core.txt
+
+openai>=1.30.0,<2.0.0
+requests>=2.31.0,<3.0.0

@@ -47,3 +47,4 @@ tests/vision/fixtures/adversarial/*.jpg
 .venv-*/
 venv/
 env/
+.workdir/

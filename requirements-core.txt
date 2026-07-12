@@ -1,8 +1,14 @@
-# requirements-core.txt · M3 v1.6.0
-# 经管论文智检 Skill Core 模式依赖
-# Phase 1 Build Gate 边界：只装本文件即可跑 Core 模式（无视觉、无向量库）
+# requirements-core.txt · M3 v1.6.0 · v0.3.1 轻量化
+# 经管论文智检 Skill · 基础质检必装依赖
 #
-# 严禁引入：chromadb / sentence-transformers / paddleocr / paddlepaddle / volcengine-*
+# 装完本文件即可完成：
+#   - DOCX 全流程质检
+#   - 文本型 PDF 质检
+#   - KB-A 规范查询（YAML 层，无向量库）
+#   - 报告渲染（.docx + .html）
+#   - PDF 页面缩略图（灰色 issue 附原图）
+#
+# 严禁引入：chromadb / sentence-transformers / openai / paddleocr / paddlepaddle / volcengine-*
 
 # DOCX 解析
 python-docx>=1.1.0,<2.0.0
@@ -11,9 +17,17 @@ python-docx>=1.1.0,<2.0.0
 pypdf>=4.0.0,<6.0.0
 pdfplumber>=0.11.0,<0.12.0
 
+# XML/HTML 处理（python-docx 底层依赖，显式列出方便锁版本）
+lxml>=5.0.0,<6.0.0
+
 # 配置与模板
 pyyaml>=6.0.0,<7.0.0
 jinja2>=3.1.0,<4.0.0
+markdown>=3.5.0,<4.0.0
 
-# XML/HTML 处理（python-docx 底层依赖，显式列出方便锁版本）
-lxml>=5.0.0,<6.0.0
+# PDF 页面缩略图（P0-2 决策进 core · 保证无视觉配置时灰色 issue 也有原图缩略）
+pypdfium2>=4.0.0,<5.0.0
+Pillow>=10.0.0,<12.0.0
+
+# JSON Schema 严格校验（P1-13 · 视觉输出白名单）
+jsonschema>=4.0.0,<5.0.0

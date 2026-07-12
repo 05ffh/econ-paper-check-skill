@@ -11,6 +11,53 @@
 
 ---
 
+## [1.6.0-rc.3] - 2026-07-12 · M3 v0.3.1 轻量化重构
+
+### 重大变更
+- 取消三级运行模式（Core / Local Vision / Cloud Enhanced）
+- 删除本地 PaddleOCR / paddlepaddle / mode_resolver / Docker
+- 唯一视觉 Provider：火山方舟（OpenAI Compatible 接口）
+- 依赖从 5 拆瞬身为 4 拆：core / kb / vision / dev
+- 环境变量从 12 个瞬身为 6 个
+- doctor.py 从 12 分组瞬身为 4 分组
+
+### Removed
+- `scripts/mode_resolver.py` (328 行)
+- `scripts/vision/providers/paddle_provider.py` (117 行)
+- `scripts/install_paddle.sh` (104 行)
+- `requirements-vision-local.txt` · `constraints-py311.txt`
+- `RUNTIME_MODE` / `LOCAL_VISION_ENABLED` / `LOCAL_MODEL_PATH` / `LOCAL_DEVICE` 等 “模式”相关变量
+
+### Renamed
+- `requirements-vision-cloud.txt` → `requirements-vision.txt`
+
+### Added
+- `requirements-core.txt` 新增 `pypdfium2` / `Pillow` / `jsonschema`（P0-2 / P1-13）
+- `.env.example` 新增 `MAX_VISION_REGIONS_PER_DOCUMENT=40` / `VISION_REQUEST_TIMEOUT_SECONDS=30`（P0-7）
+- `plans/M3_多模型视觉计划书_v0.3_轻量化.md`（513 行）
+- `plans/M3_v0.3.1_修订与BUILD_GATE.md`（588 行 · 逐条回应 13 项 P0/P1 审阅意见）
+- `ark_provider.py` 真实实现：openai SDK 唯一 · 提示注入防护硬编码 · M3.1 仅支持 OCR_REGION + TABLE_STRUCTURE
+- `doctor.py` 三态视觉状态（未配置 ⚪ / 已配置未验证 🟡 / 已验证可用 ✅）+ `--smoke-test` 主动验证
+
+### Fixed / Changed
+- Ark Provider M3.1 任务收窄为 `OCR_REGION` + `TABLE_STRUCTURE`（P0-4）
+- SDK 唯一方案：openai>=1.30（P0-5）
+- Python 不再强制 3.11，回到 3.10+ 通行（P0-6）
+
+### 未交付（待 Phase B/C/D）
+- `scripts/vision/dispatcher.py` · 配额 + 内嵌 LRU + 超时（P0-7）
+- `scripts/vision/upload_policy.py` · 扫描 PDF 不自动上传（P0-3）
+- `scripts/prebuild_audit.py` · Phase A 首日产出审计报告（P0-12）
+- `tests/vision/test_prompt_injection.py` · 提示注入对抗测试（P1-13）
+- 报告包 artifact_id + 相对路径 + 单文件 base64（P0-9）
+- 多样本验收集（扫描版 / 图表密集 / DOCX 基线）（P0-11）
+
+### 回退保障
+- `git tag v1.6.0-rc.2-legacy-frozen` 已创建
+- 一行回退：`git reset --hard v1.6.0-rc.2-legacy-frozen`
+
+---
+
 ## [Unreleased] - Phase 2 骨架进行中
 
 ### Added (Phase 2 骨架, v1.6.0-rc.2)
