@@ -1,0 +1,9 @@
+# requirements-kb.txt · M3 v1.6.0
+# KB-B 范例层向量检索依赖（可选，Core 无 KB-B 时仍可运行）
+# 说明：
+#   - KB-A 规范层是纯 YAML，不依赖任何向量库
+#   - Core 模式装完 requirements-core.txt 就能跑 DOCX/PDF 主流程
+#   - 装完本文件后 KB-B（范例参照卡）能力才会启用
+
+chromadb>=0.5.23,<0.6.0
+sentence-transformers>=3.3.1,<4.0.0

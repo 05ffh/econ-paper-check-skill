@@ -1,0 +1,12 @@
+# requirements-vision-cloud.txt · M3 v1.6.0
+# Cloud Enhanced 模式依赖（火山方舟多模态 Provider）
+#
+# ⚠️ 命名"火山方舟多模态 Provider"，不绑豆包
+#    具体模型 ID / Endpoint / 版本由部署者在 .env 中配置
+# ⚠️ Phase 1 不装；Phase 3 才启用
+
+volcengine-python-sdk[ark]>=4.0.43,<5.0.0
+
+# 说明：httpx 和 tenacity 只有当代码直接使用时才引入。
+# volcengine-python-sdk 已经封装 HTTP 调用与基本重试，
+# Phase 3 Build 时视实际使用情况再决定是否显式引入这两个包。

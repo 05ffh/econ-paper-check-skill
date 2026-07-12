@@ -18,3 +18,26 @@ knowledge_base/vector_db/snapshots/
 knowledge_base/logs/
 knowledge_base/examples/parsed/
 knowledge_base/.private/
+
+# M3 视觉模块（Phase 1+）
+.env
+.env.local
+.env.*.local
+.cache/
+.cache/vision/
+*.bundle
+tests/vision/fixtures/authorized_real_pages/*
+!tests/vision/fixtures/authorized_real_pages/.gitkeep
+tests/vision/fixtures/synthetic_tables/*.png
+tests/vision/fixtures/synthetic_tables/*.jpg
+tests/vision/fixtures/adversarial/*.png
+tests/vision/fixtures/adversarial/*.jpg
+# 保留 fixture 元数据（yaml/json）
+!tests/vision/fixtures/**/*.yaml
+!tests/vision/fixtures/**/*.json
+
+# Python 3.11 lock（Docker 生成）
+!constraints-py311.txt
+
+# Debug 视觉临时文件
+.debug_vision/
