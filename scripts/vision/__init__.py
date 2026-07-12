@@ -1,7 +1,9 @@
 # scripts/vision package
 """
-M3 v1.6.0 · 视觉子系统。
+M3 v1.6+ · 视觉子系统。
 
-Phase 1：document_triage（Core 模式即可用，不做 OCR）
-Phase 2+：providers / normalizer / quality_scorer / dispatcher 等
+- document_triage：PDF 页级类型分诊，不做 OCR
+- providers / dispatcher / normalizer / quality_scorer / knowledge_bridge
+  · 组合成 PDF 视觉辅助识别主链路
+- upload_policy：文件尺寸/整页上传授权门禁
 """

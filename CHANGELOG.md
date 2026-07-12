@@ -264,3 +264,53 @@ Phase 1 严格边界：
 - KB-A/KB-B 0 改动
 - Provider 契约完全守住
 - DOCX 全流程零回归（sha256 一致）
+
+## [1.6.2] - 2026-07-12 · M3 视觉能力发现与启用引导
+
+### 新增 · README.md
+- 顶部「能力速览」表：基础质检 ✅ / KB 双层 ✅ / PDF 视觉辅助识别 🟡（可选）
+- 两条快速开始路径：
+  - 路径 A · 基础质检安装（推荐大多数用户）
+  - 路径 B · 追加 PDF 视觉辅助识别（可选，含 .env.local 配置指引）
+- doctor.py 独立章节 + 视觉自动触发规则（三条件同时满足才自动调用）
+
+### 新增 · scripts/capability_briefing.py
+- 首次运行 / 版本升级后**只显示一次**能力摘要
+- 通过 `.workdir/.capability_briefing_shown` 锁存版本号，版本变更后重新展示
+- 内容：已启用能力 / PDF 视觉辅助三态 / doctor.py 入口
+- CLI：`--force` 强制显示 · `--reset` 重置锁
+
+### 新增 · scripts/vision_hint.py
+- PDF 含图片型关键区域 + 视觉未配置时 → 生成一次性礼貌提示
+- 会话级锁：`<session_workdir>/.vision_hint_shown`（同一会话不重复提示）
+- 静默场景：Word 输入 / text_pdf / 视觉已配置 / 已提示过一次
+
+### 增强 · scripts/doctor.py
+- [4] PDF 视觉辅助识别 · 未配置分支从「简短原因列表」升级为完整引导：
+  - 开启后能新增的具体能力（图片表格 / 公式 / 图表 / 减少人工复核）
+  - `requirements-vision.txt` 安装命令
+  - `.env.local` 配置步骤（cp / chmod 600 / 3 项 env）
+  - Ark Key 领取入口
+  - smoke_test 验证命令
+- 底部汇总：未配置时同步提示「Word/文本 PDF 质检不受影响」+ 指向 doctor.py
+
+### 术语统一
+- 全部用户话术改为「PDF 视觉辅助识别」
+- 清理 scripts/vision/__init__.py 里遗留的「Core 模式」字样
+- CHANGELOG 早期版本的历史术语保留，仅用于追溯
+
+### 增强 · SKILL.md § 10
+- 新增「自动触发规则」：用户不用主动请求，三条件同时满足 Skill 自动调用
+- 新增「能力摘要」子节：首次对话或版本升级后调用 capability_briefing.py
+- 新增「术语约束」：仅使用「PDF 视觉辅助识别」
+
+### 测试
+- pytest 29/29 全过
+- doctor.py 未配置/已配置分支手工验证 OK
+- capability_briefing 首次+二次调用幂等验证 OK
+- vision_hint 4 场景验证 OK（unconfigured×mixed_pdf → 提示；二次调用静默；DOCX 静默；text_pdf 静默）
+
+### 约束守住
+- 判断内核 0 改动
+- Provider 契约 0 改动
+- 术语「PDF 视觉辅助识别」全线统一，无 Core / Cloud Enhanced / Local Vision 遗留（用户话术层）

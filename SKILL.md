@@ -259,3 +259,37 @@ PDF 页 → pypdfium2 渲染 PNG →
 - `agent_instructions/evidence_requirement.md` § 9ter · 视觉证据强度规则
 - `plans/M3_v0.3.1_修订与BUILD_GATE.md` · Build Gate 12 项 P0 修订
 
+### 自动触发规则（用户无需主动命令）
+
+**用户不需要说“请调用视觉模型”**。同时满足三个条件时，Skill 自动调用 Provider：
+
+1. 输入是 PDF 且 `document_triage` 结果：`document_type` ∈ `{mixed_pdf, scanned_pdf}` 或 `recommended_mode` ∈ `{vision_recommended, vision_required}`
+2. `doctor.py` 第 [4] 项状态为 ✅（已验证可用）或 🟡（已配置未验证；此时先跑 --smoke-test）
+3. 会话首次视觉调用前，agent 已向用户告知：“本次将将第 X, Y, Z 页上传到火山方舟（仅得默认同意，下一次不重复提醒）”
+
+**就不自动调用的情形**：
+
+- 输入为 Word （.docx）：视觉不启动，也不反复宣传
+- 输入为 text_pdf（无关键图片区域）：视觉不启动，也不反复宣传
+- 视觉未配置且 PDF 含关键图片区域：调 `scripts/vision_hint.py::emit_hint_if_needed()` 生成一次性提示（本会话只提一次）
+
+### 能力摘要（首次运行 / 版本升级）
+
+Agent 在**首次与用户对话**或 Skill 版本变更后**首次回复**时，先调用：
+
+```bash
+python3 scripts/capability_briefing.py
+```
+
+- 输出为空字符 → 已推过，直接回应用户问题
+- 输出含摘要→ 目录与用户回应同层展示一次（自动封锁，后续不重复）
+
+摘要内容包含：
+1. 当前已启用能力（基础质检 / KB-A / KB-B）
+2. PDF 视觉辅助识别的三态
+3. `doctor.py` 入口
+
+### 术语约束（用户话术）
+
+向用户交付时**仅使用“PDF 视觉辅助识别”**。硬禁：Core 模式 / Cloud Enhanced / Local Vision / 云增强 / 本地视觉 等旧术语。
+

@@ -4,11 +4,131 @@
 
 面向**经管类本科论文提交前自检**的原生 Skill 包，深度适配 **ArkClaw** 生态，同时兼容 Claude Code / OpenClaw。学生上传 `.docx` 或 `.pdf` 论文，Skill 自动识别论文类型与研究方法、条件触发检测规则、逐项语义判断问题，并生成一份正式的 `.docx` 质检报告（webchat 场景另附 `.html` 预览版）。
 
-它不是查重工具，也不是论文代写工具，而是一份帮助学生在提交前发现结构、数据、变量、模型与规范风险的"体检报告"。
+它不是查重工具，也不是论文代写工具，而是一份帮助学生在提交前发现结构、数据、变量、模型与规范风险的“体检报告”。
 
 ---
 
-## v1.1 · ArkClaw 适配更新（本版本）
+## ⚡ 能力速览
+
+| 能力 | 状态 | 说明 |
+|---|---|---|
+| ✅ **基础质检** | **默认可用** · 装好依赖即用 | Word / 文本 PDF · 五大诊断域 · 红黄绿灰分级 · 生成 DOCX 报告 |
+| ✅ **KB 双层知识库** | 默认启用 | KB-A 规范层（GB/T 7714 + 伍德里奇 · 18 条）+ KB-B 范例层（20 篇顶刊 · 2198 chunks）|
+| 🟡 **PDF 视觉辅助识别** | **可选** · 需单独配置 | PDF 图片/表格通过火山方舟视觉模型辅助识别；**未配置也不影响** Word 和文本 PDF 质检 |
+
+> **未配置视觉辅助 = 完全不影响** Word 质检和文本层 PDF 质检；仅在遇到 PDF 中的图片型表格/公式/图表时，这类内容会进入“需人工复核”清单，其余判定照常。
+
+---
+
+## 🚀 快速开始（两条路径，按需二选）
+
+### 路径 A · 基础质检安装（推荐大多数用户从这里开始）
+
+```bash
+git clone https://github.com/05ffh/econ-paper-check-skill.git
+cd econ-paper-check-skill
+
+# 装基础依赖（Word/PDF 解析 + 报告渲染 + KB）
+pip install --break-system-packages \
+    -r requirements-core.txt \
+    -r requirements-kb.txt
+
+# 安装到 ArkClaw / OpenClaw skill 目录
+bash install.sh                    # 装到 ~/.agents/skills/
+# 或
+bash install.sh --plugin           # 装到 ~/.openclaw/plugin-skills/
+
+# 自检
+python3 scripts/doctor.py
+```
+
+**至此已可用**：Word 全流程 + 文本 PDF 全流程 + KB 规范层/范例层挂载。
+
+### 路径 B · 追加 PDF 视觉辅助识别（可选）
+
+> 什么时候需要：论文有大量图片型表格 / 公式 / 图表，Word 里也没原生文本，需要 PDF 视觉模型辅助识别。
+
+```bash
+# 1. 装视觉依赖（openai SDK 走 OpenAI Compatible 接入火山方舟）
+pip install --break-system-packages -r requirements-vision.txt
+
+# 2. 配 .env.local（chmod 600 · gitignored）
+cp .env.example .env.local
+chmod 600 .env.local
+
+# 用你的编辑器打开 .env.local，填 3 项：
+#   VISION_ENABLED=true
+#   ARK_API_KEY=<你的火山方舟 Key，去 https://console.volcengine.com/ark 领取>
+#   ARK_VISION_MODEL_ID=<视觉模型 ID 或 Endpoint ID>
+
+# 3. 冒烟测试（用 fixture 图片走一次真实 Ark 调用）
+python3 scripts/doctor.py --smoke-test
+
+# 4. 再看一次能力摘要
+python3 scripts/doctor.py
+```
+
+**成功标志**：`doctor.py` 第 [4] 项从 ⚪（未配置）→ 🟡（已配置未验证）→ ✅（已验证可用）。
+
+---
+
+## 🩺 doctor.py · 环境自检入口
+
+任何时候不确定当前能用什么，跑一次：
+
+```bash
+python3 scripts/doctor.py                # 常规检查
+python3 scripts/doctor.py --smoke-test   # 追加视觉模型真实调用（约 5-10 s）
+```
+
+输出会告诉你：
+
+- 基础质检是否可用（依赖 / 报告组件）
+- KB-A / KB-B 是否可用
+- PDF 视觉辅助识别处于三态哪一态（未配置 / 已配置未验证 / 已验证可用）
+- 若未配置：会**同时给出**能启用哪些能力、`requirements-vision.txt` 安装命令、`.env` 配置步骤、`VISION_ENABLED` 启用方式
+
+---
+
+## 🎬 触发使用
+
+在 ArkClaw / OpenClaw 对话中直接说，无需命令行：
+
+> 请使用经管论文智检 Skill 检测这篇论文，并生成 DOCX 质检报告。
+
+或更具体：
+
+> 请基于经管论文智检 Skill，对这篇本科经管论文做提交前自检，重点检查选题、文献、数据变量、模型方法、结构表达和参考文献规范。
+
+同时把 `.docx` 或 `.pdf` 论文一起上传。
+
+### 视觉辅助的自动触发
+
+**用户不需要主动说“请调用视觉模型”**。Skill 会：
+
+1. 收到 PDF → 自动分诊（`scripts/vision/document_triage.py`）识别是否含图片型表格 / 公式 / 图表关键区域
+2. **同时满足三个条件时自动调用**视觉 Provider：
+   - PDF 中存在关键图片区域
+   - `VISION_ENABLED=true` 且配置有效（Key / Model ID / SDK 就绪）
+   - 用户在会话中已知情同意（首次调用前 Skill 会明确告知本次将上传第 X/Y/Z 页到火山方舟）
+3. 上述任一未满足 → 该区域进入“需人工复核”清单，基础质检其余部分照常完成
+
+**Word 或不含关键图片区域的 PDF**：视觉辅助不启动，也不反复宣传，直接跑基础质检。
+
+---
+
+## 核心设计理念
+
+**脚本做 I/O，大模型做判断。** 这是本 Skill 与普通“关键词匹配脚本”的根本区别：
+
+- 二进制 `.docx` / `.pdf` 的解析与报告渲染，交给确定性的 Python 脚本；
+- “研究问题是否清晰”“中英文摘要是否一致”“结论方向是否与回归表矛盾”这类需要理解力的判断，交给大模型，并由规则库、证据门禁和语义判断协议严格约束。
+
+配套三项方法论保证质量：
+
+1. **先画像，后触发**：先识别论文类型与已用方法，再条件触发规则。未用 DID 不查 DID，案例论文不硬套回归。
+2. **证据门禁**：无原文证据不输出；弱证据转“需人工确认”；红色必改问题必须有强证据且可定位。
+3. **红黄绿灰分级 + 强制判定标准**：硬伤一律判红不得降级，总体风险按阈值映射，尽量保证不同智能体对同一论文得出一致结论。
 
 | 类别 | 变更 |
 |---|---|
@@ -29,18 +149,7 @@
 
 ---
 
-## 核心设计理念
-
-**脚本做 I/O，大模型做判断。** 这是本 Skill 与普通"关键词匹配脚本"的根本区别：
-
-- 二进制 `.docx` / `.pdf` 的解析与报告渲染，交给确定性的 Python 脚本；
-- "研究问题是否清晰""中英文摘要是否一致""结论方向是否与回归表矛盾"这类需要理解力的判断，交给大模型，并由规则库、证据门禁和语义判断协议严格约束。
-
-配套三项方法论保证质量：
-
-1. **先画像，后触发**：先识别论文类型与已用方法，再条件触发规则。未用 DID 不查 DID，案例论文不硬套回归。
-2. **证据门禁**：无原文证据不输出；弱证据转"需人工确认"；红色必改问题必须有强证据且可定位。
-3. **红黄绿灰分级 + 强制判定标准**：硬伤一律判红不得降级，总体风险按阈值映射，尽量保证不同智能体对同一论文得出一致结论。
+## v1.1 · ArkClaw 适配更新（历史版本）
 
 ---
 
@@ -112,7 +221,7 @@ econ-paper-check-skill/
 
 ---
 
-## 快速开始（ArkClaw / OpenClaw）
+## 历史快速开始（v1.1 旧版，保留供参考）
 
 ### 一键安装
 
@@ -124,7 +233,7 @@ bash install.sh                    # 装到 ~/.agents/skills/
 bash install.sh --plugin           # 装到 ~/.openclaw/plugin-skills/
 ```
 
-### 触发使用
+### 触发使用（v1.1 旧文本）
 
 在 ArkClaw / OpenClaw 对话中直接说，无需命令行：
 

@@ -312,7 +312,7 @@ def _run_smoke_test() -> dict:
 def render_human(result: dict) -> str:
     lines = []
     lines.append("=" * 60)
-    lines.append("经管论文智检 Skill · 环境自检 (v1.6.1)")
+    lines.append("经管论文智检 Skill · 环境自检 (v1.6.2)")
     lines.append("=" * 60)
     lines.append("")
 
@@ -339,8 +339,38 @@ def render_human(result: dict) -> str:
 
     # [4]
     v = result["vision"]
-    lines.append(f"[4] 视觉辅助         {v['icon']} {v['label']}")
+    lines.append(f"[4] PDF 视觉辅助识别   {v['icon']} {v['label']}")
     if v["state"] == "unconfigured":
+        lines.append("                     ")
+        lines.append("                     ── 不影响 Word 和文本 PDF 质检 ──")
+        lines.append("                     ")
+        lines.append("                     开启后可新增：")
+        lines.append("                     · PDF 图片型表格的变量名与系数提取")
+        lines.append("                     · PDF 图片型公式的变量符号识别")
+        lines.append("                     · PDF 图表内容的结构化展示（进报告）")
+        lines.append("                     · 将“需人工复核”清单条目降到最少")
+        lines.append("                     ")
+        lines.append("                     启用方式（约 3 分钟）：")
+        lines.append("                     ")
+        lines.append("                     1) 装依赖")
+        lines.append("                        pip install --break-system-packages \\")
+        lines.append("                            -r requirements-vision.txt")
+        lines.append("                     ")
+        lines.append("                     2) 配置 .env.local（chmod 600）")
+        lines.append("                        cp .env.example .env.local")
+        lines.append("                        chmod 600 .env.local")
+        lines.append("                        # 编辑 .env.local 填入：")
+        lines.append("                        VISION_ENABLED=true")
+        lines.append("                        ARK_API_KEY=<火山方舟 Key>")
+        lines.append("                        ARK_VISION_MODEL_ID=<模型 ID 或 Endpoint ID>")
+        lines.append("                     ")
+        lines.append("                     3) Key 领取：登录 https://console.volcengine.com/ark")
+        lines.append("                        → API Key 管理 → 创建新 Key")
+        lines.append("                     ")
+        lines.append("                     4) 验证")
+        lines.append("                        python3 scripts/doctor.py --smoke-test")
+        lines.append("                     ")
+        lines.append("                     当前未配置项：")
         for reason in v["reasons"]:
             lines.append(f"                     · {reason}")
     else:
@@ -348,7 +378,7 @@ def render_human(result: dict) -> str:
         lines.append(f"                     · 单文档配额: {v['config']['max_regions_per_document']} 区域")
         lines.append(f"                     · 单次超时: {v['config']['timeout_seconds']}s")
         if v["state"] == "configured_unverified":
-            lines.append("                     · 建议运行: python scripts/doctor.py --smoke-test")
+            lines.append("                     · 注：首次实际调用前建议先跑 --smoke-test")
 
     if "smoke_test" in v:
         st = v["smoke_test"]
@@ -367,7 +397,11 @@ def render_human(result: dict) -> str:
 
     lines.append(f"基础论文质检:        {'✅ 可用' if can_basic else '❌ 缺依赖'}")
     lines.append(f"KB-B 范例参照:       {'✅ 可用' if can_kbb else '⚪ 未启用'}")
-    lines.append(f"PDF 视觉辅助识别:    {'✅ 可用' if can_vision else '⚪ 未启用（图片区域将降灰）'}")
+    if can_vision:
+        lines.append(f"PDF 视觉辅助识别:    ✅ 可用")
+    else:
+        lines.append(f"PDF 视觉辅助识别:    ⚪ 未配置（可选能力；Word/文本 PDF 质检不受影响）")
+        lines.append(f"                     需开启时运行：python3 scripts/doctor.py 查看完整步骤")
     lines.append("=" * 60)
     return "\n".join(lines)
 
@@ -379,7 +413,7 @@ def main():
     args = ap.parse_args()
 
     result = {
-        "version": "v1.6.1",
+        "version": "v1.6.2",
         "core": check_core(),
         "kb": check_kb(),
         "report": check_report(),
