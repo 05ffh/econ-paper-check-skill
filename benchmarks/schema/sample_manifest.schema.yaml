@@ -1,0 +1,62 @@
+# M4 Benchmark sample_manifest.yaml schema (v0.2 canonical)
+# 参考：plans/M4_SAMPLE_GOVERNANCE.md §3
+# 校验：benchmarks/lib/schema_validator.py
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://github.com/05ffh/econ-paper-check-skill/schema/sample_manifest.v0.2.yaml"
+title: "M4 Benchmark sample_manifest.yaml"
+type: object
+additionalProperties: false
+required:
+  - sample_id
+  - source_type
+  - owner_or_source
+  - license_or_consent_ref
+  - allowed_uses
+  - input_sha256
+  - retention_policy
+  - added_at
+  - governance_owner
+
+properties:
+
+  sample_id:
+    type: string
+    pattern: "^(S|D|R|Q|V)[0-9]{2,3}(_[A-Za-z0-9_]+)?$"
+
+  source_type:
+    enum: [authorized_private, synthetic, open_license, retired]
+
+  owner_or_source:            {type: string}
+  license_or_consent_ref:     {type: string}    # 相对路径或 URL
+
+  allowed_uses:
+    type: object
+    additionalProperties: false
+    required: [benchmark, cloud_vision, git_distribution, public_demo]
+    properties:
+      benchmark:        {type: boolean}
+      cloud_vision:     {type: boolean}
+      git_distribution: {type: boolean}
+      public_demo:      {type: boolean}
+
+  contains_personal_data:       {type: boolean}
+  deidentified_by:              {type: [string, "null"]}
+  deidentification_reviewed_by: {type: [string, "null"]}
+
+  retention_policy:
+    enum: [local_only, git_public, git_lfs, retired]
+
+  input_sha256: {type: string, minLength: 64, maxLength: 64}
+  file_bytes:   {type: [integer, "null"], minimum: 0}
+  page_count:   {type: [integer, "null"], minimum: 0}
+
+  synthesis_note:               {type: [string, "null"]}
+
+  added_at:                     {type: string}
+  last_reviewed_at:             {type: [string, "null"]}
+  next_review_at:               {type: [string, "null"]}
+  governance_owner:             {type: string}
+
+  paired_sample_id:             {type: [string, "null"]}
+  notes:                        {type: [string, "null"]}

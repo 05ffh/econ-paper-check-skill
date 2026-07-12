@@ -1,0 +1,222 @@
+# M4 Benchmark metrics.json schema (v0.2 canonical)
+# 参考：plans/M4_METRICS_SCHEMA_v0.2.yaml
+# 校验：benchmarks/lib/schema_validator.py
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://github.com/05ffh/econ-paper-check-skill/schema/metrics.v0.2.yaml"
+title: "M4 Benchmark metrics.json"
+type: object
+additionalProperties: true   # 允许扩展字段（便于 Phase B 演进）
+required:
+  - run_metadata
+  - reproducibility
+  - paper_summary
+  - judgment_counts
+  - judgment_fingerprints
+  - judgment_quality
+  - kb_a_hits
+  - kb_a_quality
+  - kb_b_cards
+  - vision
+  - vision_quality
+  - performance
+  - artifacts
+  - passed_checks
+
+properties:
+
+  run_metadata:
+    type: object
+    required: [run_id, run_kind, sample_id, dataset_version, skill_version, commit_sha, ran_at]
+    properties:
+      run_id:            {type: string, pattern: "^[0-9]{8}[-_].+"}
+      run_kind:          {enum: [mock_ci, real_manual, performance]}
+      sample_id:         {type: string}
+      dataset_version:   {type: string, pattern: "^benchmark-dataset-v[0-9.]+$"}
+      skill_version:     {type: string}
+      commit_sha:        {type: string, minLength: 7, maxLength: 40}
+      ran_at:            {type: string, format: date-time}
+      ark_provider_used: {type: boolean}
+
+  reproducibility:
+    type: object
+    required:
+      - python_version
+      - os
+      - dependency_lock_hash
+      - prompt_template_hash
+      - rules_hash
+      - kb_a_snapshot_hash
+      - vision_schema_hash
+      - cache_used
+    properties:
+      python_version:            {type: string}
+      os:                        {type: string}
+      architecture:              {type: string}
+      dependency_lock_hash:      {type: string, minLength: 64, maxLength: 64}
+      model_provider:            {type: [string, "null"]}
+      model_id:                  {type: [string, "null"]}
+      model_endpoint_id:         {type: [string, "null"]}
+      model_config_hash:         {type: [string, "null"]}
+      temperature:               {type: [number, "null"]}
+      seed:                      {type: [integer, "null"]}
+      prompt_template_hash:      {type: string, minLength: 64, maxLength: 64}
+      rules_hash:                {type: string, minLength: 64, maxLength: 64}
+      agent_instructions_hash:   {type: [string, "null"]}
+      kb_a_snapshot_hash:        {type: string, minLength: 64, maxLength: 64}
+      kb_b_snapshot_hash:        {type: [string, "null"]}
+      vision_schema_hash:        {type: string, minLength: 64, maxLength: 64}
+      report_template_hash:      {type: [string, "null"]}
+      cache_used:                {type: boolean}
+
+  paper_summary:
+    type: object
+    required: [paper_type, page_count, word_count]
+    properties:
+      paper_type:   {enum: [docx, pdf, scan_pdf, synthetic, rule_fixture, kb_query_fixture, vision_crop_fixture]}
+      page_count:   {type: integer, minimum: 0}
+      word_count:   {type: integer, minimum: 0}
+
+  judgment_counts:
+    type: object
+    required: [red, yellow, gray, total]
+    properties:
+      red:    {type: integer, minimum: 0}
+      yellow: {type: integer, minimum: 0}
+      gray:   {type: integer, minimum: 0}
+      total:  {type: integer, minimum: 0}
+      by_issue_type:
+        type: object
+        additionalProperties: {type: integer, minimum: 0}
+
+  passed_checks:
+    type: object
+    required: [count]
+    properties:
+      count:  {type: integer, minimum: 0}
+      by_issue_type:
+        type: object
+        additionalProperties: {type: integer, minimum: 0}
+
+  judgment_ids:
+    type: array
+    items: {type: string}
+
+  judgment_fingerprints:
+    type: array
+    items: {type: string, pattern: "^[a-z0-9_]+\\|[a-z_]+\\|[a-z0-9_]+\\|[a-z0-9_]+$"}
+    uniqueItems: false   # 允许重复计入 duplicate_issue_rate
+
+  judgment_quality:
+    type: object
+    required:
+      - anchor_recall
+      - forbidden_issue_count
+      - false_red_count
+      - severity_match_rate
+      - location_hit_rate
+      - evidence_completeness_rate
+      - duplicate_issue_rate
+      - repeatability_rate
+    properties:
+      anchor_recall:              {type: number, minimum: 0, maximum: 1}
+      forbidden_issue_count:      {type: integer, minimum: 0}
+      false_red_count:            {type: integer, minimum: 0}
+      severity_match_rate:        {type: number, minimum: 0, maximum: 1}
+      location_hit_rate:          {type: number, minimum: 0, maximum: 1}
+      evidence_completeness_rate: {type: number, minimum: 0, maximum: 1}
+      duplicate_issue_rate:       {type: number, minimum: 0, maximum: 1}
+      repeatability_rate:         {type: number, minimum: 0, maximum: 1}
+
+  kb_a_hits:
+    type: object
+    required: [count, distinct_norms]
+    properties:
+      count:          {type: integer, minimum: 0}
+      distinct_norms: {type: array, items: {type: string}}
+      by_fingerprint:
+        type: object
+        additionalProperties: {type: array, items: {type: string}}
+
+  kb_a_quality:
+    type: object
+    required: [norm_precision, norm_recall, irrelevant_norm_rate, unsupported_red_count]
+    properties:
+      norm_precision:        {type: number, minimum: 0, maximum: 1}
+      norm_recall:           {type: number, minimum: 0, maximum: 1}
+      irrelevant_norm_rate:  {type: number, minimum: 0, maximum: 1}
+      unsupported_red_count: {type: integer, minimum: 0}
+
+  kb_b_cards:
+    type: object
+    required: [count]
+    properties:
+      count:          {type: integer, minimum: 0}
+      avg_similarity: {type: [number, "null"]}
+
+  kb_b_quality:
+    type: object
+    properties:
+      precision_at_k:             {type: [number, "null"]}
+      empty_when_irrelevant_rate: {type: [number, "null"]}
+      duplicate_card_rate:        {type: [number, "null"]}
+
+  vision:
+    type: object
+    required: [used]
+    properties:
+      used:                       {type: boolean}
+      regions_dispatched:         {type: integer, minimum: 0}
+      regions_recognized:         {type: integer, minimum: 0}
+      pages_touched:              {type: array, items: {type: integer}}
+      seconds_total:              {type: number, minimum: 0}
+      tokens_total:               {type: integer, minimum: 0}
+      provider_calls:             {type: integer, minimum: 0}
+      failures:                   {type: integer, minimum: 0}
+      full_page_uploads_rejected: {type: integer, minimum: 0}
+
+  vision_quality:
+    type: object
+    properties:
+      region_detection_recall:       {type: [number, "null"], minimum: 0, maximum: 1}
+      critical_cell_accuracy:        {type: [number, "null"], minimum: 0, maximum: 1}
+      numeric_exact_match:           {type: [number, "null"], minimum: 0, maximum: 1}
+      sign_accuracy:                 {type: [number, "null"], minimum: 0, maximum: 1}
+      significance_marker_accuracy:  {type: [number, "null"], minimum: 0, maximum: 1}
+      header_binding_accuracy:       {type: [number, "null"], minimum: 0, maximum: 1}
+      quality_gate_false_pass_count: {type: integer, minimum: 0}
+      visual_false_red_count:        {type: integer, minimum: 0}
+
+  performance:
+    type: object
+    required: [total_seconds_p50, total_seconds_p95, repeat_count]
+    properties:
+      repeat_count:           {type: integer, minimum: 1}
+      total_seconds_p50:      {type: number, minimum: 0}
+      total_seconds_p95:      {type: number, minimum: 0}
+      parse_seconds:          {type: [number, "null"], minimum: 0}
+      judgment_seconds:       {type: [number, "null"], minimum: 0}
+      kb_bridge_seconds:      {type: [number, "null"], minimum: 0}
+      vision_seconds:         {type: [number, "null"], minimum: 0}
+      render_seconds:         {type: [number, "null"], minimum: 0}
+      tokens_total_p50:       {type: [integer, "null"], minimum: 0}
+      estimated_cost_cny_p50: {type: [number, "null"], minimum: 0}
+      peak_rss_mb:            {type: [number, "null"], minimum: 0}
+
+  artifacts:
+    type: object
+    required: [input_sha256, canonical_result_json_sha256]
+    properties:
+      input_sha256:                 {type: string, minLength: 64, maxLength: 64}
+      canonical_result_json_sha256: {type: string, minLength: 64, maxLength: 64}
+      output_docx_sha256:           {type: [string, "null"]}
+      output_html_sha256:           {type: [string, "null"]}
+      semantic_report_hash:         {type: [string, "null"]}
+
+  failures:
+    type: object
+    properties:
+      failure_type:    {type: string}
+      failure_stage:   {type: string}
+      failure_message: {type: string}
+      resolved:        {type: boolean}

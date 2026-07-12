@@ -1,0 +1,33 @@
+sample_id: S02_zhc_pdf
+source_type: authorized_private
+owner_or_source: "张弘济（广东金融学院本科生，作者本人授权）"
+license_or_consent_ref: "docs/consent/S02_zhc.consent.md"
+
+allowed_uses:
+  benchmark: true
+  cloud_vision: true
+  git_distribution: false
+  public_demo: false
+
+contains_personal_data: true
+deidentified_by: "ArkClaw v1.7.0 pre-baseline audit"
+deidentification_reviewed_by: "user_pending"
+
+retention_policy: local_only
+
+input_sha256: "f4ad1a9b418bdc8959f0eea49ed0e44cd8924616af028c70d5fcea50614b1938"
+file_bytes: 1547833
+page_count: 24
+
+synthesis_note: null
+
+added_at: "2026-07-13"
+last_reviewed_at: "2026-07-13"
+next_review_at: "2026-10-13"
+governance_owner: "user"
+
+paired_sample_id: "S01_zhc_docx"
+notes: |
+  真实来源: upload/张弘济初稿-1783849863542-17g1ta.pdf
+  M3 端到端已跑通 (2026-07-12 张弘济 p20 表 3 10x3, 30/30 格 100% 正确, 15.3s, 5316 tokens)
+  M4 首版 baseline 需重新配置 Ark Key 后重跑

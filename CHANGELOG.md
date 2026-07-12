@@ -2,12 +2,46 @@
 
 本文件按 [Keep a Changelog](https://keepachangelog.com/) 规范维护，从 **v1.5.0** 开始正式记录。
 
-> ⚠️ v1.0 - v1.4 的详细变更历史仅在 Git commit 中留存，不在本文件中追认。如需完整追溯：
->
-> ```bash
-> git log --oneline
-> git show <commit>
-> ```
+> ⚠️ v1.0 - v1.4 的详细变更历史仅在 Git commit 中留存，Phase E 会在本文件顶部按 `Retrospective` 段落追认里程碑级摘要（严格以 tag/commit 证据为准，不猜测边界）。
+
+---
+
+## [Unreleased]
+
+### Added — M4 Phase A（Benchmark 骨架 + 治理契约）
+
+- `benchmarks/` 目录结构落地：`fixtures/{rules,kb_queries,vision_crops}/` + `documents/{public_synthetic,private_local_manifest,open_license}/` + `expected/` + `runs/` + `baselines/` + `reports/` + `lib/` + `runners/`
+- 三份 JSON Schema：`schema/metrics.schema.yaml` / `schema/expected.schema.yaml` / `schema/sample_manifest.schema.yaml`（Draft 2020-12）
+- 稳定 fingerprint 模块 `benchmarks/lib/fingerprint.py`（15 项单元测试）
+- 可复现哈希采集 `benchmarks/lib/repro_hashes.py`（rules / KB-A / KB-B / vision / prompt / env）
+- Schema 校验器 `benchmarks/lib/schema_validator.py`（`--all` 遍历 + `--schema-only` 自检）
+- 运行器四件套：
+  - `runners/refresh_env_lock.py`：pip freeze 快照 → `benchmarks/env/lock.txt`
+  - `runners/compare_run.py`：candidate vs baseline，六分类 diff（REGRESSION / INTENDED_IMPROVEMENT / EXPECTED_VARIANCE / DATASET_CHANGE / ENVIRONMENT_CHANGE / NEEDS_REVIEW）
+  - `runners/promote_baseline.py`：需 `--approved-by` + `--change-reason`，写完 `chmod 444`，禁覆盖
+  - `runners/release_gate_check.py`：红/黄/绿门禁，对齐 `plans/M4_RELEASE_GATE.md`
+- 张弘济样本 manifest（`allowed_uses=true/true/false/false`）+ 授权模板
+- `.github/workflows/benchmark-offline.yml`：schema + fingerprint 单测 + 密钥扫描 + CHANGELOG lint + 全 runs 门禁扫描（**PR 必进**）
+- `.gitignore` 强化：私有原文件、authored consent、`benchmarks/env/lock.txt` 不入 Git
+- 冻结 tag `v1.6.2-pre-m4-frozen` 已打（M4 build 前基线锁定）
+
+### Changed
+
+- 无（本阶段严格遵守「不改判断内核 / 不改 M1 / 不改 M3」）
+
+### Documentation
+
+- `plans/M4_PREBUILD_AUDIT.md`（v1.6.2 冻结点实测审计）
+- `plans/M4_Benchmark_CHANGELOG_v0.2.md`（吸收「追加补齐清单」15 P0 + 8 P1）
+- `plans/M4_METRICS_SCHEMA_v0.2.yaml`
+- `plans/M4_EXPECTED_SCHEMA_v0.2.yaml`
+- `plans/M4_SAMPLE_GOVERNANCE.md`（禁 CNKI 抓取；A/B/C 三通道）
+- `plans/M4_RELEASE_GATE.md`（红/黄/绿 + 六问 + rc.1 → v1.7.0 发布流程）
+- `plans/archive_v0.1/M4_Benchmark_CHANGELOG_v0.1.md`（v0.1 归档）
+
+### Governance
+
+- 首次落地 P0-1（Pre-Build Audit）/ P0-2（四层数据）/ P0-3（反循环标注）/ P0-4（fingerprint）/ P0-8（runs vs baselines 分离 + chmod 444）/ P0-12（离线 CI 必进）/ P0-14（rc.1 + Release Gate）
 
 ---
 

@@ -1,0 +1,36 @@
+sample_id: S01_zhc_docx
+source_type: authorized_private
+owner_or_source: "张弘济（广东金融学院本科生，作者本人授权）"
+license_or_consent_ref: "docs/consent/S01_zhc.consent.md"
+
+allowed_uses:
+  benchmark: true
+  cloud_vision: true
+  git_distribution: false
+  public_demo: false
+
+contains_personal_data: true
+deidentified_by: "ArkClaw v1.7.0 pre-baseline audit"
+deidentification_reviewed_by: "user_pending"
+
+retention_policy: local_only
+
+# TODO: 原始 DOCX 文件在 M3 期间被使用但当前 upload/ 未直接可见,
+# 首个 Phase B baseline 需要用户重新提供 DOCX 或从 .econ-paper-check/ 溯源
+# 现阶段占位 sha256 与 M2 v1.5.0 baseline parse_result 一致
+input_sha256: "5bd30276d8f8ee9930fcac729f54a88e83333350029619aecba7e9e0d167ad7e"
+file_bytes: null
+page_count: null
+
+synthesis_note: null
+
+added_at: "2026-07-13"
+last_reviewed_at: "2026-07-13"
+next_review_at: "2026-10-13"
+governance_owner: "user"
+
+paired_sample_id: "S02_zhc_pdf"
+notes: |
+  input_sha256 暂用 v1.5.0 parse_result.json sha256 占位.
+  实际 DOCX 文件 sha256 需要 Phase C 时用户重新提供.
+  作为 v1.6.1 DOCX 零回归证据: parse sha256 一致.

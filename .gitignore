@@ -48,3 +48,15 @@ tests/vision/fixtures/adversarial/*.jpg
 venv/
 env/
 .workdir/
+
+# ==== M4 Benchmark ====
+# 私有真实论文原始文件不入 Git（Sample Governance §六）
+benchmarks/documents/private_local_manifest/*/source/
+benchmarks/documents/private_local_manifest/*/canonical_result.json
+# 候选运行的 artifacts full 目录可能含正文回读
+benchmarks/runs/*/artifacts/full/
+# 授权文档留本地，不入 Git
+docs/consent/*.consent.md
+# 环境锁（每台机器不同）不进版本控制；但 dependency_lock_hash 会被记录到 metrics
+benchmarks/env/lock.txt
+
