@@ -1,0 +1,7 @@
+{
+  "_note": "Mock diagnostic for R009 — 演示 fingerprint 提取全绿路径",
+  "diagnostic_result": {
+    "overall_risk_level": "低风险",
+    "issues": []
+  }
+}

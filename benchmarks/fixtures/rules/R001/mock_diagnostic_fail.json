@@ -1,0 +1,18 @@
+{
+  "_note": "反循环演示: 假设内核漏红——只报了 [2] 专著格式（错报），漏掉 [1] 缺卷号（应报未报）。同时误触发了 [3] 卷号页码齐全的期刊（假红）。",
+  "diagnostic_result": {
+    "overall_risk_level": "低风险",
+    "issues": [
+      {
+        "issue_id": "R-01",
+        "rule_id": "gb7714_2015_journal_completeness",
+        "domain": "参考文献质检",
+        "level": "红色：必改问题",
+        "location": {"type": "reference_entry", "anchor": 3},
+        "evidence": "[3] 王某某, 张某某. ESG 表现与企业价值[J]. 管理世界, 2022, 38(5): 112-130.",
+        "normative_basis": [{"norm_id": "gb7714_2015_journal_completeness"}],
+        "explanation": "（错误判定）期刊卷号页码缺失"
+      }
+    ]
+  }
+}

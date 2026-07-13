@@ -1,0 +1,19 @@
+{
+  "_note": "Mock diagnostic for R003 — 演示 fingerprint 提取全绿路径",
+  "diagnostic_result": {
+    "overall_risk_level": "中风险",
+    "issues": [
+      {
+        "rule_id": "gb7714_2015_dissertation_completeness",
+        "domain": "参考文献质检",
+        "location": {
+          "type": "reference_entry",
+          "anchor": 1
+        },
+        "evidence_tag": "missing_degree_grantor",
+        "issue_id": "R-01",
+        "level": "red"
+      }
+    ]
+  }
+}

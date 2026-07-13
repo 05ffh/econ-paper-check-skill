@@ -8,19 +8,12 @@ labeling_metadata:
   labeled_at: "2026-07-13"
   reviewed_by: "张弘济"
   protocol_version: "anti_circular_v1"
-  rationale: "此片段无高风险问题：参考文献 [1] 专著格式完整、[2] 期刊卷号页码齐全；摘要包含问题-方法-结论。用于测试 false_red。"
+  rationale: |
+    此片段无高风险问题：参考文献 [1] 专著格式完整、[2] 期刊卷号页码齐全；
+    摘要包含问题-方法-结论。用于检验 false_red_count，
+    合规样本 must_hit 为空是设计意图（v0.2 schema 已允许）。
 
-must_hit:
-  - fingerprint: "no_issue|methods|abstract|placeholder_must_hit"
-    severity: "gray"
-    rule_id: "no_issue"
-    location:
-      type: "abstract"
-      anchor: "abstract"
-    expected_evidence:
-      must_contain_any: ["数字化", "绿色", "创新"]
-    confidence: "low"
-    rationale: "占位 must_hit（灰）用于跳过 minItems 约束，本 fixture 主要看 forbidden_issues 与 count_expectations。"
+must_hit: []
 
 forbidden_issues:
   - fingerprint: "gb7714_2015_journal_completeness|citation|reference_2|missing_volume_pages"

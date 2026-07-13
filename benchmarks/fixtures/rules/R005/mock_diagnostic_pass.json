@@ -1,0 +1,19 @@
+{
+  "_note": "Mock diagnostic for R005 — 演示 fingerprint 提取全绿路径",
+  "diagnostic_result": {
+    "overall_risk_level": "中风险",
+    "issues": [
+      {
+        "rule_id": "wooldridge_did_parallel_trends",
+        "domain": "方法模型",
+        "location": {
+          "type": "section",
+          "anchor": "4.2"
+        },
+        "evidence_tag": "missing_parallel_test",
+        "issue_id": "R-01",
+        "level": "yellow"
+      }
+    ]
+  }
+}

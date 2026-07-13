@@ -53,7 +53,10 @@ env/
 # 私有真实论文原始文件不入 Git（Sample Governance §六）
 benchmarks/documents/private_local_manifest/*/source/
 benchmarks/documents/private_local_manifest/*/canonical_result.json
-# 候选运行的 artifacts full 目录可能含正文回读
+# 候选运行的 artifacts 目录均不入库 (可能含 PDF 页图/OCR 正文/中间产物)。
+# metrics.json / release_gate_report.md / *.summary.md 不受影响。
+benchmarks/runs/*/artifacts/
+# 安全兵底: 历史保留 full 子目录规则
 benchmarks/runs/*/artifacts/full/
 # 授权文档留本地，不入 Git
 docs/consent/*.consent.md

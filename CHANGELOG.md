@@ -8,7 +8,39 @@
 
 ## [Unreleased]
 
-### Added — M4 Phase B骨架（三层夹具 + run_single 跑通）
+### Added — M4 Phase C（反循环真接入 + S02 PDF 真调 Ark baseline）
+
+- `benchmarks/lib/issue_to_fingerprint.py`：diagnostic_result.json 中的 issue dict → 稳定 fingerprint
+  - `rule_id → issue_type` 前缀映射白名单（gb7714/wooldridge/SN-REF/SN-TABLE/SN-ABSTRACT/MM/TQ/LT/DV）
+  - `location → anchor` 归一化（reference_N / section_N_M / table_N / figure_N / equation_N / abstract）
+  - `evidence_key` 优先取 `issue.evidence_tag`，兵底 `_RULE_DEFAULT_EVIDENCE_KEY` 映射表
+  - 27 单测全绿
+- `run_single.py` 升级 R 路由：新增 `--actual-json` 参数，从外部 diagnostic_result.json 抽取 fingerprint
+- **反循环闭环验证**：
+  - `R001/mock_diagnostic_pass.json`：内核正确判定 → anchor_recall=1.0, forbidden=0，全绿
+  - `R001/mock_diagnostic_fail.json`：内核漏红 [1] + 错红 [3] → anchor_recall=0.0, forbidden=1，release_gate **RED×2**
+- R 系列真接入：10/10 mock diagnostic 全部经 run_single 提取 fingerprint → 与 expected 对齐 → release_gate 全绿
+- Schema 修正：`expected.schema.yaml` 允许 `must_hit=[]`（合规样本只靠 forbidden_issues + count_expectations）；R009 合规样本去除 placeholder must_hit
+- **S02 PDF 真调 Ark 视觉 baseline**（张弘济初稿 24 页）：
+  - S02 PDF 真 sha256 确认：`f4ad1a9b418…`（与 manifest 一致），gitignored 不入公共库
+  - parse_paper.py 输出：24 页 108 units 18531 字
+  - vision_pipeline TABLE_STRUCTURE 真调 doubao-seed-2-0-mini-260428：
+    - 表 1 变量体系 7×4 ✅（quality=0.8, gates=True, 7.7s）
+    - 表 2 描述性统计 8×6 ✅（quality=0.8, gates=True, 13.7s）
+    - p19 无表 ✅（正确降级 hard_gates=False）
+    - 表 3 主回归 LR→NIM 16×3 ✅（quality=0.8, gates=True, 32.6s）
+  - 总计：13723 tokens · 56.7s · quota 4/40 · avg_quality=0.800 · avg_critical=1.000
+  - `benchmarks/runs/20260713-phaseC-S02/S02.metrics.json` schema 全绿 + release_gate 全绿
+
+### Documentation
+
+- 本轮回归：`pytest 77/77` 全绿（旧 50 + issue_to_fingerprint 27 新增）· schema_validator --all 全绿（expected 35 + manifest 2 + metrics 12）· self_check 5/5
+
+### Blocked
+
+- **S01 DOCX 真身未就位**：`upload/` 中无张弘济的 Word 版本（只有 PDF）；manifest sha256 仍为 v1.5.0 parse_result.json 占位。等用户提供张弘济 DOCX 后置换并重跟。
+
+### Added — M4 Phase B骨架（三层夹具 + run_single 跑通）（三层夹具 + run_single 跑通）
 
 - 10 规则夹具 `benchmarks/fixtures/rules/R001…R010/`（每个 1-3 目标点，涵盖 GB/T 7714 引用与 Wooldridge 方法学高风险规则）
 - 10 KB 查询夹具 `benchmarks/fixtures/kb_queries/Q001…Q010/`（含 KB-A 正例/白名单外拒绝/无关 query 空命中三类）

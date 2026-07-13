@@ -1,0 +1,30 @@
+{
+  "_note": "Mock diagnostic for R010 — 演示 fingerprint 提取全绿路径",
+  "diagnostic_result": {
+    "overall_risk_level": "中风险",
+    "issues": [
+      {
+        "rule_id": "gb7714_2015_document_type_marker",
+        "domain": "参考文献质检",
+        "location": {
+          "type": "reference_entry",
+          "anchor": 1
+        },
+        "evidence_tag": "missing_type_marker",
+        "issue_id": "R-01",
+        "level": "red"
+      },
+      {
+        "rule_id": "gb7714_2015_document_type_marker",
+        "domain": "参考文献质检",
+        "location": {
+          "type": "reference_entry",
+          "anchor": 4
+        },
+        "evidence_tag": "missing_type_marker",
+        "issue_id": "R-02",
+        "level": "red"
+      }
+    ]
+  }
+}

@@ -12,8 +12,11 @@ required:
   - sample_kind
   - paper_title
   - labeling_metadata
-  - must_hit
   - forbidden_issues
+# NOTE: must_hit 不强制非空。合规样本可以 must_hit=[]，
+# 只靠 forbidden_issues + count_expectations 验证。
+# 需至少一个断言渠道 (must_hit / forbidden_issues / kb_a_expectations / vision_expectations),
+# 由 schema_validator.py 额外检查。
 
 properties:
 
@@ -41,7 +44,7 @@ properties:
 
   must_hit:
     type: array
-    minItems: 1
+    minItems: 0
     items:
       type: object
       required: [fingerprint, severity, rule_id, location, expected_evidence, confidence]

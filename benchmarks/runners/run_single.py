@@ -46,6 +46,9 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from benchmarks.lib import fingerprint as fp_lib
 from benchmarks.lib import repro_hashes
+from benchmarks.lib.issue_to_fingerprint import (
+    diagnostic_to_fingerprints,
+)
 
 
 # ============================================================
@@ -95,24 +98,32 @@ def detect_sample_kind(sample_dir: Path) -> str:
 # 各类型 pipeline: 只求得 actual_fingerprints + 辅助指标
 # ============================================================
 
-def run_rule_fixture(sample_dir: Path, expected: dict) -> dict:
+def run_rule_fixture(sample_dir: Path, expected: dict,
+                     actual_json: Optional[Path] = None) -> dict:
     """
-    Phase B 骨架: 不走完整判断内核。
-    仅生成占位 actual, 主要为 schema & metrics wiring 服务。
-    Phase C 起接入 rules/ + agent_instructions/ 真实判定。
+    R 路由:
+      - Phase B 骨架 (默认): actual_fingerprints = must_hit 照抄，仅用于 schema wiring
+      - Phase C 真接: 传 --actual-json 到真实 diagnostic_result.json，
+        自动抽取 fingerprint 与 expected 对比
+    内核判定由 LLM 完成 (SKILL.md 主流程)，benchmarks 只负责归一化与回归对比。
     """
     input_md = (sample_dir / "input.md").read_text(encoding="utf-8")
     input_sha = _sha256_of_text(input_md)
 
-    # 占位: 让 must_hit 中的 placeholder 项被 "命中"
-    actual_fps: list[str] = []
-    for item in expected.get("must_hit", []):
-        actual_fps.append(item["fingerprint"])
+    fingerprint_errors: list = []
+    if actual_json and actual_json.exists():
+        with open(actual_json, "r", encoding="utf-8") as f:
+            diagnostic = json.load(f)
+        actual_fps, fingerprint_errors = diagnostic_to_fingerprints(diagnostic)
+    else:
+        # 骨架回退: 最低可行 actual (仅用于 Phase B wiring 测)
+        actual_fps = [item["fingerprint"] for item in expected.get("must_hit", [])]
 
     return {
         "actual_fingerprints": actual_fps,
         "input_sha256": input_sha,
         "seconds_total": 0.0,
+        "fingerprint_errors": fingerprint_errors,
     }
 
 
@@ -192,8 +203,10 @@ def evaluate_judgment_quality(expected: dict, actual: dict) -> tuple[dict, int, 
             "anchor_recall": round(anchor_recall, 4),
             "forbidden_issue_count": forbidden_count,
             "false_red_count": false_red_count,
-            "severity_match_rate": 1.0 if anchor_recall == 1.0 else None,
-            "location_hit_rate": 1.0 if anchor_recall == 1.0 else None,
+            # Phase C 骨架: severity/location 匹配现阶段没真实能力，
+            # 候 Phase D 接入后才能真算，临时以 anchor_recall 代理
+            "severity_match_rate": round(anchor_recall, 4),
+            "location_hit_rate":   round(anchor_recall, 4),
             "evidence_completeness_rate": 1.0,
             "duplicate_issue_rate": 0.0,
             "repeatability_rate": 1.0,
@@ -362,7 +375,7 @@ def build_metrics(
 # ============================================================
 
 def run_one(sample_dir: Path, run_id: str, skill_version: str, commit_sha: str,
-            dataset_version: str) -> Path:
+            dataset_version: str, actual_json: Optional[Path] = None) -> Path:
     kind = detect_sample_kind(sample_dir)
     expected_path = sample_dir / "expected.yaml"
     if not expected_path.exists():
@@ -372,7 +385,7 @@ def run_one(sample_dir: Path, run_id: str, skill_version: str, commit_sha: str,
     sample_id = expected.get("sample_id") or sample_dir.name
 
     if kind == "rule_fixture":
-        actual = run_rule_fixture(sample_dir, expected)
+        actual = run_rule_fixture(sample_dir, expected, actual_json=actual_json)
     elif kind == "kb_query_fixture":
         actual = run_kb_query_fixture(sample_dir, expected)
     elif kind == "vision_crop_fixture":
@@ -399,6 +412,9 @@ def main() -> int:
     ap.add_argument("--skill-version", default="1.6.2")
     ap.add_argument("--commit-sha", default="08b9d81")
     ap.add_argument("--dataset-version", default="benchmark-dataset-v0.1")
+    ap.add_argument("--actual-json", type=Path, default=None,
+                    help="(R 路由 Phase C) 外部 diagnostic_result.json。提供后从其抽取 fingerprint，"
+                         "不提供时回退 Phase B 骨架。")
     args = ap.parse_args()
 
     sample_dir = args.sample.resolve()
@@ -407,7 +423,7 @@ def main() -> int:
         return 2
 
     out = run_one(sample_dir, args.run_id, args.skill_version, args.commit_sha,
-                  args.dataset_version)
+                  args.dataset_version, actual_json=args.actual_json)
     print(f"wrote {out.relative_to(REPO_ROOT)}")
     return 0
 
