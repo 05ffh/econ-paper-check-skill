@@ -1,0 +1,33 @@
+sample_id: "R005"
+sample_kind: "rule_fixture"
+paper_title: "R005 DID 未做平行趋势检验"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "伍德里奇 §13.2：DID 必须报告平行趋势检验；本文使用 DID 但通篇无平行趋势事件研究图/事前系数报告。"
+
+must_hit:
+  - fingerprint: "wooldridge_did_parallel_trends|methods|section_4_2|missing_parallel_test"
+    severity: "yellow"
+    rule_id: "wooldridge_did_parallel_trends"
+    location:
+      type: "section"
+      anchor: "section_4_2"
+    expected_evidence:
+      must_contain_any: ["平行趋势", "事件研究", "parallel", "pre-trend"]
+    normative_basis:
+      must_include: ["wooldridge_did_parallel_trends"]
+    confidence: "high"
+    rationale: "DID 未报告平行趋势检验，按教材做建议不做硬红，故黄色。"
+
+forbidden_issues:
+  - fingerprint: "wooldridge_did_parallel_trends|methods|section_4_3|missing_parallel_test"
+    reason: "§4.3 是稳健性检验章节，不应重复挂载 DID 平行趋势问题。"
+
+count_expectations:
+  yellow_min: 1
+  yellow_max: 3

@@ -1,0 +1,35 @@
+sample_id: "R001"
+sample_kind: "rule_fixture"
+paper_title: "R001 期刊参考文献缺卷号页码"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "GB/T 7714-2015 §9.1 要求期刊类文献必录卷号(V)与起止页码；[1] 明显缺失。"
+
+must_hit:
+  - fingerprint: "gb7714_2015_journal_completeness|citation|reference_1|missing_volume_pages"
+    severity: "red"
+    rule_id: "gb7714_2015_journal_completeness"
+    location:
+      type: "reference_entry"
+      anchor: "reference_1"
+    expected_evidence:
+      must_contain_any: ["卷号", "页码", "volume", "pages"]
+    normative_basis:
+      must_include: ["gb7714_2015_journal_completeness"]
+    confidence: "high"
+    rationale: "[1] 缺卷号和起止页码，红色硬伤。"
+
+forbidden_issues:
+  - fingerprint: "gb7714_2015_journal_completeness|citation|reference_2|missing_volume_pages"
+    reason: "[2] 是专著不是期刊，不应触发期刊完整性规则。"
+  - fingerprint: "gb7714_2015_journal_completeness|citation|reference_3|missing_volume_pages"
+    reason: "[3] 卷号页码齐全，不应误报。"
+
+count_expectations:
+  red_min: 1
+  red_max: 2

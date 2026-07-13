@@ -1,0 +1,33 @@
+sample_id: "R007"
+sample_kind: "rule_fixture"
+paper_title: "R007 IV 缺排他性论证"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "伍德里奇 §15.1-15.3：IV 必须同时论证相关性与排他性；本文只报了 F 统计量（相关性），未讨论排他性。"
+
+must_hit:
+  - fingerprint: "wooldridge_iv_relevance_exclusion|methods|section_6_2|missing_exclusion_arg"
+    severity: "yellow"
+    rule_id: "wooldridge_iv_relevance_exclusion"
+    location:
+      type: "section"
+      anchor: "section_6_2"
+    expected_evidence:
+      must_contain_any: ["排他性", "exclusion", "外生性"]
+    normative_basis:
+      must_include: ["wooldridge_iv_relevance_exclusion"]
+    confidence: "high"
+    rationale: "只有 F 统计量证明相关性，缺排他性理论论证。"
+
+forbidden_issues:
+  - fingerprint: "wooldridge_iv_relevance_exclusion|methods|section_6_2|missing_first_stage_f"
+    reason: "F=32.1 已明确报告，不应误报缺弱工具检验。"
+
+count_expectations:
+  yellow_min: 1
+  yellow_max: 2

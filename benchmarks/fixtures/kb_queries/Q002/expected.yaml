@@ -1,0 +1,31 @@
+sample_id: "Q002"
+sample_kind: "kb_query_fixture"
+paper_title: "Q002 KB-A methods 正例 - DID 平行趋势"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "query='DID 平行趋势检验' 应该稳定命中伍德里奇 §13.2 平行趋势条款。"
+
+must_hit:
+  - fingerprint: "kb_a_query|methods|abstract|placeholder_probe"
+    severity: "gray"
+    rule_id: "kb_a_query"
+    location:
+      type: "abstract"
+      anchor: "abstract"
+    expected_evidence:
+      must_contain_any: ["placeholder"]
+    confidence: "low"
+    rationale: "占位。"
+
+forbidden_issues: []
+
+kb_a_expectations:
+  must_hit:
+    - "wooldridge_did_parallel_trends"
+  must_not_hit:
+    - "gb7714_2015_journal_completeness"

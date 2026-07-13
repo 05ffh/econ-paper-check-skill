@@ -1,0 +1,37 @@
+sample_id: "V001"
+sample_kind: "vision_crop_fixture"
+paper_title: "V001 清晰基准回归表 - 2×3 含显著性"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "清晰扫描表格，测试 critical_cell 精确匹配 + 显著性标记 + header binding。"
+
+must_hit:
+  - fingerprint: "vision_probe|figures_tables|table_1|placeholder_probe"
+    severity: "gray"
+    rule_id: "vision_probe"
+    location: {type: "table", anchor: "table_1"}
+    expected_evidence: {must_contain_any: ["placeholder"]}
+    confidence: "low"
+    rationale: "占位。"
+
+forbidden_issues: []
+
+vision_expectations:
+  must_have_regions:
+    - "table_1"
+  table_truths:
+    - region_id: "table_1"
+      caption: "基准回归"
+      n_rows: 4
+      n_cols: 3
+      critical_cells:
+        - {row: 1, col: 1, value: "0.235", sign: "+", significance_marker: "***", is_header: false}
+        - {row: 1, col: 2, value: "0.183", sign: "+", significance_marker: "**",  is_header: false}
+        - {row: 2, col: 1, value: "-0.098", sign: "-", significance_marker: "*",  is_header: false}
+        - {row: 0, col: 1, value: "OLS",    sign: "0", significance_marker: "",   is_header: true}
+  should_downgrade_to_gray: false

@@ -1,0 +1,34 @@
+sample_id: "V014"
+sample_kind: "vision_crop_fixture"
+paper_title: "V014 多层表头（合并单元格）"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "复杂 header binding"
+
+must_hit:
+  - fingerprint: "vision_probe|figures_tables|table_1|placeholder_probe"
+    severity: "gray"
+    rule_id: "vision_probe"
+    location: {type: "table", anchor: "table_1"}
+    expected_evidence: {must_contain_any: ["placeholder"]}
+    confidence: "low"
+    rationale: "占位。"
+
+forbidden_issues: []
+
+vision_expectations:
+  must_have_regions:
+    - "table_1"
+  table_truths:
+    - region_id: "table_1"
+      caption: "多层表头（合并单元格）"
+      n_rows: 3
+      n_cols: 3
+      critical_cells:
+        - {row: 2, col: 1, value: "0.412", sign: "+", significance_marker: "***", is_header: false}
+  should_downgrade_to_gray: false

@@ -1,0 +1,29 @@
+sample_id: "Q007"
+sample_kind: "kb_query_fixture"
+paper_title: "Q007 KB-A 白名单外 - variable_definition 应拒绝"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "issue_type=variable_definition 不在 KB-A 白名单，反常识过滤应拒绝命中；测试白名单空 set 行为。"
+
+must_hit:
+  - fingerprint: "kb_a_query|methods|abstract|placeholder_probe"
+    severity: "gray"
+    rule_id: "kb_a_query"
+    location: {type: "abstract", anchor: "abstract"}
+    expected_evidence: {must_contain_any: ["placeholder"]}
+    confidence: "low"
+    rationale: "占位。"
+
+forbidden_issues: []
+
+kb_a_expectations:
+  must_hit: []
+  must_not_hit:
+    - "gb7714_2015_journal_completeness"
+    - "wooldridge_did_parallel_trends"
+    - "wooldridge_ols_assumptions"

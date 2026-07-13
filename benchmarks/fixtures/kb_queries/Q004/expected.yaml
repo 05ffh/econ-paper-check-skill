@@ -1,0 +1,26 @@
+sample_id: "Q004"
+sample_kind: "kb_query_fixture"
+paper_title: "Q004 KB-A methods 正例 - 面板 FE/RE"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "query='面板 FE RE Hausman 选择' 应命中伍德里奇 §14.1-14.3 面板条款。"
+
+must_hit:
+  - fingerprint: "kb_a_query|methods|abstract|placeholder_probe"
+    severity: "gray"
+    rule_id: "kb_a_query"
+    location: {type: "abstract", anchor: "abstract"}
+    expected_evidence: {must_contain_any: ["placeholder"]}
+    confidence: "low"
+    rationale: "占位。"
+
+forbidden_issues: []
+
+kb_a_expectations:
+  must_hit:
+    - "wooldridge_panel_fe_re_choice"

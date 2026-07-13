@@ -8,6 +8,21 @@
 
 ## [Unreleased]
 
+### Added — M4 Phase B骨架（三层夹具 + run_single 跑通）
+
+- 10 规则夹具 `benchmarks/fixtures/rules/R001…R010/`（每个 1-3 目标点，涵盖 GB/T 7714 引用与 Wooldridge 方法学高风险规则）
+- 10 KB 查询夹具 `benchmarks/fixtures/kb_queries/Q001…Q010/`（含 KB-A 正例/白名单外拒绝/无关 query 空命中三类）
+- 15 视觉裁剪夹具骨架 `benchmarks/fixtures/vision_crops/V001…V015/`（清晰表/含负号/率/小数点/quality_gate 降灰边界）
+- `benchmarks/runners/run_single.py`：单样本运行器，支持 rule/kb_query/vision_crop 三类 Fixture，产出 `runs/{run_id}/{sample_id}.metrics.json`
+- 首次 Phase B smoke run `benchmarks/runs/20260713-phaseB-smoke/`：35/35 样本 metrics schema 全绿
+- `release_gate_check.py` 全绿证：35/35 红黄硬门禁 = 0
+- KB-A 真调验证：10 个 Q 夹具 kb_a_quality precision/recall = 1.0，Q008 无关 query 0 命中（empty_when_irrelevant 预期成立）
+
+### Documentation
+
+- `benchmarks/fixtures/README.md`：三层夹具目录约定 + 反循环协议提醒
+- 本轮回归：`pytest 50/50` 全绿 · self_check 5/5 通过 · schema_validator --all 通过（expected 35 + manifest 2 + metrics 35）
+
 ### Added — M4 Build Gate Addendum（开发者模块边界 + 治理契约）
 
 - `plans/M4_BUILD_GATE_ADDENDUM.md`：吸收「新增补充信息清单」11 项硬约束

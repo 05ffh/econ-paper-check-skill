@@ -1,0 +1,32 @@
+sample_id: "Q001"
+sample_kind: "kb_query_fixture"
+paper_title: "Q001 KB-A citation 正例 - 期刊完整性"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "query='参考文献缺卷号页码' 应该稳定命中 GB/T 7714-2015 §9.1 期刊完整性条款。"
+
+must_hit:
+  - fingerprint: "kb_a_query|citation|abstract|placeholder_probe"
+    severity: "gray"
+    rule_id: "kb_a_query"
+    location:
+      type: "abstract"
+      anchor: "abstract"
+    expected_evidence:
+      must_contain_any: ["placeholder"]
+    confidence: "low"
+    rationale: "占位（KB 查询夹具不产 issue，主要验 kb_a_expectations）。"
+
+forbidden_issues: []
+
+kb_a_expectations:
+  must_hit:
+    - "gb7714_2015_journal_completeness"
+  must_not_hit:
+    - "wooldridge_did_parallel_trends"
+    - "wooldridge_ols_assumptions"

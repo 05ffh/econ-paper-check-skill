@@ -1,0 +1,33 @@
+sample_id: "R004"
+sample_kind: "rule_fixture"
+paper_title: "R004 电子文献缺引用日期"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "GB/T 7714-2015 §7.7 要求电子文献必录访问路径与引用日期；[1] 缺引用日期与更新日期。"
+
+must_hit:
+  - fingerprint: "gb7714_2015_electronic_url_date|citation|reference_1|missing_access_date"
+    severity: "red"
+    rule_id: "gb7714_2015_electronic_url_date"
+    location:
+      type: "reference_entry"
+      anchor: "reference_1"
+    expected_evidence:
+      must_contain_any: ["引用日期", "访问日期", "access", "date"]
+    normative_basis:
+      must_include: ["gb7714_2015_electronic_url_date"]
+    confidence: "high"
+    rationale: "[1] 电子文献缺 [引用日期] 与 EB/OL 类型标识。"
+
+forbidden_issues:
+  - fingerprint: "gb7714_2015_electronic_url_date|citation|reference_2|missing_access_date"
+    reason: "[2] EB/OL 标识 + 更新日期 + 引用日期齐全，不应误报。"
+
+count_expectations:
+  red_min: 1
+  red_max: 2

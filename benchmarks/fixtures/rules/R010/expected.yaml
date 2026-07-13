@@ -1,0 +1,43 @@
+sample_id: "R010"
+sample_kind: "rule_fixture"
+paper_title: "R010 参考文献缺文献类型标识 [M]/[J]/[D]/[EB/OL]"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "GB/T 7714-2015 §4.2 附录 B：参考文献必录文献类型标识；[1]-[4] 全部缺 [M]/[J]/[EB/OL]。"
+
+must_hit:
+  - fingerprint: "gb7714_2015_document_type_marker|citation|reference_1|missing_type_marker"
+    severity: "red"
+    rule_id: "gb7714_2015_document_type_marker"
+    location:
+      type: "reference_entry"
+      anchor: "reference_1"
+    expected_evidence:
+      must_contain_any: ["[M]", "[J]", "[EB/OL]", "文献类型", "type"]
+    normative_basis:
+      must_include: ["gb7714_2015_document_type_marker"]
+    confidence: "high"
+    rationale: "[1] 缺 [M] 专著标识。"
+  - fingerprint: "gb7714_2015_document_type_marker|citation|reference_4|missing_type_marker"
+    severity: "red"
+    rule_id: "gb7714_2015_document_type_marker"
+    location:
+      type: "reference_entry"
+      anchor: "reference_4"
+    expected_evidence:
+      must_contain_any: ["[EB/OL]", "文献类型"]
+    normative_basis:
+      must_include: ["gb7714_2015_document_type_marker"]
+    confidence: "high"
+    rationale: "[4] 缺 [EB/OL] 电子文献标识。"
+
+forbidden_issues: []
+
+count_expectations:
+  red_min: 2
+  red_max: 4

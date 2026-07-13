@@ -1,0 +1,28 @@
+sample_id: "Q008"
+sample_kind: "kb_query_fixture"
+paper_title: "Q008 KB-A 无关 query - 应返回空"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "query 与 KB-A 现有 18 条无关，应通过 min_score=2 门槛或 stopword 过滤返回空，检验 empty_when_irrelevant。"
+
+must_hit:
+  - fingerprint: "kb_a_query|figures_tables|abstract|placeholder_probe"
+    severity: "gray"
+    rule_id: "kb_a_query"
+    location: {type: "abstract", anchor: "abstract"}
+    expected_evidence: {must_contain_any: ["placeholder"]}
+    confidence: "low"
+    rationale: "占位。"
+
+forbidden_issues: []
+
+kb_a_expectations:
+  must_hit: []
+  must_not_hit:
+    - "gb7714_2015_journal_completeness"
+    - "wooldridge_did_parallel_trends"

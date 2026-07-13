@@ -1,0 +1,31 @@
+sample_id: "R008"
+sample_kind: "rule_fixture"
+paper_title: "R008 中介效应仅用 Baron & Kenny 缺 Bootstrap"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "温忠麟等及现代中介检验规范：Baron & Kenny 三步法应配合 Bootstrap 或 Sobel 检验中介效应显著性；本文仅描述三步法，未报告显著性检验。"
+
+must_hit:
+  - fingerprint: "wooldridge_mediation_analysis|methods|section_7_2|missing_bootstrap_sobel"
+    severity: "yellow"
+    rule_id: "wooldridge_mediation_analysis"
+    location:
+      type: "section"
+      anchor: "section_7_2"
+    expected_evidence:
+      must_contain_any: ["Bootstrap", "bootstrap", "Sobel", "间接效应"]
+    normative_basis:
+      must_include: ["wooldridge_mediation_analysis"]
+    confidence: "high"
+    rationale: "仅报告三步法，缺间接效应显著性检验。"
+
+forbidden_issues: []
+
+count_expectations:
+  yellow_min: 1
+  yellow_max: 2

@@ -1,0 +1,43 @@
+sample_id: "R006"
+sample_kind: "rule_fixture"
+paper_title: "R006 面板模型未做 Hausman + 稳健标准误"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "伍德里奇 §14.1-14.3：面板 FE/RE 选择应报 Hausman；§8.2：报告推断需使用稳健/聚类标准误。本片段两者皆缺。"
+
+must_hit:
+  - fingerprint: "wooldridge_panel_fe_re_choice|methods|section_5_1|missing_hausman"
+    severity: "yellow"
+    rule_id: "wooldridge_panel_fe_re_choice"
+    location:
+      type: "section"
+      anchor: "section_5_1"
+    expected_evidence:
+      must_contain_any: ["Hausman", "hausman", "FE", "RE"]
+    normative_basis:
+      must_include: ["wooldridge_panel_fe_re_choice"]
+    confidence: "mid"
+    rationale: "FE 选择理由缺失。"
+  - fingerprint: "wooldridge_robust_se|methods|section_5_1|missing_robust_se"
+    severity: "yellow"
+    rule_id: "wooldridge_robust_se"
+    location:
+      type: "section"
+      anchor: "section_5_1"
+    expected_evidence:
+      must_contain_any: ["稳健标准误", "聚类", "cluster", "robust"]
+    normative_basis:
+      must_include: ["wooldridge_robust_se"]
+    confidence: "mid"
+    rationale: "未说明标准误类型。"
+
+forbidden_issues: []
+
+count_expectations:
+  yellow_min: 2
+  yellow_max: 4

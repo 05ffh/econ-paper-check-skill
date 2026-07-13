@@ -1,0 +1,33 @@
+sample_id: "R003"
+sample_kind: "rule_fixture"
+paper_title: "R003 学位论文缺授予单位"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "GB/T 7714-2015 §9.5 要求学位论文必录学位授予单位与所在地；[1] 缺失。"
+
+must_hit:
+  - fingerprint: "gb7714_2015_dissertation_completeness|citation|reference_1|missing_degree_grantor"
+    severity: "red"
+    rule_id: "gb7714_2015_dissertation_completeness"
+    location:
+      type: "reference_entry"
+      anchor: "reference_1"
+    expected_evidence:
+      must_contain_any: ["学位授予单位", "所在地", "grantor"]
+    normative_basis:
+      must_include: ["gb7714_2015_dissertation_completeness"]
+    confidence: "high"
+    rationale: "[1] 学位论文没有学位授予单位。"
+
+forbidden_issues:
+  - fingerprint: "gb7714_2015_dissertation_completeness|citation|reference_2|missing_degree_grantor"
+    reason: "[2] 清华大学，字段完整，不应误报。"
+
+count_expectations:
+  red_min: 1
+  red_max: 1

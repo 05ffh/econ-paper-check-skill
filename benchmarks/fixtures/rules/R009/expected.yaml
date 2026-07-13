@@ -1,0 +1,35 @@
+sample_id: "R009"
+sample_kind: "rule_fixture"
+paper_title: "R009 合规样本 - 不应触发红色"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "此片段无高风险问题：参考文献 [1] 专著格式完整、[2] 期刊卷号页码齐全；摘要包含问题-方法-结论。用于测试 false_red。"
+
+must_hit:
+  - fingerprint: "no_issue|methods|abstract|placeholder_must_hit"
+    severity: "gray"
+    rule_id: "no_issue"
+    location:
+      type: "abstract"
+      anchor: "abstract"
+    expected_evidence:
+      must_contain_any: ["数字化", "绿色", "创新"]
+    confidence: "low"
+    rationale: "占位 must_hit（灰）用于跳过 minItems 约束，本 fixture 主要看 forbidden_issues 与 count_expectations。"
+
+forbidden_issues:
+  - fingerprint: "gb7714_2015_journal_completeness|citation|reference_2|missing_volume_pages"
+    reason: "[2] 卷号页码齐全，不应误报。"
+    severity_scope: ["red"]
+  - fingerprint: "gb7714_2015_book_publication_place|citation|reference_1|missing_publisher_place"
+    reason: "[1] 出版地出版者齐全，不应误报。"
+    severity_scope: ["red"]
+
+count_expectations:
+  red_min: 0
+  red_max: 0

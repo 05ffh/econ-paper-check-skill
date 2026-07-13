@@ -1,0 +1,26 @@
+sample_id: "Q003"
+sample_kind: "kb_query_fixture"
+paper_title: "Q003 KB-A methods 正例 - IV 相关性排他性"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "query='工具变量排他性论证' 应命中伍德里奇 §15.1-15.3 IV 条款。"
+
+must_hit:
+  - fingerprint: "kb_a_query|methods|abstract|placeholder_probe"
+    severity: "gray"
+    rule_id: "kb_a_query"
+    location: {type: "abstract", anchor: "abstract"}
+    expected_evidence: {must_contain_any: ["placeholder"]}
+    confidence: "low"
+    rationale: "占位。"
+
+forbidden_issues: []
+
+kb_a_expectations:
+  must_hit:
+    - "wooldridge_iv_relevance_exclusion"

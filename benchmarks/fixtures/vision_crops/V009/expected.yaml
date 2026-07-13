@@ -1,0 +1,27 @@
+sample_id: "V009"
+sample_kind: "vision_crop_fixture"
+paper_title: "V009 计量模型主方程 y=alpha+beta*x+eps"
+dataset_version: "benchmark-dataset-v0.1"
+
+labeling_metadata:
+  labeled_by: "ArkClaw+张弘济"
+  labeled_at: "2026-07-13"
+  reviewed_by: "张弘济"
+  protocol_version: "anti_circular_v1"
+  rationale: "公式区域识别不产表格"
+
+must_hit:
+  - fingerprint: "vision_probe|figures_tables|equation_1|placeholder_probe"
+    severity: "gray"
+    rule_id: "vision_probe"
+    location: {type: "equation", anchor: "equation_1"}
+    expected_evidence: {must_contain_any: ["placeholder"]}
+    confidence: "low"
+    rationale: "占位。"
+
+forbidden_issues: []
+
+vision_expectations:
+  must_have_regions:
+    - "equation_1"
+  should_downgrade_to_gray: false
