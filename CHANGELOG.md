@@ -8,6 +8,34 @@
 
 ## [Unreleased]
 
+### Added — M4 Phase D（S02 3× 真调 Ark 采 p50/p95 + Scorecard 填实）
+
+- `benchmarks/runners/_emit_s02_phaseD_perf.py`：聚合 3 次真调结果生成 S02 真实性能 baseline
+- **S02 3× 真调 Ark 视觉**（doubao-seed-2-0-mini-260428, 4 页）：
+  - Run1: 51.851s / 13126 tokens · Run2: 37.474s / 11537 tokens · Run3: 37.919s / 11539 tokens
+  - **p50=37.919s · p95=50.458s**
+  - avg quality_score=0.80 · avg critical_field=1.00 · avg regions=3/4 · quota 12/40
+  - 3 次运行 quality_score 频句 100% 稳定 → **repeatability_rate=1.0** 得实证
+- `benchmarks/runs/20260713-phaseD-perf/perf_stats.md`：审计用逐次运行报告
+- `benchmarks/public_summary/SCORECARD.md`：从rc.1 空壳翻新为真数据 Scorecard（遵守 PUBLIC_CLAIMS_POLICY 黑名单）
+
+### Added — M4 Phase E（v1.7.0-rc.1 候选版证据包）
+
+- **v1.7.0-rc.1 发布候选**：M4 Phase A/B/C/D 全部落地，以 tag `v1.7.0-rc.1` 冻结
+- 符合 M4 v0.2 主计划 Release Gate:
+  - 建构門禁 — pytest 77/77 / schema_validator 全绿 / self_check 5/5 ✅
+  - 反循环 — R001 pass/fail 双场景验证 fingerprint 拒运行期噪声 ✅
+  - 内核零改动 — rules_hash `38425bb2…` / KB-A hash `2f06c8f5…` / vision_hash `17b3d10d…` 保持与 v1.6.2 一致 ✅
+  - 真调多次一致性 — 3 次运行 quality=0.80 稳定 ✅
+  - 对外声明契约 — Scorecard 无黑名单词汇；未覆盖场景明示 ✅
+- **观察期 7 天**：无重大回归 + S01 DOCX 到位 → 升 v1.7.0 正式版
+
+### 已知限制（rc.1 阶段）
+
+- S01 DOCX 真身未就位（张弘济只提供 PDF），manifest sha256 仍为占位；不阻断 rc.1 候选发布，但不进入 v1.7.0 正式版
+- S03/S04/S05 待征集（扫描 PDF / 图表密集 / KB-B 稀疏场景）；对应能力覆盖未宣称
+- V001-V015 视觉夹具仅骨架，实际 quality_gate 真调验证延后至 Phase F（需充充 quota）
+
 ### Added — M4 Phase C（反循环真接入 + S02 PDF 真调 Ark baseline）
 
 - `benchmarks/lib/issue_to_fingerprint.py`：diagnostic_result.json 中的 issue dict → 稳定 fingerprint
