@@ -1,34 +1,131 @@
-sample_id: "V007"
-sample_kind: "vision_crop_fixture"
-paper_title: "V007 面板固定效应 2x2 表 - 极小"
-dataset_version: "benchmark-dataset-v0.1"
-
+sample_id: V007
+sample_kind: vision_crop_fixture
+paper_title: V007 [S02-aligned] 变量指标体系 7×4
+dataset_version: benchmark-dataset-v0.1
 labeling_metadata:
-  labeled_by: "ArkClaw+张弘济"
-  labeled_at: "2026-07-13"
-  reviewed_by: "张弘济"
-  protocol_version: "anti_circular_v1"
-  rationale: "最小可用表格"
-
+  labeled_by: ArkClaw+S02-aligned
+  labeled_at: '2026-07-13'
+  reviewed_by: vision baseline (Ark run 20260713-phaseC-S02)
+  protocol_version: anti_circular_v1
+  rationale: 用 S02 p17 Ark 真调结果对齐真值; 小表, header binding 关键.
 must_hit:
-  - fingerprint: "vision_probe|figures_tables|table_1|placeholder_probe"
-    severity: "gray"
-    rule_id: "vision_probe"
-    location: {type: "table", anchor: "table_1"}
-    expected_evidence: {must_contain_any: ["placeholder"]}
-    confidence: "low"
-    rationale: "占位。"
-
+- fingerprint: vision_probe|figures_tables|table_1|table_ark_alignment
+  severity: gray
+  rule_id: vision_probe
+  location:
+    type: table
+    anchor: table_1
+  expected_evidence:
+    must_contain_any:
+    - 变量类型
+    - 变量名称
+    - 符号
+  confidence: mid
+  rationale: 对齐 S02 p17 变量体系表
 forbidden_issues: []
-
 vision_expectations:
   must_have_regions:
-    - "table_1"
+  - table_1
   table_truths:
-    - region_id: "table_1"
-      caption: "面板固定效应 2x2 表 - 极小"
-      n_rows: 3
-      n_cols: 3
-      critical_cells:
-        - {row: 1, col: 1, value: "0.500", sign: "+", significance_marker: "***", is_header: false}
+  - region_id: table_1
+    caption: 表1 变量指标体系概述
+    n_rows: 7
+    n_cols: 4
+    critical_cells:
+    - row: 0
+      col: 0
+      value: 变量类型
+      is_header: true
+      sign: '0'
+      significance_marker: ''
+    - row: 0
+      col: 1
+      value: 变量名称
+      is_header: true
+      sign: '0'
+      significance_marker: ''
+    - row: 0
+      col: 2
+      value: 符号
+      is_header: true
+      sign: '0'
+      significance_marker: ''
+    - row: 0
+      col: 3
+      value: 计算方法
+      is_header: true
+      sign: '0'
+      significance_marker: ''
+    - row: 1
+      col: 0
+      value: 被解释变量
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 1
+      col: 1
+      value: 净息差
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 1
+      col: 2
+      value: NIM
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 1
+      col: 3
+      value: 利息净收入÷生息资产平均余额×100%
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 2
+      col: 0
+      value: 核心解释变量
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 2
+      col: 1
+      value: 流动性比例
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 2
+      col: 2
+      value: LR
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 2
+      col: 3
+      value: 流动性资产÷流动性负债×100%
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 3
+      col: 0
+      value: 控制变量
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 3
+      col: 1
+      value: 成本收入比
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 3
+      col: 2
+      value: CIR
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 3
+      col: 3
+      value: 营业成本÷营业收入×100%
+      is_header: false
+      sign: '0'
+      significance_marker: ''
   should_downgrade_to_gray: false

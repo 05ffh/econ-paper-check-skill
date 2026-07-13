@@ -1,34 +1,28 @@
-sample_id: "V008"
-sample_kind: "vision_crop_fixture"
-paper_title: "V008 模糊扫描回归表 - 应降灰"
-dataset_version: "benchmark-dataset-v0.1"
-
+sample_id: V008
+sample_kind: vision_crop_fixture
+paper_title: V008 [S02-aligned] 应降灰 (无表页面)
+dataset_version: benchmark-dataset-v0.1
 labeling_metadata:
-  labeled_by: "ArkClaw+张弘济"
-  labeled_at: "2026-07-13"
-  reviewed_by: "张弘济"
-  protocol_version: "anti_circular_v1"
-  rationale: "quality_gate 边界触发 should_downgrade_to_gray=true"
-
+  labeled_by: ArkClaw+S02-aligned
+  labeled_at: '2026-07-13'
+  reviewed_by: vision baseline (Ark run 20260713-phaseC-S02)
+  protocol_version: anti_circular_v1
+  rationale: 用 S02 p19 Ark 真调结果对齐; 无表格页 hard_gates_passed=False, 应降灰.
 must_hit:
-  - fingerprint: "vision_probe|figures_tables|table_1|placeholder_probe"
-    severity: "gray"
-    rule_id: "vision_probe"
-    location: {type: "table", anchor: "table_1"}
-    expected_evidence: {must_contain_any: ["placeholder"]}
-    confidence: "low"
-    rationale: "占位。"
-
+- fingerprint: vision_probe|figures_tables|table_1|table_ark_alignment
+  severity: gray
+  rule_id: vision_probe
+  location:
+    type: table
+    anchor: table_1
+  expected_evidence:
+    must_contain_any:
+    - 降灰
+    - 无表格
+  confidence: mid
+  rationale: 对齐 S02 p19 无表页; 视觉链路正确降级
 forbidden_issues: []
-
 vision_expectations:
-  must_have_regions:
-    - "table_1"
-  table_truths:
-    - region_id: "table_1"
-      caption: "模糊扫描回归表 - 应降灰"
-      n_rows: 3
-      n_cols: 3
-      critical_cells:
-        []
+  must_have_regions: []
+  table_truths: []
   should_downgrade_to_gray: true

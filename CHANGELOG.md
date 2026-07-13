@@ -2,11 +2,60 @@
 
 本文件按 [Keep a Changelog](https://keepachangelog.com/) 规范维护，从 **v1.5.0** 开始正式记录。
 
-> ⚠️ v1.0 - v1.4 的详细变更历史仅在 Git commit 中留存，Phase E 会在本文件顶部按 `Retrospective` 段落追认里程碑级摘要（严格以 tag/commit 证据为准，不猜测边界）。
+> ℹ️ Retrospective（M4 Phase F.5 新增）：v1.0-v1.4 以下段落已根据 Git tag 与 commit 证据进行里程碑级追认，未献测边界。
+
+---
+
+## Retrospective · v1.0 - v1.4（M4 Phase F.5 追认）
+
+### v1.4.0 · M1 知识库模块首版（commit `88e6644`）
+- **KB-B 范例层上线**：20 篇顶刊论文入库（2198 chunks），BAAI/bge-small-zh-v1.5 embedding，Chroma 持久化
+- **KB-A 规范层骨架**：`knowledge_base/norms/` 目录树 + citation/methods/writing/summary/figures_tables 五度
+- **kb_query.py**：三路由检索器（A / B / A+B 混合）
+- **5 红线硬约束**：不作规范依据 / 不作错误判定唯一依据 / 不暴露作者 / 单卡 ≤ 500 字符 / 不作红色唯一依据
+
+### v1.3.0 · Word 优先 + PDF 局限告知（commit `7d82a64`）
+- 前置礼仪：docx → 直接处理；pdf → 主动告知 PDF 部分场景会判灰（表格/公式/图表）并询问是否有 docx
+- 为后续 M3 视觉链路接入埋好埋点
+
+### v1.2.0 · 写作协议 · AI 不替作者选路径（commit `08121e7`）
+- evidence < language 类问题：AI 提双路径 A/B，让作者自选“补做反验”还是“改措辞”
+- 新增 7 条红色硬伤与 7 项强制交叉核对
+
+### v1.1.0 · ArkClaw 生态适配（commit `dd2be25`）
+- PDF 支持（基础解析，无视觉降级） + 渠道感知交付（飞书/钉钉/CLI）
+- 工程外壳、依赖完善
+
+### v1.0 · 首次提交（commit `4768783`）
+- 四项判定一致性改进 + 基础判断内核（rules/ + agent_instructions/）
+- 定义 5 层冲突优先级：证据要求 > Skill 边界 > 论文画像 > 规则注册表 > 具体规则 > 写作协议 > 报告结构
 
 ---
 
 ## [Unreleased]
+
+### Added — M4 Phase F（V 夹具对齐 + 批跑器 + baseline 升迁 + retrospective）
+
+- `benchmarks/runners/_align_v_fixtures_with_s02.py`：将 V001/V005/V007/V008 与 S02 p20/p18/p17/p19 Ark 真实返回对齐
+  - V001 → p20 主回归 LR→NIM 16×3
+  - V005 → p18 描述性统计 8×6
+  - V007 → p17 变量体系 7×4
+  - V008 → p19 无表页 (should_downgrade_to_gray=True)
+- `benchmarks/lib/vision_quality_gate_lint.py` + 11 单测：L01-L10 离线 false-positive/negative 检测
+  - L01 gate=True 但 quality<0.5， L02 gate=True 但 preview 空， L03 尺寸零通过，
+    L04 gate=False 但 critical=1.0， L05 单页延迟>60s， L06 低质量却可作证据，
+    L07 quota 越界， L08 quality 方差>0.3， L09 tokens 缺失， L10 runtime_mode 入白名单
+- `benchmarks/runners/run_all.py`：一键批跑 R/Q/V + schema + release_gate + batch_summary.md
+  - 35/35 fixture 全绿（4.1s）
+- `benchmarks/runners/promote_baseline.py`：rc.x → 正式版 baseline 升迁（含四道预检）
+  - 已升迁 baseline `benchmarks/baselines/v1.7.0-rc.1/`（S02 metrics + MANIFEST + README）
+
+### Changed
+- V001/V005/V007/V008 input.yaml：`image_path` 从 null → 指向 S02 页图（本地 gitignored）
+- 需注意：剩余 11 个 V 夹具（V002-V004/V006/V009-V015）保持骨架，待 v1.7.1 真图录入
+
+### Documentation
+- `CHANGELOG.md` 顶部新增 Retrospective · v1.0-v1.4 里程碑段落（按 tag/commit 证据，不献测边界）
 
 ### Added — M4 Phase D（S02 3× 真调 Ark 采 p50/p95 + Scorecard 填实）
 

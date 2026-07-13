@@ -1,34 +1,179 @@
-sample_id: "V005"
-sample_kind: "vision_crop_fixture"
-paper_title: "V005 描述性统计表 - 4 行 5 列"
-dataset_version: "benchmark-dataset-v0.1"
-
+sample_id: V005
+sample_kind: vision_crop_fixture
+paper_title: V005 [S02-aligned] 描述性统计 8×6
+dataset_version: benchmark-dataset-v0.1
 labeling_metadata:
-  labeled_by: "ArkClaw+张弘济"
-  labeled_at: "2026-07-13"
-  reviewed_by: "张弘济"
-  protocol_version: "anti_circular_v1"
-  rationale: "多列 header binding 挑战"
-
+  labeled_by: ArkClaw+S02-aligned
+  labeled_at: '2026-07-13'
+  reviewed_by: vision baseline (Ark run 20260713-phaseC-S02)
+  protocol_version: anti_circular_v1
+  rationale: 用 S02 p18 Ark 真调结果对齐真值; 描述性统计表.
 must_hit:
-  - fingerprint: "vision_probe|figures_tables|table_1|placeholder_probe"
-    severity: "gray"
-    rule_id: "vision_probe"
-    location: {type: "table", anchor: "table_1"}
-    expected_evidence: {must_contain_any: ["placeholder"]}
-    confidence: "low"
-    rationale: "占位。"
-
+- fingerprint: vision_probe|figures_tables|table_1|table_ark_alignment
+  severity: gray
+  rule_id: vision_probe
+  location:
+    type: table
+    anchor: table_1
+  expected_evidence:
+    must_contain_any:
+    - 描述性统计
+    - 均值
+    - 标准差
+  confidence: mid
+  rationale: 对齐 S02 p18 描述性统计
 forbidden_issues: []
-
 vision_expectations:
   must_have_regions:
-    - "table_1"
+  - table_1
   table_truths:
-    - region_id: "table_1"
-      caption: "描述性统计表 - 4 行 5 列"
-      n_rows: 3
-      n_cols: 3
-      critical_cells:
-        - {row: 1, col: 2, value: "0.324", sign: "+", significance_marker: "", is_header: false}
+  - region_id: table_1
+    caption: 表2 银行样本主要变量描述性统计
+    n_rows: 8
+    n_cols: 6
+    critical_cells:
+    - row: 0
+      col: 0
+      value: 变量
+      is_header: true
+      sign: '0'
+      significance_marker: ''
+    - row: 0
+      col: 1
+      value: 观测值
+      is_header: true
+      sign: '0'
+      significance_marker: ''
+    - row: 0
+      col: 2
+      value: 均值
+      is_header: true
+      sign: '0'
+      significance_marker: ''
+    - row: 0
+      col: 3
+      value: 标准差
+      is_header: true
+      sign: '0'
+      significance_marker: ''
+    - row: 0
+      col: 4
+      value: 最小值
+      is_header: true
+      sign: '0'
+      significance_marker: ''
+    - row: 0
+      col: 5
+      value: 最大值
+      is_header: true
+      sign: '0'
+      significance_marker: ''
+    - row: 1
+      col: 0
+      value: NIM
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 1
+      col: 1
+      value: '200'
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 1
+      col: 2
+      value: '1.9469'
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 1
+      col: 3
+      value: '0.3881'
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 1
+      col: 4
+      value: '1.13'
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 1
+      col: 5
+      value: '3.18'
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 2
+      col: 0
+      value: LR
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 2
+      col: 1
+      value: '200'
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 2
+      col: 2
+      value: '73.6084'
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 2
+      col: 3
+      value: '22.2777'
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 2
+      col: 4
+      value: '40.98'
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 2
+      col: 5
+      value: '202.21'
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 3
+      col: 0
+      value: NPL
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 3
+      col: 1
+      value: '200'
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 3
+      col: 2
+      value: '1.2512'
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 3
+      col: 3
+      value: '0.3110'
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 3
+      col: 4
+      value: '0.66'
+      is_header: false
+      sign: '0'
+      significance_marker: ''
+    - row: 3
+      col: 5
+      value: '2.19'
+      is_header: false
+      sign: '0'
+      significance_marker: ''
   should_downgrade_to_gray: false
