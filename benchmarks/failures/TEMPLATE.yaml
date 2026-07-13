@@ -1,0 +1,26 @@
+# TEMPLATE.yaml · 复制到 open/F-YYYYMMDD-NNN.yaml 后填写
+# 详见 benchmarks/failures/SCHEMA.md
+
+failure_id: "F-YYYYMMDD-NNN"
+sample_id: ""                  # 引用 sample_manifest 中的 sample_id
+evidence_locator: ""           # 例: "p20, table 3" / "section 4.2, para 3"
+
+failure_type: ""               # missing_red | false_red | wrong_severity | wrong_evidence |
+                               # kb_a_mismatch | kb_b_bad_recall | vision_error |
+                               # docx_pdf_delta | perf_regression | render_error
+
+expected: ""                   # 预期结果自然语言描述
+actual: ""                     # 实际结果自然语言描述
+root_cause_module: ""          # rules | kb_a | kb_b | vision | parse | render | perf
+fix_owner: ""                  # 责任人 @user_id
+
+# 关闭时才填的字段
+fix_commit: ""                 # commit sha
+before_after_diff: ""          # 对比文件路径或 inline snippet
+closed_at: null                # ISO date
+
+requires_changelog_entry: true
+promote_baseline_allowed: false   # 修复前禁止晋升 baseline
+opened_at: "YYYY-MM-DD"
+notes: |
+  (可选) 补充说明

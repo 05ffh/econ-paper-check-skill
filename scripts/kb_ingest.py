@@ -291,6 +291,14 @@ def save_source_sha_ledger(ledger):
         json.dump(ledger, fp, ensure_ascii=False, indent=2)
 
 def ingest_batch(batch: str):
+    # M4 数据隔离红线（plans/M4_BUILD_GATE_ADDENDUM.md §3.2）：
+    # Benchmark 样本绝不得从本脚本入库 KB-B。
+    # 本脚本固定从 PARSED_ROOT 读，下面重代一层字面防护。
+    if any(seg in batch for seg in ["benchmark", "benchmarks", "fixture", "internal"]):
+        raise ValueError(
+            f"Benchmark/fixture/internal 目录禁止入库 KB-B：{batch!r}\n"
+            f"参见 plans/M4_BUILD_GATE_ADDENDUM.md §3.2 数据隔离红线。"
+        )
     batch_dir = PARSED_ROOT / batch
     if not batch_dir.exists():
         print(f"❌ 批次不存在: {batch_dir}")

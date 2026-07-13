@@ -21,8 +21,19 @@ jobs:
       - name: Install core + dev deps (offline benchmark scope)
         run: |
           python -m pip install --upgrade pip
-          pip install jsonschema pyyaml pytest
-          # 只装 benchmark 校验需要的核心，不装 vision/kb（离线 CI 不接 Ark，也不建 chroma）
+          pip install -r requirements-benchmark.txt
+          # 只装 requirements-benchmark.txt；不装 vision/kb（离线 CI 不接 Ark）
+
+      - name: Assert requirements-core.txt has no test/bench deps
+        run: |
+          set -e
+          # M4 新引入的依赖不得进 core；M3 已存在的 jsonschema 不受本断言约束
+          forbidden='pytest|coverage|black|ruff|mypy'
+          if grep -Ei "^($forbidden)" requirements-core.txt; then
+            echo "requirements-core.txt 包含开发/测试依赖，违反 M4_BUILD_GATE_ADDENDUM.md §4" >&2
+            exit 1
+          fi
+          echo "requirements-core.txt 无 M4 开发/测试依赖 ✅"
 
       - name: Sanity check schemas
         run: python benchmarks/lib/schema_validator.py --schema-only
@@ -48,6 +59,25 @@ jobs:
             exit 1
           fi
           echo "no secret patterns found"
+
+      - name: Data isolation scan (M4_BUILD_GATE_ADDENDUM §3)
+        run: |
+          set -e
+          # 禁止生产代码（.py）硬编码 sample_id / 私有样本名
+          # .md 文档描述历史样本不属于测试集污染（仅记录完成情况）
+          hits=$(grep -RnE \
+            '(sample_id\s*==\s*"[SDRQV][0-9]{2,3}|_zhc_)' \
+            --include='*.py' \
+            scripts/ rules/ agent_instructions/ references/ 2>/dev/null || true)
+          if [ -n "$hits" ]; then
+            echo "生产代码硬编码了 Benchmark 样本标识符，违反测试集污染防控：" >&2
+            echo "$hits" >&2
+            exit 1
+          fi
+          echo "data isolation scan clean (production .py only)"
+
+      - name: Assert self_check.py works without benchmark deps
+        run: python scripts/self_check.py
 
       - name: CHANGELOG lint (Keep-a-Changelog check)
         run: |

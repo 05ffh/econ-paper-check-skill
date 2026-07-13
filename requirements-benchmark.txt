@@ -1,0 +1,15 @@
+# M4 专用依赖（Benchmark + 治理工具）
+#
+# 用途：只在开发者跑 M4 Benchmark / Release Gate / Compare 时安装。
+# 硬约束：绝不合并进 requirements-core.txt；生产用户流程永远不需要装本文件。
+# 落地约束见：plans/M4_BUILD_GATE_ADDENDUM.md §4
+
+# JSON Schema 校验（metrics/expected/sample_manifest）
+jsonschema>=4.0.0,<5.0.0
+
+# 单元测试
+pytest>=7.0.0,<9.0.0
+
+# pyyaml 已在 requirements-core.txt 中；此处不重复列出
+# 如需在无 core 的最小环境跑 M4，请显式：
+#   pip install -r requirements-core.txt -r requirements-benchmark.txt

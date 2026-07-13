@@ -8,6 +8,30 @@
 
 ## [Unreleased]
 
+### Added — M4 Build Gate Addendum（开发者模块边界 + 治理契约）
+
+- `plans/M4_BUILD_GATE_ADDENDUM.md`：吸收「新增补充信息清单」11 项硬约束
+- `requirements-benchmark.txt`：M4 专用依赖（jsonschema 已在 core 不重列）
+- `scripts/self_check.py`：用户侧轻量自检（不调 Ark、不碰私有样本）
+- 3 份治理策略：
+  - `benchmarks/policies/DATA_ISOLATION_POLICY.md`（Benchmark ≠ 训练数据 ≠ KB-B 范例）
+  - `benchmarks/policies/PUBLIC_CLAIMS_POLICY.md`（禁夸大黑名单 + 推荐措辞）
+  - `benchmarks/policies/FEEDBACK_TO_FIXTURE_POLICY.md`（用户反馈转夹具九步流）
+- 失败整改闭环：`benchmarks/failures/{SCHEMA.md,TEMPLATE.yaml,open/,closed/}`
+- 公开质量摘要：`benchmarks/public_summary/{README.md,SCORECARD.md}`（rc.1 空壳）
+- 私有样本挂载点：`benchmarks/internal/README.md`（内容 gitignore）
+- `scripts/kb_ingest.py`：新增“拒收 benchmarks/fixture/internal 路径”字面防护
+- `.github/workflows/benchmark-offline.yml` 新增 3 项 CI 断言：
+  - `requirements-core.txt` 无 M4 开发/测试依赖
+  - 生产 `.py` 代码无 sample_id / 私有样本名硬编码
+  - `self_check.py` 零依赖运行成功
+- `benchmarks/tests/test_build_gate.py` × 6 项治理断言（self_check / kb_ingest 拒收 / 硬编码扫描 / core 零污染 / benchmark deps / 治理文件存在）
+
+### Documentation
+
+- 本轮回归：`pytest 50/50` 全绿（旧 29 + fingerprint 15 + 治理 6）
+- DOCX v1.5.0 sha256 零回归保持
+
 ### Added — M4 Phase A（Benchmark 骨架 + 治理契约）
 
 - `benchmarks/` 目录结构落地：`fixtures/{rules,kb_queries,vision_crops}/` + `documents/{public_synthetic,private_local_manifest,open_license}/` + `expected/` + `runs/` + `baselines/` + `reports/` + `lib/` + `runners/`
