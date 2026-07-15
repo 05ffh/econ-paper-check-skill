@@ -173,7 +173,8 @@ def write_report(result: Dict[str, object], source_name: str, output_path: Path)
         pass
 
     profile = result.get("paper_profile", {}) or {}
-    counts = result.get("summary_counts", {}) or {}
+    # 兼容两种字段名：早期契约用 `summary_counts`，diagnostic 内核实际输出 `counts`。
+    counts = result.get("summary_counts") or result.get("counts") or {}
     today = _dt.datetime.now().strftime("%Y-%m-%d")
 
     title = doc.add_paragraph()
