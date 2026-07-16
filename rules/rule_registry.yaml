@@ -1,122 +1,229 @@
-version: "1.1"
-skill_name: "经管论文智检"
-description: "规则注册表，负责管理规则组、触发顺序、不适用逻辑和冲突处理。"
-
+version: '1.3'
+skill_name: 经管论文智检
+description: 规则注册表，负责管理规则组、触发顺序、不适用逻辑和冲突处理。v2迭代修正版。
 global_principles:
-  - "必须先生成 paper_profile，再触发规则。"
-  - "必须先生成 trigger_plan，再执行规则。"
-  - "非模型规则根据论文类型和章节内容触发。"
-  - "模型规则必须条件触发。"
-  - "未检测到某模型时，不得判定论文缺少该模型。"
-  - "证据不足时输出需人工确认。"
-  - "不得把本科论文按硕博盲审标准审查。"
-  - "不得因为未使用 DID、IV、PSM 等高级模型而判定论文有问题。"
-
+- 必须先生成 paper_profile，再触发规则。
+- 必须先生成 trigger_plan，再执行规则。
+- 非模型规则根据论文类型和章节内容触发。
+- 模型规则必须条件触发。
+- 未检测到某模型时，不得判定论文缺少该模型。
+- 证据不足时输出需人工确认。
+- 不得把本科论文按硕博盲审标准审查。
+- 不得因为未使用 DID、IV、PSM 等高级模型而判定论文有问题。
+- 规则严格对应：每个issue必须对应规则库中一条明确规则，不得凭直觉新增规则外检查项。
+- 模型评价标准对齐：批评语言强度超证据时，论据必须与所用模型的评价体系一致。
+- 分级不可替代：黄色规则不得替代更严重的红色规则，需分别判断。
+- 漏检与误检互检：完成诊断后，应对照规则注册表逐条确认是否触发，避免遗漏或误判。
 supported_paper_types:
-  - "经管类实证论文"
-  - "经管类课程论文"
-  - "案例分析论文"
-  - "问卷调查论文"
-  - "调查数据库论文"
-  - "理论综述型论文"
-
+- 经管类实证论文
+- 经管类课程论文
+- 案例分析论文
+- 问卷调查论文
+- 调查数据库论文
+- 理论综述型论文
 unsupported_tasks:
-  - "PDF 完整检测"
-  - "查重"
-  - "论文代写"
-  - "硕士论文盲审"
-  - "博士论文盲审"
-  - "数据真实性判断"
-  - "联网核验参考文献真伪"
-
+- PDF 完整检测
+- 查重
+- 论文代写
+- 硕士论文盲审
+- 博士论文盲审
+- 数据真实性判断
+- 联网核验参考文献真伪
 rule_groups:
   non_model_topic_rules:
-    domain: "选题与研究问题质检"
-    source: "rules/non_model_rules.yaml"
+    domain: 选题与研究问题质检
+    source: rules/non_model_rules.yaml
+    rule_ids:
+    - TQ-QUESTION-001
+    - TQ-SCOPE-001
+    - TQ-FIT-001
+    - TQ-CONTRIB-001
   non_model_literature_rules:
-    domain: "文献综述与理论链条质检"
-    source: "rules/non_model_rules.yaml"
+    domain: 文献综述与理论链条质检
+    source: rules/non_model_rules.yaml
+    rule_ids:
+    - LT-REVIEW-001
+    - LT-GAP-001
+    - LT-THEORY-001
+    - LT-HYP-001
   non_model_data_variable_rules:
-    domain: "数据、变量与口径质检"
-    source: "rules/non_model_rules.yaml"
+    domain: 数据、变量与口径质检
+    source: rules/non_model_rules.yaml
+    rule_ids:
+    - DV-SOURCE-001
+    - DV-SAMPLE-001
+    - DV-VAR-001
+    - DV-VAR-002
+    - DV-CONSIST-001
+    - DV-INDEX-001
+    - DV-CASE-001
   non_model_structure_norm_rules:
-    domain: "结构表达与学术规范质检"
-    source: "rules/non_model_rules.yaml"
+    domain: 结构表达与学术规范质检
+    source: rules/non_model_rules.yaml
+    rule_ids:
+    - SN-ABSTRACT-001
+    - SN-ABSTRACT-EN-001
+    - SN-KEYWORDS-001
+    - SN-TABLE-001
+    - SN-CONCLUSION-001
+    - SN-ADVICE-001
+    - SN-REF-001
+    - SN-LANG-001
+    - SN-LANG-002
+    - SN-TBL-NUM-001
+    - SN-ACK-001
+    - SN-TOC-001
+    - SN-NUM-DUP-001
+    - SN-STRUCT-001
+    - SN-ABSTRACT-EN-002
+    - SN-TABLE-FMT-001
   model_general_empirical_rules:
-    domain: "方法模型与实证结果质检"
-    source: "rules/model_rules.yaml"
+    domain: 方法模型与实证结果质检
+    source: rules/model_rules.yaml
+    rule_ids:
+    - MM-GEN-001
+    - MM-GEN-002
+    - MM-GEN-003
+    - MM-GEN-004
+    - MM-GEN-005
+    - MM-GEN-006
+    - MM-GBM-001
   model_ols_rules:
-    domain: "方法模型与实证结果质检"
-    source: "rules/model_rules.yaml"
+    domain: 方法模型与实证结果质检
+    source: rules/model_rules.yaml
+    rule_ids:
+    - MM-OLS-001
+    - MM-OLS-002
   model_panel_rules:
-    domain: "方法模型与实证结果质检"
-    source: "rules/model_rules.yaml"
+    domain: 方法模型与实证结果质检
+    source: rules/model_rules.yaml
+    rule_ids:
+    - MM-PANEL-001
+    - MM-PANEL-002
+    - MM-PANEL-003
   model_logit_probit_rules:
-    domain: "方法模型与实证结果质检"
-    source: "rules/model_rules.yaml"
+    domain: 方法模型与实证结果质检
+    source: rules/model_rules.yaml
+    rule_ids:
+    - MM-LP-001
+    - MM-LP-002
   model_mediation_rules:
-    domain: "方法模型与实证结果质检"
-    source: "rules/model_rules.yaml"
+    domain: 方法模型与实证结果质检
+    source: rules/model_rules.yaml
+    rule_ids:
+    - MM-MED-001
+    - MM-MED-002
   model_moderation_rules:
-    domain: "方法模型与实证结果质检"
-    source: "rules/model_rules.yaml"
+    domain: 方法模型与实证结果质检
+    source: rules/model_rules.yaml
+    rule_ids:
+    - MM-MOD-001
   model_did_rules:
-    domain: "方法模型与实证结果质检"
-    source: "rules/model_rules.yaml"
+    domain: 方法模型与实证结果质检
+    source: rules/model_rules.yaml
+    rule_ids:
+    - MM-DID-001
+    - MM-DID-002
   model_iv_rules:
-    domain: "方法模型与实证结果质检"
-    source: "rules/model_rules.yaml"
+    domain: 方法模型与实证结果质检
+    source: rules/model_rules.yaml
+    rule_ids:
+    - MM-IV-001
   model_questionnaire_scale_rules:
-    domain: "数据、变量与口径质检 / 方法模型与实证结果质检"
-    source: "rules/model_rules.yaml"
+    domain: 数据、变量与口径质检 / 方法模型与实证结果质检
+    source: rules/model_rules.yaml
+    rule_ids:
+    - MM-Q-001
+    - MM-Q-002
   model_entropy_index_rules:
-    domain: "数据、变量与口径质检 / 方法模型与实证结果质检"
-    source: "rules/model_rules.yaml"
+    domain: 数据、变量与口径质检 / 方法模型与实证结果质检
+    source: rules/model_rules.yaml
+    rule_ids:
+    - MM-ENT-001
   model_case_analysis_rules:
-    domain: "数据、变量与口径质检 / 结构表达与学术规范质检"
-    source: "rules/model_rules.yaml"
-
+    domain: 数据、变量与口径质检 / 结构表达与学术规范质检
+    source: rules/model_rules.yaml
+    rule_ids:
+    - MM-CASE-001
+  model_valuation_rules:
+    domain: 方法模型与实证结果质检
+    source: rules/model_rules.yaml
+    rule_ids:
+    - MM-VAL-001
+    - MM-VAL-002
+new_rules_v2:
+  description: 迭代v2新增规则，2026-07-15。
+  added_rules:
+  - rule_id: DV-VAR-002
+    group: non_model_data_variable_rules
+    level: 红色（回归型）/ 黄色（案例型）
+    note: 含是否回归模型判断分支
+  - rule_id: SN-LANG-002
+    group: non_model_structure_norm_rules
+    level: 绿色
+    note: 量词/计量单位使用不当
+  - rule_id: SN-TBL-NUM-001
+    group: non_model_structure_norm_rules
+    level: 绿色
+    note: 表格编号不统一
+  - rule_id: SN-ACK-001
+    group: non_model_structure_norm_rules
+    level: 绿色
+    note: 致谢过于简短
+  - rule_id: MM-VAL-001
+    group: model_valuation_rules
+    level: 黄色
+    note: 估值模型核心假设缺少依据/敏感性分析
+  - rule_id: MM-VAL-002
+    group: model_valuation_rules
+    level: 黄色
+    note: 估值模型维度概念重叠
 trigger_evaluation_order:
-  - "确认输入文件为 .docx"
-  - "生成 paper_profile"
-  - "生成 trigger_plan"
-  - "触发适用的非模型规则"
-  - "按 detected_methods 条件触发模型规则"
-  - "生成通过项、不适用项和需人工确认项"
-  - "形成 diagnostic_result"
-  - "生成 DOCX 报告"
-
+- 确认输入文件为 .docx
+- 生成 paper_profile
+- 生成 trigger_plan
+- 触发适用的非模型规则
+- 按 detected_methods 条件触发模型规则
+- 按 paper_type 判断是否触发估值/案例模型规则
+- 生成通过项、不适用项和需人工确认项
+- 形成 diagnostic_result
+- 生成 DOCX 报告
 rule_group_output_policy:
   triggered:
-    status: "已触发"
-    requirement: "输出通过项、问题项、建议补充项或需人工确认项。"
+    status: 已触发
+    requirement: 输出通过项、问题项、建议补充项或需人工确认项。
   not_triggered_not_applicable:
-    status: "不适用"
-    requirement: "说明当前论文未使用该方法或不属于该场景。"
+    status: 不适用
+    requirement: 说明当前论文未使用该方法或不属于该场景。
   insufficient_evidence:
-    status: "需人工确认"
-    requirement: "证据不足、表格公式不可解析或论文类型不确定时使用。"
-
+    status: 需人工确认
+    requirement: 证据不足、表格公式不可解析或论文类型不确定时使用。
 conflict_resolution_policy:
-  - conflict: "案例论文包含少量数据表"
-    resolution: "以案例分析论文优先，不强制触发回归模型规则。"
-  - conflict: "CHFS/CFPS/CGSS/CHARLS 调查数据库论文"
-    resolution: "识别为调查数据库论文，不自动触发自编问卷信度效度规则。"
-  - conflict: "论文提到政策影响但没有处理组、对照组和政策时点"
-    resolution: "不触发 DID 规则，可列为需人工确认或理论链条问题。"
-  - conflict: "论文提到内生性但未使用工具变量或两阶段最小二乘"
-    resolution: "不触发 IV 规则，仅检查一般内生性讨论是否充分。"
-  - conflict: "论文提到机制分析但未设置中介变量和中介模型"
-    resolution: "不触发中介效应规则，可检查理论链条或机制解释。"
-  - conflict: "论文使用熵值法构建核心变量"
-    resolution: "可同时触发数据变量规则和熵值法规则，但同类问题应合并。"
-
+- conflict: 案例论文包含少量数据表
+  resolution: 以案例分析论文优先，不强制触发回归模型规则。
+- conflict: CHFS/CFPS/CGSS/CHARLS 调查数据库论文
+  resolution: 识别为调查数据库论文，不自动触发自编问卷信度效度规则。
+- conflict: 论文提到政策影响但没有处理组、对照组和政策时点
+  resolution: 不触发 DID 规则，可列为需人工确认或理论链条问题。
+- conflict: 论文提到内生性但未使用工具变量或两阶段最小二乘
+  resolution: 不触发 IV 规则，仅检查一般内生性讨论是否充分。
+- conflict: 论文提到机制分析但未设置中介变量和中介模型
+  resolution: 不触发中介效应规则，可检查理论链条或机制解释。
+- conflict: 论文使用熵值法构建核心变量
+  resolution: 可同时触发数据变量规则和熵值法规则，但同类问题应合并。
+- conflict: SN-TABLE-001（图表注释）与 SN-TBL-NUM-001（表格编号）
+  resolution: 两条规则检查不同维度，SN-TABLE-001检查注释完整性，SN-TBL-NUM-001检查编号统一性。可同时触发但不合并。
+- conflict: MM-GEN-003（强因果表述）与 MM-GEN-005（结论超出支持）
+  resolution: MM-GEN-003严格限定只覆盖强因果表述（导致、证明因果）。非因果类语言夸大归MM-GEN-005。两者可同时触发但不合并。
 validation_checklist:
-  - "是否先生成 paper_profile。"
-  - "是否先生成 trigger_plan。"
-  - "是否避免全量触发模型规则。"
-  - "是否输出不适用项。"
-  - "是否输出需人工确认项。"
-  - "是否所有问题都有证据。"
-  - "是否避免强制高级模型。"
-  - "是否避免硕博化判断。"
+- 是否先生成 paper_profile。
+- 是否先生成 trigger_plan。
+- 是否避免全量触发模型规则。
+- 是否输出不适用项。
+- 是否输出需人工确认项。
+- 是否所有问题都有证据。
+- 是否避免强制高级模型。
+- 是否避免硕博化判断。
+- 是否逐条对照规则注册表确认触发，避免遗漏或误判。
+- 模型评价标准是否与所用模型类型对齐。
+- 黄色规则是否替代了更严重的红色规则（分级不可替代原则）。

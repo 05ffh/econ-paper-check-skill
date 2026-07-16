@@ -1,348 +1,562 @@
-version: "1.1"
-skill_name: "经管论文智检"
-description: "模型方法与实证结果质检规则库。所有模型规则必须条件触发。"
-
+version: '1.3'
+skill_name: 经管论文智检
+description: 模型方法与实证结果质检规则库。所有模型规则必须条件触发。v2迭代修正版。
 global_principles:
-  - "模型类规则必须条件触发。"
-  - "未检测到某模型时，不得判定论文缺少该模型。"
-  - "不得要求所有本科论文必须使用 DID、IV、PSM、2SLS 或高级稳健性检验。"
-  - "所有模型问题必须有论文原文、模型公式、表格或结果解释作为证据。"
-  - "无法解析模型公式或回归表时，应标记为需人工确认。"
-
+- 模型类规则必须条件触发。
+- 未检测到某模型时，不得判定论文缺少该模型。
+- 不得要求所有本科论文必须使用 DID、IV、PSM、2SLS 或高级稳健性检验。
+- 所有模型问题必须有论文原文、模型公式、表格或结果解释作为证据。
+- 无法解析模型公式或回归表时，应标记为需人工确认。
+- 模型评价标准对齐：批评语言强度超证据时，论据必须与所用模型的评价体系一致。参数模型（OLS/Logit）→p值/置信区间；非参数模型（SVM/随机森林）→交叉验证/AUC/准确率；估值模型→偏差率/敏感性分析。不得要求非参数模型报告p值。
 rule_output_fields:
-  - "rule_id"
-  - "group_id"
-  - "domain"
-  - "issue_type"
-  - "default_level"
-  - "applies_when"
-  - "inspect_locations"
-  - "trigger_signals"
-  - "evidence_requirement"
-  - "suggestion_template"
-
+- rule_id
+- group_id
+- domain
+- issue_type
+- default_level
+- applies_when
+- inspect_locations
+- trigger_signals
+- evidence_requirement
+- suggestion_template
 rules:
-  - rule_id: "MM-GEN-001"
-    group_id: "model_general_empirical_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "方法与数据类型匹配说明不足"
-    default_level: "黄色：建议补充"
-    applies_when: ["uses_empirical_model = true"]
-    inspect_locations: ["研究设计", "数据来源", "模型设定", "实证分析"]
-    trigger_signals: ["使用回归或统计模型但未说明为何选择该方法", "数据类型与方法之间缺少解释"]
-    evidence_requirement: "必须引用数据类型、模型设定或实证方法部分原文。"
-    suggestion_template: "建议补充模型选择理由，说明数据类型、因变量特征和研究目标为何适合当前方法。"
-
-  - rule_id: "MM-GEN-002"
-    group_id: "model_general_empirical_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "模型方程、变量符号或下标说明不完整"
-    default_level: "黄色：建议补充"
-    applies_when: ["uses_empirical_model = true"]
-    inspect_locations: ["模型设定", "研究设计"]
-    trigger_signals: ["仅文字说明使用回归模型但未列出模型方程", "变量符号未解释", "i、t 下标含义未说明"]
-    evidence_requirement: "必须引用模型设定部分原文或指出模型公式缺失。"
-    suggestion_template: "建议补充模型方程，并说明被解释变量、核心解释变量、控制变量、固定效应、误差项以及 i、t 下标含义。"
-
-  - rule_id: "MM-GEN-003"
-    group_id: "model_general_empirical_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "相关关系表述为强因果关系"
-    default_level: "红色：必改问题"
-    applies_when: ["uses_empirical_model = true"]
-    inspect_locations: ["回归结果分析", "实证结果解释", "结论", "摘要"]
-    trigger_signals: ["普通回归或固定效应后直接使用导致、证明因果关系等强因果表述", "未使用明确因果识别设计却宣称因果效应"]
-    evidence_requirement: "必须引用含有强因果词的原文句子。"
-    suggestion_template: "建议将强因果表述调整为更稳妥的影响关系或相关关系表述；如需使用因果表述，应补充识别策略和局限性说明。"
-
-  - rule_id: "MM-GEN-004"
-    group_id: "model_general_empirical_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "回归表基本信息不完整"
-    default_level: "黄色：建议补充"
-    applies_when: ["has_regression_table = true"]
-    inspect_locations: ["基准回归表", "稳健性检验表", "回归结果表"]
-    trigger_signals: ["缺少样本量 N", "缺少 R² 或伪 R²", "未说明括号内是标准误、t 值还是 p 值", "未说明显著性星号含义"]
-    evidence_requirement: "必须定位到具体回归表。"
-    suggestion_template: "建议在回归表中补充样本量、拟合指标、固定效应说明、标准误说明和显著性星号注释。"
-
-  - rule_id: "MM-GEN-005"
-    group_id: "model_general_empirical_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "正文结论超出表格结果支持"
-    default_level: "红色：必改问题"
-    applies_when: ["uses_empirical_model = true"]
-    inspect_locations: ["回归结果分析", "机制分析", "异质性分析", "结论"]
-    trigger_signals: ["正文声称显著但表格中不显著", "正文解释方向与表格系数方向不一致", "结论提出表格未检验的判断"]
-    evidence_requirement: "必须同时引用正文表述和对应表格信息。"
-    suggestion_template: "建议逐项核对正文解释与表格结果，确保系数方向、显著性和结论范围与实证结果一致。"
-
-  - rule_id: "MM-OLS-001"
-    group_id: "model_ols_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "OLS 使用前提或稳健标准误说明不足"
-    default_level: "黄色：建议补充"
-    applies_when: ["detected_methods contains OLS or 多元线性回归"]
-    inspect_locations: ["模型设定", "回归结果", "稳健性检验"]
-    trigger_signals: ["使用 OLS 但未说明标准误处理", "未讨论异方差、异常值或稳健性"]
-    evidence_requirement: "必须确认论文实际使用 OLS 或多元线性回归。"
-    suggestion_template: "建议补充标准误处理、异常值处理或稳健性说明。"
-
-  - rule_id: "MM-OLS-002"
-    group_id: "model_ols_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "多重共线性说明不足"
-    default_level: "黄色：建议补充"
-    applies_when: ["detected_methods contains OLS or 多元线性回归"]
-    inspect_locations: ["相关性分析", "VIF 检验", "实证结果"]
-    trigger_signals: ["多个解释变量和控制变量但未呈现相关性分析或 VIF 检验"]
-    evidence_requirement: "必须确认论文使用多元回归，且未检测到相关性或 VIF 说明。"
-    suggestion_template: "建议补充相关性分析或 VIF 检验，并简要说明是否存在严重多重共线性。"
-
-  - rule_id: "MM-PANEL-001"
-    group_id: "model_panel_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "面板数据固定效应说明不足"
-    default_level: "黄色：建议补充"
-    applies_when: ["data_type = 面板数据"]
-    inspect_locations: ["模型设定", "基准回归", "回归表注释"]
-    trigger_signals: ["使用面板数据但未说明个体固定效应或时间固定效应", "模型方程中没有 i、t 下标或固定效应项"]
-    evidence_requirement: "必须确认论文数据为面板数据。"
-    suggestion_template: "建议在模型设定和回归表中明确是否控制个体固定效应、时间固定效应或双向固定效应。"
-
-  - rule_id: "MM-PANEL-002"
-    group_id: "model_panel_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "固定效应与随机效应选择依据不足"
-    default_level: "黄色：建议补充"
-    applies_when: ["detected_methods contains 固定效应模型 or 随机效应模型 or 面板模型"]
-    inspect_locations: ["模型选择", "Hausman 检验", "基准回归"]
-    trigger_signals: ["直接使用固定效应或随机效应但未说明选择依据", "未提及 Hausman 检验或理论依据"]
-    evidence_requirement: "必须确认论文使用面板模型。"
-    suggestion_template: "建议补充固定效应或随机效应选择依据，可结合 Hausman 检验结果或研究对象特征进行说明。"
-
-  - rule_id: "MM-PANEL-003"
-    group_id: "model_panel_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "聚类稳健标准误说明不足"
-    default_level: "绿色：优化提升"
-    applies_when: ["data_type = 面板数据"]
-    inspect_locations: ["模型设定", "回归表注释", "稳健性检验"]
-    trigger_signals: ["面板回归表未说明标准误是否聚类", "未说明标准误处理方式"]
-    evidence_requirement: "必须确认论文使用面板回归。"
-    suggestion_template: "建议在回归表注释中说明标准误处理方式；如采用聚类稳健标准误，应说明聚类层级。"
-
-  - rule_id: "MM-LP-001"
-    group_id: "model_logit_probit_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "二元因变量模型选择说明不足"
-    default_level: "黄色：建议补充"
-    applies_when: ["detected_methods contains Logit or Probit or 二元选择模型"]
-    inspect_locations: ["变量定义", "模型设定", "回归结果"]
-    trigger_signals: ["使用 Logit 或 Probit 但未说明因变量 0/1 含义", "二元因变量模型选择理由不足"]
-    evidence_requirement: "必须确认论文使用 Logit/Probit 或二元因变量模型。"
-    suggestion_template: "建议说明因变量 0/1 的含义、模型选择理由，并在结果解释中避免直接按线性回归系数解释。"
-
-  - rule_id: "MM-LP-002"
-    group_id: "model_logit_probit_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "Logit/Probit 系数解释不规范"
-    default_level: "黄色：建议补充"
-    applies_when: ["detected_methods contains Logit or Probit"]
-    inspect_locations: ["回归结果分析", "边际效应"]
-    trigger_signals: ["直接将 Logit/Probit 系数解释为概率变化", "未报告或未说明边际效应"]
-    evidence_requirement: "必须引用结果解释中的具体表述。"
-    suggestion_template: "建议区分系数方向和概率变化，若解释影响大小，建议报告并解释边际效应。"
-
-  - rule_id: "MM-MED-001"
-    group_id: "model_mediation_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "中介机制理论链条说明不足"
-    default_level: "黄色：建议补充"
-    applies_when: ["detected_methods contains 中介效应 or 机制检验 or 传导机制"]
-    inspect_locations: ["理论分析", "机制分析", "中介效应检验"]
-    trigger_signals: ["直接做中介回归但未说明 X 如何影响 M、M 如何影响 Y", "中介变量选择缺少理论依据"]
-    evidence_requirement: "必须确认论文使用中介效应或机制检验。"
-    suggestion_template: "建议补充核心解释变量—中介变量—被解释变量的传导逻辑，并说明中介变量选择依据。"
-
-  - rule_id: "MM-MED-002"
-    group_id: "model_mediation_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "中介效应结果解释不完整"
-    default_level: "黄色：建议补充"
-    applies_when: ["detected_methods contains 中介效应 or 机制检验"]
-    inspect_locations: ["中介效应表", "机制检验结果"]
-    trigger_signals: ["只报告中介变量回归结果，未解释间接效应", "未说明中介路径是否成立"]
-    evidence_requirement: "必须引用中介效应表或机制检验段落。"
-    suggestion_template: "建议围绕 X 对 M、M 对 Y、X 对 Y 的结果关系解释中介路径，并避免超出表格结果。"
-
-  - rule_id: "MM-MOD-001"
-    group_id: "model_moderation_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "调节效应交互项解释不足"
-    default_level: "黄色：建议补充"
-    applies_when: ["detected_methods contains 调节效应 or 交互项"]
-    inspect_locations: ["模型设定", "调节效应结果"]
-    trigger_signals: ["模型加入交互项但未解释交互项含义", "只解释主效应不解释调节方向"]
-    evidence_requirement: "必须确认论文包含交互项或调节效应模型。"
-    suggestion_template: "建议解释交互项代表的调节关系，并结合系数方向说明调节变量如何改变核心关系。"
-
-  - rule_id: "MM-DID-001"
-    group_id: "model_did_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "DID 处理组、对照组和政策时点说明不足"
-    default_level: "红色：必改问题"
-    applies_when: ["detected_methods contains DID or 双重差分 or 准自然实验"]
-    inspect_locations: ["政策背景", "模型设定", "变量定义"]
-    trigger_signals: ["使用 DID 但未清楚定义处理组和对照组", "未说明政策发生时间或 post 变量定义"]
-    evidence_requirement: "必须确认论文实际使用 DID 或双重差分。"
-    suggestion_template: "建议补充处理组、对照组、政策时点、post 变量、treat 变量和 DID 交互项构造说明。"
-
-  - rule_id: "MM-DID-002"
-    group_id: "model_did_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "DID 平行趋势说明不足"
-    default_level: "黄色：建议补充"
-    applies_when: ["detected_methods contains DID or 双重差分"]
-    inspect_locations: ["平行趋势检验", "稳健性检验", "模型设定"]
-    trigger_signals: ["使用 DID 但未检测到平行趋势检验或相关说明", "仅声称满足平行趋势但未展示图表或回归检验"]
-    evidence_requirement: "必须确认论文实际使用 DID。"
-    suggestion_template: "建议补充平行趋势检验图或事件研究回归，并说明政策实施前处理组和对照组趋势是否接近。"
-
-  - rule_id: "MM-IV-001"
-    group_id: "model_iv_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "工具变量选择依据说明不足"
-    default_level: "黄色：建议补充"
-    applies_when: ["detected_methods contains IV or 工具变量 or 2SLS or 两阶段最小二乘"]
-    inspect_locations: ["内生性处理", "工具变量", "两阶段最小二乘"]
-    trigger_signals: ["使用工具变量但未说明相关性和外生性理由", "未报告第一阶段回归", "未讨论弱工具变量风险"]
-    evidence_requirement: "必须确认论文实际使用 IV 或 2SLS。"
-    suggestion_template: "建议补充工具变量与内生变量相关、但不直接影响被解释变量的理由，并报告第一阶段回归或弱工具变量检验。"
-
-  - rule_id: "MM-Q-001"
-    group_id: "model_questionnaire_scale_rules"
-    domain: "数据、变量与口径质检 / 方法模型与实证结果质检"
-    issue_type: "问卷设计与样本回收说明不足"
-    default_level: "黄色：建议补充"
-    applies_when: ["paper_type = 问卷调查论文"]
-    inspect_locations: ["问卷设计", "问卷发放", "样本描述"]
-    trigger_signals: ["未说明问卷来源、发放方式、回收数量和有效问卷数量", "自编量表未说明题项来源或设计依据"]
-    evidence_requirement: "必须确认论文为自编问卷或问卷调查论文。"
-    suggestion_template: "建议补充问卷题项来源、发放渠道、发放数量、回收数量、有效问卷数量和样本基本特征。"
-
-  - rule_id: "MM-Q-002"
-    group_id: "model_questionnaire_scale_rules"
-    domain: "方法模型与实证结果质检"
-    issue_type: "信度效度检验说明不足"
-    default_level: "黄色：建议补充"
-    applies_when: ["paper_type = 问卷调查论文"]
-    inspect_locations: ["信度分析", "效度分析", "因子分析"]
-    trigger_signals: ["使用自编量表或多题项量表但未呈现信度或效度检验", "提到 KMO、Bartlett 或 Cronbach 但未解释结果含义"]
-    evidence_requirement: "必须确认论文使用自编问卷或量表；不得对 CHFS、CFPS、CGSS 自动触发。"
-    suggestion_template: "建议补充 Cronbach’s α、KMO、Bartlett 检验或因子分析结果，并说明量表可靠性和结构效度。"
-
-  - rule_id: "MM-ENT-001"
-    group_id: "model_entropy_index_rules"
-    domain: "数据、变量与口径质检 / 方法模型与实证结果质检"
-    issue_type: "熵值法指标体系与权重计算说明不足"
-    default_level: "红色：必改问题"
-    applies_when: ["detected_methods contains 熵值法 or 熵权法 or 综合评价指数 or 指标体系"]
-    inspect_locations: ["指标体系", "熵值法", "综合指数构建", "变量定义"]
-    trigger_signals: ["使用熵值法但未说明正向指标和负向指标", "未说明标准化公式", "未说明权重计算方法", "未展示综合得分计算过程"]
-    evidence_requirement: "必须确认论文实际使用熵值法、熵权法或综合评价指数。"
-    suggestion_template: "建议补充指标体系表，说明各指标含义、来源、正负向属性、标准化方法、权重计算公式和综合得分计算方式。"
-
-  - rule_id: "MM-CASE-001"
-    group_id: "model_case_analysis_rules"
-    domain: "数据、变量与口径质检 / 结构表达与学术规范质检"
-    issue_type: "案例分析停留在事实描述"
-    default_level: "黄色：建议补充"
-    applies_when: ["paper_type = 案例分析论文"]
-    inspect_locations: ["案例背景", "案例分析", "案例启示", "结论建议"]
-    trigger_signals: ["大量描述企业或事件事实但缺少原因分析、机制分析或管理启示", "案例部分只有时间线没有分析框架"]
-    evidence_requirement: "必须确认论文为案例分析论文，并引用案例分析段落。"
-    suggestion_template: "建议围绕案例事实、原因分析、影响结果、管理启示的逻辑重构案例分析部分，避免只罗列事实。"
-
+- rule_id: MM-GEN-001
+  group_id: model_general_empirical_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 方法与数据类型匹配说明不足
+  default_level: 黄色：建议补充
+  applies_when:
+  - uses_empirical_model = true
+  inspect_locations:
+  - 研究设计
+  - 数据来源
+  - 模型设定
+  - 实证分析
+  trigger_signals:
+  - 使用回归或统计模型但未说明为何选择该方法
+  - 数据类型与方法之间缺少解释
+  evidence_requirement: 必须引用数据类型、模型设定或实证方法部分原文。
+  suggestion_template: 建议补充模型选择理由，说明数据类型、因变量特征和研究目标为何适合当前方法。
+- rule_id: MM-GEN-002
+  group_id: model_general_empirical_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 模型方程、变量符号或下标说明不完整
+  default_level: 黄色：建议补充
+  applies_when:
+  - uses_empirical_model = true
+  inspect_locations:
+  - 模型设定
+  - 研究设计
+  trigger_signals:
+  - 仅文字说明使用回归模型但未列出模型方程
+  - 变量符号未解释
+  - i、t 下标含义未说明
+  - 树模型（GBM/RF/XGBoost等）未报告特征重要性（feature importance）
+  evidence_requirement: 必须引用模型设定部分原文或指出模型公式缺失。 对于树模型（GBM/RF/XGBoost等），需检查是否报告了特征重要性分析。特征重要性是树模型的核心输出，缺失将导致无法回扣理论框架→另归MM-GBM-001处理。
+  suggestion_template: 建议补充模型方程，并说明被解释变量、核心解释变量、控制变量、固定效应、误差项以及 i、t 下标含义。
+- rule_id: MM-GEN-003
+  group_id: model_general_empirical_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 相关关系表述为强因果关系
+  default_level: 红色：必改问题
+  applies_when:
+  - uses_empirical_model = true
+  inspect_locations:
+  - 回归结果分析
+  - 实证结果解释
+  - 结论
+  - 摘要
+  trigger_signals:
+  - 普通回归或固定效应后直接使用导致、证明因果关系等强因果表述
+  - 未使用明确因果识别设计却宣称因果效应
+  evidence_requirement: 必须引用含有强因果词的原文句子。⚠️本规则严格限定只覆盖强因果表述（导致、证明因果等）。非因果类的语言夸大（如'很高的准确率'、'准确率达99%'）归MM-GEN-005（正文结论超出表格结果支持）处理。模型评价标准必须对齐：参数模型→p值/CI；非参数模型→CV/AUC；估值模型→偏差率/敏感性分析。不得要求非参数模型（SVM/随机森林）报告p值。
+  suggestion_template: 建议将强因果表述调整为更稳妥的影响关系或相关关系表述；如需使用因果表述，应补充识别策略和局限性说明。
+- rule_id: MM-GEN-004
+  group_id: model_general_empirical_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 回归表基本信息不完整
+  default_level: 黄色：建议补充
+  applies_when:
+  - has_regression_table = true
+  inspect_locations:
+  - 基准回归表
+  - 稳健性检验表
+  - 回归结果表
+  trigger_signals:
+  - 缺少样本量 N
+  - 缺少 R² 或伪 R²
+  - 未说明括号内是标准误、t 值还是 p 值
+  - 未说明显著性星号含义
+  evidence_requirement: 必须定位到具体回归表。
+  suggestion_template: 建议在回归表中补充样本量、拟合指标、固定效应说明、标准误说明和显著性星号注释。
+- rule_id: MM-GEN-005
+  group_id: model_general_empirical_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 正文结论超出表格结果支持
+  default_level: 红色：必改问题
+  applies_when:
+  - uses_empirical_model = true
+  inspect_locations:
+  - 回归结果分析
+  - 机制分析
+  - 异质性分析
+  - 结论
+  trigger_signals:
+  - 正文声称显著但表格中不显著
+  - 正文解释方向与表格系数方向不一致
+  - 结论提出表格未检验的判断
+  - 非因果类语言夸大（如小样本未做交叉验证就声称很高准确率、估值偏差率表述为'准确率'）
+  evidence_requirement: 必须同时引用正文表述和对应表格信息。对于估值类论文，需核实'准确率'是否为'1-偏差率'的非正式用法，以及该'准确率'是否基于充足样本或仅基于1个案例。
+    ⚠️"显著提升"可能指"统计上显著"而非"效果巨大"。若缺乏显著性检验（如DeLong检验）无法判断差异是否统计显著，应降为黄色"建议补充显著性检验或调整表述为略有提升"，而非直接判红色。只有当差异方向反转（声称更好但实际更差）时才维持红色。
+  suggestion_template: 建议逐项核对正文解释与表格结果，确保系数方向、显著性和结论范围与实证结果一致。估值类论文应使用'偏差率'而非'准确率'术语。
+- rule_id: MM-OLS-001
+  group_id: model_ols_rules
+  domain: 方法模型与实证结果质检
+  issue_type: OLS 使用前提或稳健标准误说明不足
+  default_level: 黄色：建议补充
+  applies_when:
+  - detected_methods contains OLS or 多元线性回归
+  inspect_locations:
+  - 模型设定
+  - 回归结果
+  - 稳健性检验
+  trigger_signals:
+  - 使用 OLS 但未说明标准误处理
+  - 未讨论异方差、异常值或稳健性
+  evidence_requirement: 必须确认论文实际使用 OLS 或多元线性回归。
+  suggestion_template: 建议补充标准误处理、异常值处理或稳健性说明。
+- rule_id: MM-OLS-002
+  group_id: model_ols_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 多重共线性说明不足
+  default_level: 黄色：建议补充
+  applies_when:
+  - detected_methods contains OLS or 多元线性回归
+  inspect_locations:
+  - 相关性分析
+  - VIF 检验
+  - 实证结果
+  trigger_signals:
+  - 多个解释变量和控制变量但未呈现相关性分析或 VIF 检验
+  evidence_requirement: 必须确认论文使用多元回归，且未检测到相关性或 VIF 说明。
+  suggestion_template: 建议补充相关性分析或 VIF 检验，并简要说明是否存在严重多重共线性。
+- rule_id: MM-PANEL-001
+  group_id: model_panel_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 面板数据固定效应说明不足
+  default_level: 黄色：建议补充
+  applies_when:
+  - data_type = 面板数据
+  inspect_locations:
+  - 模型设定
+  - 基准回归
+  - 回归表注释
+  trigger_signals:
+  - 使用面板数据但未说明个体固定效应或时间固定效应
+  - 模型方程中没有 i、t 下标或固定效应项
+  evidence_requirement: 必须确认论文数据为面板数据。
+  suggestion_template: 建议在模型设定和回归表中明确是否控制个体固定效应、时间固定效应或双向固定效应。
+- rule_id: MM-PANEL-002
+  group_id: model_panel_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 固定效应与随机效应选择依据不足
+  default_level: 黄色：建议补充
+  applies_when:
+  - detected_methods contains 固定效应模型 or 随机效应模型 or 面板模型
+  inspect_locations:
+  - 模型选择
+  - Hausman 检验
+  - 基准回归
+  trigger_signals:
+  - 直接使用固定效应或随机效应但未说明选择依据
+  - 未提及 Hausman 检验或理论依据
+  evidence_requirement: 必须确认论文使用面板模型。
+  suggestion_template: 建议补充固定效应或随机效应选择依据，可结合 Hausman 检验结果或研究对象特征进行说明。
+- rule_id: MM-PANEL-003
+  group_id: model_panel_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 聚类稳健标准误说明不足
+  default_level: 绿色：优化提升
+  applies_when:
+  - data_type = 面板数据
+  inspect_locations:
+  - 模型设定
+  - 回归表注释
+  - 稳健性检验
+  trigger_signals:
+  - 面板回归表未说明标准误是否聚类
+  - 未说明标准误处理方式
+  evidence_requirement: 必须确认论文使用面板回归。
+  suggestion_template: 建议在回归表注释中说明标准误处理方式；如采用聚类稳健标准误，应说明聚类层级。
+- rule_id: MM-LP-001
+  group_id: model_logit_probit_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 二元因变量模型选择说明不足
+  default_level: 黄色：建议补充
+  applies_when:
+  - detected_methods contains Logit or Probit or 二元选择模型
+  inspect_locations:
+  - 变量定义
+  - 模型设定
+  - 回归结果
+  trigger_signals:
+  - 使用 Logit 或 Probit 但未说明因变量 0/1 含义
+  - 二元因变量模型选择理由不足
+  evidence_requirement: 必须确认论文使用 Logit/Probit 或二元因变量模型。
+  suggestion_template: 建议说明因变量 0/1 的含义、模型选择理由，并在结果解释中避免直接按线性回归系数解释。
+- rule_id: MM-LP-002
+  group_id: model_logit_probit_rules
+  domain: 方法模型与实证结果质检
+  issue_type: Logit/Probit 系数解释不规范
+  default_level: 黄色：建议补充
+  applies_when:
+  - detected_methods contains Logit or Probit
+  inspect_locations:
+  - 回归结果分析
+  - 边际效应
+  trigger_signals:
+  - 直接将 Logit/Probit 系数解释为概率变化
+  - 未报告或未说明边际效应
+  evidence_requirement: 必须引用结果解释中的具体表述。
+  suggestion_template: 建议区分系数方向和概率变化，若解释影响大小，建议报告并解释边际效应。
+- rule_id: MM-MED-001
+  group_id: model_mediation_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 中介机制理论链条说明不足
+  default_level: 黄色：建议补充
+  applies_when:
+  - detected_methods contains 中介效应 or 机制检验 or 传导机制
+  inspect_locations:
+  - 理论分析
+  - 机制分析
+  - 中介效应检验
+  trigger_signals:
+  - 直接做中介回归但未说明 X 如何影响 M、M 如何影响 Y
+  - 中介变量选择缺少理论依据
+  evidence_requirement: 必须确认论文使用中介效应或机制检验。
+  suggestion_template: 建议补充核心解释变量—中介变量—被解释变量的传导逻辑，并说明中介变量选择依据。
+- rule_id: MM-MED-002
+  group_id: model_mediation_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 中介效应结果解释不完整
+  default_level: 黄色：建议补充
+  applies_when:
+  - detected_methods contains 中介效应 or 机制检验
+  inspect_locations:
+  - 中介效应表
+  - 机制检验结果
+  trigger_signals:
+  - 只报告中介变量回归结果，未解释间接效应
+  - 未说明中介路径是否成立
+  evidence_requirement: 必须引用中介效应表或机制检验段落。
+  suggestion_template: 建议围绕 X 对 M、M 对 Y、X 对 Y 的结果关系解释中介路径，并避免超出表格结果。
+- rule_id: MM-MOD-001
+  group_id: model_moderation_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 调节效应交互项解释不足
+  default_level: 黄色：建议补充
+  applies_when:
+  - detected_methods contains 调节效应 or 交互项
+  inspect_locations:
+  - 模型设定
+  - 调节效应结果
+  trigger_signals:
+  - 模型加入交互项但未解释交互项含义
+  - 只解释主效应不解释调节方向
+  evidence_requirement: 必须确认论文包含交互项或调节效应模型。
+  suggestion_template: 建议解释交互项代表的调节关系，并结合系数方向说明调节变量如何改变核心关系。
+- rule_id: MM-DID-001
+  group_id: model_did_rules
+  domain: 方法模型与实证结果质检
+  issue_type: DID 处理组、对照组和政策时点说明不足
+  default_level: 红色：必改问题
+  applies_when:
+  - detected_methods contains DID or 双重差分 or 准自然实验
+  inspect_locations:
+  - 政策背景
+  - 模型设定
+  - 变量定义
+  trigger_signals:
+  - 使用 DID 但未清楚定义处理组和对照组
+  - 未说明政策发生时间或 post 变量定义
+  evidence_requirement: 必须确认论文实际使用 DID 或双重差分。
+  suggestion_template: 建议补充处理组、对照组、政策时点、post 变量、treat 变量和 DID 交互项构造说明。
+- rule_id: MM-DID-002
+  group_id: model_did_rules
+  domain: 方法模型与实证结果质检
+  issue_type: DID 平行趋势说明不足
+  default_level: 黄色：建议补充
+  applies_when:
+  - detected_methods contains DID or 双重差分
+  inspect_locations:
+  - 平行趋势检验
+  - 稳健性检验
+  - 模型设定
+  trigger_signals:
+  - 使用 DID 但未检测到平行趋势检验或相关说明
+  - 仅声称满足平行趋势但未展示图表或回归检验
+  evidence_requirement: 必须确认论文实际使用 DID。
+  suggestion_template: 建议补充平行趋势检验图或事件研究回归，并说明政策实施前处理组和对照组趋势是否接近。
+- rule_id: MM-IV-001
+  group_id: model_iv_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 工具变量选择依据说明不足
+  default_level: 黄色：建议补充
+  applies_when:
+  - detected_methods contains IV or 工具变量 or 2SLS or 两阶段最小二乘
+  inspect_locations:
+  - 内生性处理
+  - 工具变量
+  - 两阶段最小二乘
+  trigger_signals:
+  - 使用工具变量但未说明相关性和外生性理由
+  - 未报告第一阶段回归
+  - 未讨论弱工具变量风险
+  evidence_requirement: 必须确认论文实际使用 IV 或 2SLS。
+  suggestion_template: 建议补充工具变量与内生变量相关、但不直接影响被解释变量的理由，并报告第一阶段回归或弱工具变量检验。
+- rule_id: MM-Q-001
+  group_id: model_questionnaire_scale_rules
+  domain: 数据、变量与口径质检 / 方法模型与实证结果质检
+  issue_type: 问卷设计与样本回收说明不足
+  default_level: 黄色：建议补充
+  applies_when:
+  - paper_type = 问卷调查论文
+  inspect_locations:
+  - 问卷设计
+  - 问卷发放
+  - 样本描述
+  trigger_signals:
+  - 未说明问卷来源、发放方式、回收数量和有效问卷数量
+  - 自编量表未说明题项来源或设计依据
+  evidence_requirement: 必须确认论文为自编问卷或问卷调查论文。
+  suggestion_template: 建议补充问卷题项来源、发放渠道、发放数量、回收数量、有效问卷数量和样本基本特征。
+- rule_id: MM-Q-002
+  group_id: model_questionnaire_scale_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 信度效度检验说明不足
+  default_level: 黄色：建议补充
+  applies_when:
+  - paper_type = 问卷调查论文
+  inspect_locations:
+  - 信度分析
+  - 效度分析
+  - 因子分析
+  trigger_signals:
+  - 使用自编量表或多题项量表但未呈现信度或效度检验
+  - 提到 KMO、Bartlett 或 Cronbach 但未解释结果含义
+  evidence_requirement: 必须确认论文使用自编问卷或量表；不得对 CHFS、CFPS、CGSS 自动触发。
+  suggestion_template: 建议补充 Cronbach's α、KMO、Bartlett 检验或因子分析结果，并说明量表可靠性和结构效度。
+- rule_id: MM-ENT-001
+  group_id: model_entropy_index_rules
+  domain: 数据、变量与口径质检 / 方法模型与实证结果质检
+  issue_type: 熵值法指标体系与权重计算说明不足
+  default_level: 红色：必改问题
+  applies_when:
+  - detected_methods contains 熵值法 or 熵权法 or 综合评价指数 or 指标体系
+  inspect_locations:
+  - 指标体系
+  - 熵值法
+  - 综合指数构建
+  - 变量定义
+  trigger_signals:
+  - 使用熵值法但未说明正向指标和负向指标
+  - 未说明标准化
+  - 未说明权重计算
+  - 未展示综合得分计算过程
+  evidence_requirement: 必须确认论文实际使用熵值法、熵权法或综合评价指数。
+  suggestion_template: 建议补充指标体系表，说明各指标含义、来源、正负向属性、标准化方法、权重计算公式和综合得分计算方式。
+- rule_id: MM-CASE-001
+  group_id: model_case_analysis_rules
+  domain: 数据、变量与口径质检 / 结构表达与学术规范质检
+  issue_type: 案例分析停留在事实描述
+  default_level: 黄色：建议补充
+  applies_when:
+  - paper_type = 案例分析论文
+  inspect_locations:
+  - 案例背景
+  - 案例分析
+  - 案例启示
+  - 结论建议
+  trigger_signals:
+  - 大量描述企业或事件事实但缺少原因分析、机制分析或管理启示
+  - 案例部分只有时间线没有分析框架
+  evidence_requirement: 必须确认论文为案例分析论文，并引用案例分析段落。
+  suggestion_template: 建议围绕案例事实、原因分析、影响结果、管理启示的逻辑重构案例分析部分，避免只罗列事实。
+- rule_id: MM-VAL-001
+  group_id: model_valuation_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 估值模型核心假设缺少依据或敏感性分析
+  default_level: 黄色：建议补充
+  applies_when:
+  - detected_methods contains 收益法 or 成本法 or 市场法 or 估值模型 or DRIC or DCF
+  inspect_locations:
+  - 评估假设
+  - 参数设定
+  - 敏感性分析
+  - 结论
+  trigger_signals:
+  - 估值模型核心假设（如增长率、折现率、比例系数）缺少行业数据支撑
+  - 未对核心假设做敏感性分析
+  - 增长率或渗透率假设过高但无依据（如465%增长率）
+  evidence_requirement: 必须确认论文使用估值模型，并引用核心假设与结论段落。需指出哪些假设缺少依据，以及缺少敏感性分析。
+  suggestion_template: 建议对核心假设（反馈比例、社区价值占比、市场占有率、增长率等）做敏感性分析，展示不同假设下的评估值范围。核心假设需补充行业数据来源。
+- rule_id: MM-VAL-002
+  group_id: model_valuation_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 估值模型维度存在概念重叠
+  default_level: 黄色：建议补充
+  applies_when:
+  - detected_methods contains 多维度估值模型 or DRIC or 综合评估框架
+  inspect_locations:
+  - 模型设定
+  - 维度定义
+  - 计算公式
+  trigger_signals:
+  - 估值模型多个维度采用相同计算公式
+  - 某维度本身就是其他维度的子集（如空投是权利的一种表现形式）
+  - 维度间边界划分依据未说明
+  - 维度并列计算可能导致重复估值
+  evidence_requirement: 必须确认论文使用多维度估值模型，并引用维度定义与计算公式。需指出哪些维度存在概念重叠，以及重复估值的可能性。
+  suggestion_template: 建议明确各维度边界定义，说明为何将重叠维度独立并列计算，以及如何避免重复估值。或将重叠维度纳入上级维度子维度。
+- rule_id: MM-GEN-006
+  group_id: model_general_empirical_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 方法选择与因变量类型不匹配
+  default_level: 黄色：建议补充
+  applies_when:
+  - uses_empirical_model = true
+  inspect_locations:
+  - 变量定义
+  - 模型设定
+  - 摘要
+  - 正文方法描述
+  trigger_signals:
+  - 因变量为0/1二分类但基准模型称"线性回归"
+  - 因变量为连续值但使用Logit/Probit
+  - 模型名称与因变量类型不匹配
+  - 方法选择错误导致结论可信度受损
+  evidence_requirement: 必须同时引用因变量定义和模型名称。需区分：(1)仅术语不一致（同一种模型被误称）→DV-CONSIST-001黄色；(2)方法选择与因变量类型不匹配→本规则黄色。两者需分别判断。
+  suggestion_template: 建议统一模型术语，确保方法与因变量类型匹配。如因变量为0/1二分类，应使用Logistic Regression而非Linear
+    Regression。
+- rule_id: MM-GBM-001
+  group_id: model_general_empirical_rules
+  domain: 方法模型与实证结果质检
+  issue_type: 缺少树模型特征重要性分析
+  default_level: 黄色：建议补充
+  applies_when:
+  - detected_methods contains Gradient Boosting or Random Forest or XGBoost or LightGBM
+    or 决策树 or 树模型
+  inspect_locations:
+  - 模型结果
+  - 实证分析
+  - 结论
+  trigger_signals:
+  - 使用GBM/随机森林等树模型但未报告特征重要性
+  - 模型结果仅有AUC/准确率但无变量贡献度排序
+  - 理论框架（如5C1S）与模型结果之间缺少特征重要性桥梁
+  evidence_requirement: 必须确认论文使用树模型（GBM/RF/XGBoost等），且模型结果未包含特征重要性。需指出特征重要性缺失导致无法回扣理论框架或文献综述中讨论的评分要素。
+  suggestion_template: 建议在模型结果章节增加特征重要性图表或表格，展示各变量对预测的贡献度排序，并与理论框架对应讨论。
+false_detection_exclusion_v2:
+  description: 迭代v2误检排除记录，2026-07-15。
+  exclusions:
+  - description: 参考文献编号不连续
+    reason: 编号连续性不在SN-REF-001检查范围内。SN-REF-001检查正文引用与参考文献双向对应及文献类型标识匹配。
+    action: 禁止触发编号连续性检查。
+  - description: 要求SVM模型报告p值
+    reason: SVM是非参数分类模型，不存在回归系数与p值概念。批评语言强度超证据时，论据应为'小样本未做交叉验证就声称很高准确率'，而非'未报告p值'。
+    action: 禁止对非参数模型要求p值。评估标准必须与模型类型对齐。
 model_rule_trigger_guard:
   requirements:
-    - "必须先读取 paper_profile.method_profile.detected_methods。"
-    - "必须结合章节标题、模型公式、表格标题和正文方法表述综合判断。"
-    - "不得仅凭关键词误触发模型规则。"
-    - "未检测到某模型时，应进入 not_applicable_items，而不是生成问题。"
+  - 必须先读取 paper_profile.method_profile.detected_methods。
+  - 必须结合章节标题、模型公式、表格标题和正文方法表述综合判断。
+  - 不得仅凭关键词误触发模型规则。
+  - 未检测到某模型时，应进入 not_applicable_items，而不是生成问题。
   insufficient_trigger_examples:
-    - "正文仅出现政策影响，不足以触发 DID。"
-    - "正文仅出现内生性问题，不足以触发 IV。"
-    - "正文仅出现机制分析，不足以触发中介效应模型。"
-    - "正文仅出现调查数据，不足以触发自编问卷信度效度规则。"
-
+  - 正文仅出现政策影响，不足以触发 DID。
+  - 正文仅出现内生性问题，不足以触发 IV。
+  - 正文仅出现机制分析，不足以触发中介效应模型。
+  - 正文仅出现调查数据，不足以触发自编问卷信度效度规则。
 model_rule_evaluation_order:
-  - "确认是否为实证论文。"
-  - "执行通用实证规则。"
-  - "识别具体模型。"
-  - "执行具体模型规则。"
-  - "生成不适用项。"
-  - "生成需人工确认项。"
-  - "合并同类模型问题。"
-
+- 确认是否为实证论文。
+- 执行通用实证规则。
+- 识别具体模型。
+- 执行具体模型规则。
+- 生成不适用项。
+- 生成需人工确认项。
+- 合并同类模型问题。
 model_not_applicable_policy:
-  - scenario: "未检测到 DID、双重差分、处理组、对照组或政策时点"
-    output_status: "不适用"
-    reason: "当前论文未使用 DID，因此不触发 DID 平行趋势、处理组对照组和政策时点规则。"
-  - scenario: "未检测到 IV、工具变量、2SLS 或两阶段最小二乘"
-    output_status: "不适用"
-    reason: "当前论文未使用工具变量方法，因此不触发 IV/2SLS 规则。"
-  - scenario: "论文为案例分析论文，未检测到实证模型"
-    output_status: "不适用"
-    reason: "当前论文属于案例分析论文，不强制触发回归模型、稳健性检验和内生性检验规则。"
-  - scenario: "论文使用 CHFS、CFPS、CGSS、CHARLS 等调查数据库"
-    output_status: "不适用"
-    reason: "当前论文使用公开调查数据库，不自动触发自编问卷信度效度规则。"
-
+- scenario: 未检测到 DID、双重差分、处理组、对照组或政策时点
+  output_status: 不适用
+  reason: 当前论文未使用 DID，因此不触发 DID 平行趋势、处理组对照组和政策时点规则。
+- scenario: 未检测到 IV、工具变量、2SLS 或两阶段最小二乘
+  output_status: 不适用
+  reason: 当前论文未使用工具变量方法，因此不触发 IV/2SLS 规则。
+- scenario: 论文为案例分析论文，未检测到实证模型
+  output_status: 不适用
+  reason: 当前论文属于案例分析论文，不强制触发回归模型、稳健性检验和内生性检验规则。
+- scenario: 论文使用 CHFS、CFPS、CGSS、CHARLS 等调查数据库
+  output_status: 不适用
+  reason: 当前论文使用公开调查数据库，不自动触发自编问卷信度效度规则。
 model_level_adjustment_policy:
   upgrade_to_red:
-    - "方法与数据类型明显不匹配，并影响核心结论可信度。"
-    - "正文结论与回归表结果明显冲突。"
-    - "普通相关或回归结果被表述为强因果结论，且论文未提供因果识别设计。"
-    - "熵值法核心步骤缺失导致综合指数不可复核。"
+  - 方法与数据类型明显不匹配，并影响核心结论可信度。
+  - 正文结论与回归表结果明显冲突。
+  - 普通相关或回归结果被表述为强因果结论，且论文未提供因果识别设计。
+  - 熵值法核心步骤缺失导致综合指数不可复核。
   keep_yellow:
-    - "论文已有相关模型或检验，但说明不完整。"
+  - 论文已有相关模型或检验，但说明不完整。
+  - 估值模型核心假设缺少依据，但尚不影响核心结论方向（MM-VAL-001）。
+  - 估值模型维度存在概念重叠，需说明边界但非致命缺陷（MM-VAL-002）。
   downgrade_to_green:
-    - "问题属于优化表达、增强解释或提升规范性。"
+  - 问题属于优化表达、增强解释或提升规范性。
   move_to_manual_confirmation:
-    - "回归表为图片或无法解析。"
-    - "模型公式为图片或复杂嵌入对象。"
-    - "是否需要某高级模型属于导师判断范围。"
-
+  - 回归表为图片或无法解析。
+  - 模型公式为图片或复杂嵌入对象。
+  - 是否需要某高级模型属于导师判断范围。
 model_conflict_resolution_policy:
-  - conflict: "论文写机制分析但未设置中介变量和中介模型"
-    resolution: "不触发中介效应规则；改由文献理论链条规则或通用机制解释规则处理。"
-  - conflict: "论文写政策影响但未设置处理组、对照组和政策时点"
-    resolution: "不触发 DID 规则；可在需人工确认中提示是否存在政策评估方法需要人工复核。"
-  - conflict: "论文写内生性但未出现工具变量、2SLS 或第一阶段"
-    resolution: "不触发 IV 规则；可触发通用实证中的内生性讨论不足。"
-  - conflict: "论文使用调查数据库但不是自编问卷"
-    resolution: "触发调查数据来源和变量代理构造规则，不触发问卷信度效度规则。"
-
+- conflict: 论文写机制分析但未设置中介变量和中介模型
+  resolution: 不触发中介效应规则；改由文献理论链条规则或通用机制解释规则处理。
+- conflict: 论文写政策影响但未设置处理组、对照组和政策时点
+  resolution: 不触发 DID 规则；可在需人工确认中提示是否存在政策评估方法需要人工复核。
+- conflict: 论文写内生性但未出现工具变量、2SLS 或第一阶段
+  resolution: 不触发 IV 规则；可触发通用实证中的内生性讨论不足。
+- conflict: 论文使用调查数据库但不是自编问卷
+  resolution: 触发调查数据来源和变量代理构造规则，不触发问卷信度效度规则。
 model_pass_item_generation_policy:
   sources:
-    - "论文已呈现模型设定部分。"
-    - "论文已说明被解释变量、解释变量和控制变量。"
-    - "论文已呈现基准回归结果。"
-    - "论文已说明固定效应设置。"
-    - "论文已说明综合指数构建过程。"
+  - 论文已呈现模型设定部分。
+  - 论文已说明被解释变量、解释变量和控制变量。
+  - 论文已呈现基准回归结果。
+  - 论文已说明固定效应设置。
+  - 论文已说明综合指数构建过程。
   wording:
-    - "已呈现"
-    - "已识别"
-    - "基本具备"
-    - "未发现明显问题"
-
+  - 已呈现
+  - 已识别
+  - 基本具备
+  - 未发现明显问题
 model_issue_quality_gate:
-  - "是否已经确认论文实际使用对应模型。"
-  - "是否有模型公式、表格、章节标题或正文表述作为证据。"
-  - "是否避免把未使用高级模型写成问题。"
-  - "是否避免用硕博盲审标准压本科论文。"
-  - "是否有具体 location。"
-  - "是否有可执行 suggestion。"
-  - "是否需要人工确认而不是直接判错。"
-  - "是否能映射到最终 DOCX 报告。"
+- 是否已经确认论文实际使用对应模型。
+- 是否有模型公式、表格、章节标题或正文表述作为证据。
+- 是否避免把未使用高级模型写成问题。
+- 是否避免用硕博盲审标准压本科论文。
+- 是否有具体 location。
+- 是否有可执行 suggestion。
+- 是否需要人工确认而不是直接判错。
+- 是否能映射到最终 DOCX 报告。
+- 模型评价标准是否与所用模型类型对齐。
+judgment_logic_corrections_v4:
+  description: 迭代v4模型规则修正记录（陈煜城论文反馈），2026-07-15。
+  new_rules_added:
+  - rule_id: MM-GEN-006
+    description: 方法选择与因变量类型不匹配
+    level: 黄色
+  - rule_id: MM-GBM-001
+    description: 缺少树模型特征重要性分析
+    level: 黄色
+  rule_branch_improvements:
+  - rule_id: MM-GEN-002
+    improvement: 增加"模型结果完整性检查"
+    logic: 树模型应报告特征重要性。缺失特征重要性另归MM-GBM-001处理
+  - rule_id: MM-GEN-005
+    improvement: 增加"显著性不确定时的降级规则"
+    logic: '"显著提升"若可能指统计显著而非效果巨大，且缺乏DeLong检验无法判断→降为黄色'
